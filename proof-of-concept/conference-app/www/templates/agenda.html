@@ -1,0 +1,9 @@
+<ion-view view-title="Agenda">
+  <ion-content>
+    <ion-list>
+      <ion-item ng-repeat="talk in agenda" href="#/app/agenda/{{talk.nr}}">
+        {{talk.title}}
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-view>
