@@ -6,4 +6,4 @@ before_script:
   - npm install -g gulp
   - cd proof-of-concept/conference-app/
   - npm install
-script: gulp
+script: gulp build
