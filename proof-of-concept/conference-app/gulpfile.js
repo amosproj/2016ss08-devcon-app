@@ -6,6 +6,9 @@ var sass = require('gulp-sass');
 var minifyCss = require('gulp-minify-css');
 var rename = require('gulp-rename');
 var sh = require('shelljs');
+var uglify = require("gulp-uglify");
+var cordova = require("cordova-lib").cordova;
+
 
 var paths = {
   sass: ['./scss/**/*.scss']
@@ -48,4 +51,20 @@ gulp.task('git-check', function(done) {
     process.exit(1);
   }
   done();
+});
+
+gulp.task("combine-and-uglify", function () {
+  return gulp.src('www/scripts/*.js')
+    .pipe(concat('combined.js'))
+    .pipe(uglify())
+    .pipe(gulp.dest('min/scripts'));
+});
+
+gulp.task("build", function (callback) {
+  cordova.build({
+    "platforms": ["android"],
+    "options": {
+      argv: ["--release","--gradleArg=--no-daemon"]
+    }
+  }, callback);
 });
