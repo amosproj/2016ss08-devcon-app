@@ -1,9 +1,10 @@
 #!/bin/bash
 set -ue
 # This script is always executed in the **root** of your repository
-gulp build
+sudo gulp build
 echo
 echo "Copying final artifact to docker assets directory"
 sudo rm -rf /docker/assets/android-debug.apk
 sudo mkdir -p /docker/assets
+ls
 sudo cp -v /platforms/android/build/outputs/apk/android-debug.apk /docker/assets/android-debug.apk
