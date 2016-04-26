@@ -26,3 +26,4 @@ after_success:
  - docker pull hannesd/amos-downloader-image:1.0
  - docker build -t clemenshuebner/amos-ss16-proj8:1.0 docker/
  - docker push clemenshuebner/amos-ss16-proj8:1.0
+ - echo "Finished deployment to Docker"
