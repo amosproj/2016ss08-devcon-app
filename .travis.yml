@@ -9,6 +9,6 @@ before_script:
   - npm install -g gulp
   - cd proof-of-concept/conference-app/
   - chmod +x hooks/after_prepare/010_add_platform_class.js
-  - cordova platform add android
-  - npm install
+  - cordova platform add android --save
+  - npm install --save
 script: gulp build
