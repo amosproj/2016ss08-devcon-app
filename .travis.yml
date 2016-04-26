@@ -1,6 +1,8 @@
-language: node_js
-node_js:
- - "4.4.3"
+language: android
+android:
+  components:
+    - build-tools-18.1.1
+    - android-18
 
 before_script:
   - npm install -g cordova ionic
