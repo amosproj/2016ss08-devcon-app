@@ -3,7 +3,9 @@ node_js:
  - "4.4.3"
 
 before_script:
+  - npm install -g cordova ionic
   - npm install -g gulp
   - cd proof-of-concept/conference-app/
+  - cordova platform add android
   - npm install
 script: gulp build
