@@ -5,7 +5,10 @@ services:
 
 env:
   - TRAVIS_CI_BUILD=true
-
+  
+before_script:
+  - chmod +x docker/build
+  
 script:
   # Build .apk file and build docker image (inside docker container)
   - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD kallikrein/android-cordova proof-of-concept/conference-app/docker/build
