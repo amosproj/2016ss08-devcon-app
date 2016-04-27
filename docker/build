@@ -34,5 +34,5 @@ cp -v ./build/outputs/apk/*-debug.apk ./docker/assets/demo-app-debug.apk
 if [ "${TRAVIS_CI_BUILD:-false}" != true ]; then
   # Build docker image
   # --pull: Make sure that the newest version of the base image is always pulled
-  docker build --pull -t osrgroup/android-app-example-project:1.0 docker/
+  docker build --pull -t clemenshuebner/amos-ss16-proj8:1.0 docker/
 fi
