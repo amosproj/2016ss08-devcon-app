@@ -1,4 +1,3 @@
-
 sudo: required
 
 services:
@@ -7,17 +6,12 @@ services:
 env:
   - TRAVIS_CI_BUILD=true
 
-before_script:
-  - chmod +x docker/build
-
 script:
   # Build .apk file and build docker image (inside docker container)
-  - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD osrgroup/amos-android-build-image:1.0 docker/build
+  - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD kallikrein/android-cordova proof-of-concept/conference-app/docker/build
 
-  # Build docker image
-  # --pull: Make sure that the newest version of the base image is always pulled
-  - docker build --pull -t clemenshuebner/amos-ss16-proj8:1.0 docker/
-
-  # Log in to Docker Hub and push the image we've just build
+  # Build docker image based on amos-downloader-image and push it  
   - docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+  - docker pull hannesd/amos-downloader-image:1.0
+  - docker build -t clemenshuebner/amos-ss16-proj8:1.0 docker/
   - docker push clemenshuebner/amos-ss16-proj8:1.0
