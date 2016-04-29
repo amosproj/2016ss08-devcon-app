@@ -1,0 +1,15 @@
+#!/bin/bash
+set -ue
+# This script is always executed in the **root** of your repository
+cd MyConference/
+chmod +x hooks/after_prepare/010_add_platform_class.js
+npm install -g gulp
+npm install 
+gulp build
+echo
+echo "Copying final artifact to docker assets directory"
+sudo rm -rf docker/assets/android-debug.apk
+sudo mkdir -p docker/assets
+sudo cp -v platforms/android/build/outputs/apk/android-release-unsigned.apk docker/assets/android-debug.apk
+cd docker/assets
+ls
