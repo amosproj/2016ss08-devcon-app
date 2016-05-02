@@ -7,6 +7,7 @@ cordova platform add android
 npm install -g gulp
 npm install 
 android list targets
+cat platforms/android/AndroidManifest.xml
 gulp build
 echo
 echo "Copying final artifact to docker assets directory"
