@@ -11,7 +11,7 @@ before_script:
   
 script:
   # Build .apk file and build docker image (inside docker container)
-  - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD kallikrein/android-cordova MyConference/docker/build
+  - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build MyConference/docker/build
 
   # Build docker image based on amos-downloader-image and push it  
   - cd MyConference/
