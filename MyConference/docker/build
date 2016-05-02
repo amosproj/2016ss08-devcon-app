@@ -3,7 +3,7 @@ set -ue
 # This script is always executed in the **root** of your repository
 cd MyConference/
 chmod +x hooks/after_prepare/010_add_platform_class.js
-cordova platform add android@3.7.1
+cordova platform add android@4.4.2
 npm install -g gulp
 npm install 
 gulp build
