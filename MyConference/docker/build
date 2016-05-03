@@ -11,6 +11,7 @@ echo
 echo "Copying final artifact to docker assets directory"
 sudo rm -rf docker/assets/android-debug.apk
 sudo mkdir -p docker/assets
+ls platforms/android/build/outputs/apk/
 sudo cp -v platforms/android/build/outputs/apk/android-debug-unsigned.apk docker/assets/android-debug.apk
 cd docker/assets
 ls
