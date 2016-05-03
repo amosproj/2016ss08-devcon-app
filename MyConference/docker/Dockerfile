@@ -1,4 +1,5 @@
-FROM osrgroup/amos-downloader-base-image:1.0
+FROM clemenshuebner/amos-ss16-proj8-ionic-build:1.0
 
-ENV HTML_INDEX_FILE android-debug.apk
-ADD assets/$HTML_INDEX_FILE /var/www/html/$HTML_INDEX_FILE
+WORKDIR myConference
+EXPOSE 3000
+CMD ["phonegap", "serve"]
