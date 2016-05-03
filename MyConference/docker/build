@@ -6,7 +6,7 @@ chmod +x hooks/after_prepare/010_add_platform_class.js
 ionic platform add android
 npm install -g gulp
 npm install 
-gulp build
+cordova build android
 ls platforms/android/
 echo
 echo "Copying final artifact to docker assets directory"
