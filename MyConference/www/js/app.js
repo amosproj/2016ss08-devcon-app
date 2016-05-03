@@ -25,6 +25,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
 .config(function($stateProvider, $urlRouterProvider) {
   $stateProvider
 
+
     .state('app', {
     url: '/app',
     abstract: true,
@@ -55,6 +56,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         'menuContent': {
           templateUrl: 'templates/main.html',
           controller: 'MainCtrl'
+        }
+      }
+    })
+
+    .state('app.event', {
+      url: '/event',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/event.html',
         }
       }
     })
