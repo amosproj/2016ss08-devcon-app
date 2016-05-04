@@ -1,70 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    #header {
-      background-color:dodgerblue;
-      color:white;
-      text-align:center;
-      font-size: 14px;
-      padding: 5px;
-      width: 98%;
-    }
-    #section {
-      float:left;
-      padding:10px;
-      width: 98%;
-    }
-    #sectionHeader {
-      background-color:lightgreen;
-      color: white;
-      float:left;
-      font-size: 12px;
-      padding:5px;
-      width: 98%;
-    }
-    #sectionTimePlace {
-      background-color:forestgreen;
-      color: white;
-      float:left;
-      font-size: 14px;
-      padding:5px;
-      width: 98%;
-    }
-  </style>
-</head>
-<body>
-
-<div id="header">
-  <h1>Event Name</h1>
-</div>
-<p></p>
-
-<div id ="sectionTimePlace">
-  <a class="item item-icon-left">
-    <i class="icon ion-clock"></i>
-    : Tuesday, May 4 - 19:00 - 22:30
-  </a>
-</div>
-
-<div id ="sectionTimePlace">
-  <a class="item item-icon-left">
-    <i class="icon ion-map"></i>
-    : Lange Gasse 20
-  </a>
-</div>
-
-<div id ="sectionPlace">: </div>
-<div id ="sectionHeader">
-  <h2>Agenda</h2>
-</div>
-<div id="section">
-  <p>As a user I need a event view including name, date, time, place, agenda of the event,
-    to get all important information of the event. As a SD I have to setup a backend (store data, manage users, store events),
-    install it on the server and store some fake events in it. As a SD i have to clean up the repository
-    (remove the proof of concept app, keep the docker files) to have no useless files on the app any longer.
-    As a SD team member I have to creat the stucture based on blanked app with an empty menu</p>
-</div>
-
-</body>
-</html>
+<ion-view view-title="Event Name">
+  <ion-content>
+    <ion-list>
+      <div class="bar-stable"> </div>
+      <a class="item item-icon-left"><i class="icon ion-clock"></i> : Tuesday, May 4 - 19:00 - 22:30 </a>
+      <a class="item item-icon-left"> <i class="icon ion-map"></i>: Lange Gasse 20</a>
+      <a class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : AGENDA</a>
+    </ion-list>
+    <p>
+      The speech about how to protect open source projects from poisonous people was delivered on 29 May 2008 by Ben Collins-Sussman and Brian „Fitz“ Fitzpatrick. Both Ben and Fitz had been working together for almost 10 years in open source at that time. In the video, they shared their opinion based on their past experience running an open sorce community, particularly while working on Subversion project. A book by Karl Fogel titled Producing Open Source Software was also used as a reference.
+    </p>
+  </ion-content>
+</ion-view>
