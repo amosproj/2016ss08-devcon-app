@@ -50,7 +50,7 @@ angular.module('starter.controllers', ['services'])
 })
 
 
-.controller('CreateEventCtrl', function($scope, $state, $ionicPopup, backendService) {
+.controller('CreateEventCtrl', function($scope, $location, $ionicPopup, backendService) {
   $scope.createEvent = function (ev) {
     backendService.createEvent(ev);
     var alertPopup = $ionicPopup.alert({
@@ -58,7 +58,7 @@ angular.module('starter.controllers', ['services'])
       template: 'Event "'+ev.title+'" created.'
     });
     alertPopup.then(function (res) {
-      $state.go('app.main');
+      $location.path('#app/main');
     })
   }
 });

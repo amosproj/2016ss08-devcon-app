@@ -6,7 +6,7 @@ var services = angular.module('services', []);
 
 services.factory('backendService', function () {
 
-        BaasBox.setEndPoint("http://10.21.19.118:9000");
+        BaasBox.setEndPoint("http://localhost:9000"); //we will change it later to address of the chair server
         BaasBox.appcode = "1234567890";
         BaasBox.signup("admin", "admin")
           .done(function (res) {

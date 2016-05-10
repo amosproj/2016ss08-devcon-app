@@ -51,6 +51,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
       .state('app.main', {
+        cache: false,
         url: '/main',
         views: {
           'menuContent': {
