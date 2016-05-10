@@ -1,4 +1,4 @@
-angular.module('starter.controllers', [])
+angular.module('starter.controllers', ['services'])
 
 .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
 
@@ -41,9 +41,24 @@ angular.module('starter.controllers', [])
   };
 })
 
-.controller('MainCtrl', function($scope) {
-
+.controller('MainCtrl', function($scope, backendService) {
+  backendService.getEvents().then(function (res) {
+    $scope.events = res;
+  }, function (reason) {
+    console.log("Error detected because of "+reason);
+  })
 })
 
-.controller('MainCtrl', function($scope, $stateParams) {
+
+.controller('CreateEventCtrl', function($scope, $state, $ionicPopup, backendService) {
+  $scope.createEvent = function (ev) {
+    backendService.createEvent(ev);
+    var alertPopup = $ionicPopup.alert({
+      title: 'Done!',
+      template: 'Event "'+ev.title+'" created.'
+    });
+    alertPopup.then(function (res) {
+      $state.go('app.main');
+    })
+  }
 });

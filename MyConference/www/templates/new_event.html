@@ -1,0 +1,23 @@
+<ion-view view-title="Create event">
+  <ion-content>
+
+      <form ng-submit="createEvent(ev)">
+        <label class="item item-input">
+          <input type="text" placeholder="Title" ng-model="ev.title" required>
+          </label>
+        <label class="item item-input">
+          <input type="text" ng-model="ev.location" placeholder="Location">
+        </label>
+        <label class="item item-input">Date:
+          <input type="date" ng-model="ev.date">
+        </label>
+        <label class="item item-input">
+          <textarea rows="5" placeholder="Short description" ng-model="ev.description"></textarea>
+        </label>
+        <button type="submit" class="button button-block button-positive">Create Event</button>
+
+      </form>
+
+
+  </ion-content>
+</ion-view>

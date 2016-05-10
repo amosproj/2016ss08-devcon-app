@@ -1,28 +1,20 @@
 <ion-view view-title="Overview">
+
   <ion-content>
     <ion-list>
- <div class="bar-stable">
+      <br>
+      <br><br>
+      <i class="icon ion-chevron-right"> UPCOMING</i><br><br>
+  <ion-item ng-repeat="ev in events"><a href="about">{{ev.title}} ({{ev.date}})</a></ion-item>
 
-  <span style="position: absolute; top: 130 px; left:275px;">
-    <button class="button icon ion-android-add-circle  button-positive">  
-      
-  </span></button> 
-  </div><BR><BR>
-
-
-    <p>   
-	<i class="icon ion-chevron-right"> UPCOMING</i><br><br>
-  <ion-item><a ui-sref="about">08/2016 Devcon</a></ion-item>
-  <ion-item><a ui-sref="about">09/2016 Devcon</a></ion-item>
-  <ion-item><a ui-sref="about">10/2016 Devcon</a></ion-item>
-  <ion-item><a ui-sref="about">.....</a></ion-item><br><br>
 
    <i class="icon ion-chevron-right"> PREVIOUS</i><br><br>
   <ion-item><a ui-sref="about">07/2015 Devcon</a></ion-item>
   <ion-item><a ui-sref="about">06/2015 Devcon</a></ion-item>
   <ion-item><a ui-sref="about">.....</a></ion-item>
-  
-</p>
+
+
     </ion-list>
+
   </ion-content>
 </ion-view>
