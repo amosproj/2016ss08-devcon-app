@@ -1,0 +1,55 @@
+<ion-modal-view>
+  <form name="userForm" ng-submit="submitForm(userForm.$valid)" novalidate>
+    <ion-view title="Sign Up">
+      <ion-content>
+
+        <ion-list>
+
+          <label class="item item-input">
+            <span class="input-label fixed">Name</span>
+            <input type="text" name="first_name" ng-model="user.name" required>
+          </label>
+
+          <label class="item item-input">
+            <span class="input-label">Given Name</span>
+            <input type="text" name="given_name" ng-model="user.given_name" required>
+          </label>
+
+          <label class="item item-input">
+            <span class="input-label">Email</span>
+            <input type="email" name="email" class="form-control" ng-model="user.email" required>
+            <p ng-show="userForm.email.$invalid && !userForm.email.$pristine" class="help-block"> WRONG! Email form: name@domain.com </p>
+          </label>
+
+          <label class="item item-input">
+
+            <span class="input-label">Password</span>
+            <input type="password" name="pw1" id="pw1" ng-model="pw1" ng-minlength="6" ng-maxlength="20" ng-pattern="/(?=.*[a-z])(?=.*[0-9])/" required>
+            <p ng-show="userForm.pw1.$error.minlength && userForm.pw1.$error.pattern" class="help-block">need at least 6 characters </p>
+            <p ng-show="userForm.pw1.$error.minlength && !userForm.pw1.$error.pattern" class="help-block">need at least 6 characters </p>
+            <p ng-show="!userForm.pw1.$error.minlength && userForm.pw1.$error.pattern" class="help-block">need both characters & number</p>
+            <p ng-show="userForm.pw1.$error.maxlength" class="help-block">shorter than 20 characters</p>
+          </label>
+
+          <label class="item item-input">
+            <span class="input-label">Re-Enter Password</span>
+            <input type="password" name="pw2" id="pw2" ng-model="pw2" required>
+            <p ng-show="pw1 != pw2 && userForm.pw1.$dirty" class="help-block">Passwords do not match</p>
+          </label>
+
+
+        </ion-list>
+
+        <div class="padding">
+          <button type="submit" class="button button-block button-positive" ng-disabled="userForm.$invalid">
+            <span ng-show="!loading">Sign Up</span>
+            <i ng-show="loading" class="ion-loading-b"></i>
+          </button>
+        </div>
+
+
+      </ion-content>
+
+    </ion-view>
+  </form>
+</ion-modal-view>
