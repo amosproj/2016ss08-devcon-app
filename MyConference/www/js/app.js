@@ -73,6 +73,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       url: '/register',
       views: {
         'menuContent': {
+          controller: 'registerCtrl',
           templateUrl: 'templates/register.html',
         }
       }
@@ -83,37 +84,3 @@ angular.module('starter', ['ionic', 'starter.controllers'])
   $urlRouterProvider.otherwise('/app/main');
 });
 
-// app.js
-// create angular app
-var validationApp = angular.module('validationApp', []);
-
-// create angular controller
-validationApp.controller('mainController', function($scope) {
-
-  // function to submit the form after all validation has occurred
-  $scope.submitForm = function(isValid) {
-
-    // check to make sure the form is completely valid
-    if (isValid) {
-      //alert('our form is amazing');
-    }
-
-  };
-
-});
-
-angular.module('myApp.directives', [])
-  .directive('pwCheck', [function () {
-    return {
-      require: 'ngModel',
-      link: function (scope, elem, attrs, ctrl) {
-        var firstPassword = '#' + attrs.pwCheck;
-        elem.add(firstPassword).on('keyup', function () {
-          scope.$apply(function () {
-            var v = elem.val()===$(firstPassword).val();
-            ctrl.$setValidity('pwmatch', v);
-          });
-        });
-      }
-    }
-  }]);

@@ -46,4 +46,19 @@ angular.module('starter.controllers', [])
 })
 
 .controller('MainCtrl', function($scope, $stateParams) {
-});
+})
+
+  //////// fetch data
+
+//.controller('customersCtrl', function($scope, $http) {
+//  $http.get("http://www.w3schools.com/angular/customers_mysql.php") //link to database
+//.then(function (response) {$scope.names = response.data.records;}); //how to manipulate
+//})
+
+  .controller('registerCtrl', function($scope) {
+
+  });
+
+//////////
+
+
