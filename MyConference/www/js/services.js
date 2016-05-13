@@ -6,15 +6,10 @@ var services = angular.module('services', []);
 
 services.factory('backendService', function () {
 
-        BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485"); //we will change it later to address of the chair server
+        BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
         BaasBox.appcode = "1234567890";
-        /*BaasBox.login("admin", "admin")
-          .done(function (user) {
-            console.log("Logged in ", user);
-          })
-          .fail(function (err) {
-            console.log("error ", err);
-          });*/
+        BaasBox.login("admin", "admin") // delete this function when log-in form is done
+
     var backend = {};
 
   backend.getEvents = function () {
