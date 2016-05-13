@@ -76,5 +76,22 @@ angular.module('starter.controllers', ['services'])
 
   })
 
-
+.controller('RegisterCtrl', function($scope, $location, $ionicPopup, backendService) {
+  backendService.fetchCurrentUser().then(function (res) {
+    var alertPopup = $ionicPopup.alert({
+      title: 'Done!',
+      template: 'You are already logged in'
+    });
+    alertPopup.then(function (res) {
+      $location.path('#app/main');
+    })
+    });
+  $scope.createAccount = function (user) {
+    backendService.createAccount(user)
+    var alertPopup = $ionicPopup.alert({
+      title: 'Done!',
+      template: 'Welcome, '+user.name
+    });
+  }
+});
 

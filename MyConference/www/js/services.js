@@ -21,6 +21,56 @@ services.factory('backendService', function () {
     return BaasBox.loadCollection("events")
   };
 
+      backend.fetchCurrentUser = function () {
+       return BaasBox.fetchCurrentUser();
+      }
+
+    backend.createAccount = function (user) {
+      BaasBox.signup(user.username, user.pass)
+        .done(function (res) {
+          console.log("signup ", res);
+          backend.login(user.username, user.pass);
+          backend.updateUserProfile({"visibleByTheUser" : {"email" : user.email}});
+          backend.updateUserProfile({"visibleByRegisteredUsers" : {"name" : user.name, "gName" : user.gName}});
+        })
+        .fail(function (error) {
+          console.log("SIgnup error ", error);
+        })
+
+
+    }
+
+  backend.login = function (username, pass) {
+    BaasBox.login(username, pass)
+      .done(function (user) {
+        console.log("Logged in ", user);
+      })
+      .fail(function (err) {
+        console.log(" Login error ", err);
+      });
+  }
+
+  backend.logout = function (username, pass) {
+    BaasBox.logout()
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (error) {
+        console.log("error ", error);
+      })
+  }
+
+  backend.updateUserProfile = function (params) {
+    BaasBox.updateUserProfile(params)
+      .done(function(res) {
+        console.log("Updated ", res['data']);
+      })
+      .fail(function(error) {
+        console.log("Update error ", error);
+      })
+  }
+
+
 
      backend.createEvent = function (ev) {
       var newEvent = new Object();
