@@ -66,6 +66,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
+            controller: 'EventCtrl'
           }
         }
       })
@@ -80,6 +81,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
+      .state('app.register', {
+        url: '/register',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/register.html',
+            controller: 'RegisterCtrl'
+          }
+        }
+      })
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/main');

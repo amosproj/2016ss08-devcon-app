@@ -41,7 +41,7 @@ angular.module('starter.controllers', ['services'])
   };
 })
 
-.controller('MainCtrl', function($scope, backendService) {
+.controller('MainCtrl', function($scope, $state, $location, backendService) {
   backendService.getEvents().then(function (res) {
     $scope.events = res;
   }, function (reason) {
@@ -61,4 +61,20 @@ angular.module('starter.controllers', ['services'])
       $location.path('#app/main');
     })
   }
-});
+})
+
+  .controller('EventCtrl', function($scope, $location, backendService) {
+    $scope.location = $location;
+    $scope.$watch('location.search()', function() {
+      var id = ($location.search()).id;
+      backendService.getEventById(id).then(function (res) {
+        $scope.event = res.data;
+      }, function (reason) {
+        console.log("Error detected because of "+reason);
+      })
+    }, true);
+
+  })
+
+
+
