@@ -6,22 +6,15 @@ var services = angular.module('services', []);
 
 services.factory('backendService', function () {
 
-        BaasBox.setEndPoint("http://localhost:9000"); //we will change it later to address of the chair server
+        BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485"); //we will change it later to address of the chair server
         BaasBox.appcode = "1234567890";
-        BaasBox.signup("admin", "admin")
-          .done(function (res) {
-            console.log("signup ", res);
-          })
-          .fail(function (error) {
-            console.log("error ", error);
-          });
-        BaasBox.login("admin", "admin")
+        /*BaasBox.login("admin", "admin")
           .done(function (user) {
             console.log("Logged in ", user);
           })
           .fail(function (err) {
             console.log("error ", err);
-          });
+          });*/
     var backend = {};
 
   backend.getEvents = function () {
@@ -43,6 +36,10 @@ services.factory('backendService', function () {
           console.log("error ", error);
         })
     }
+
+  backend.getEventById = function (id) {
+    return BaasBox.loadObject("events", id)
+  }
 
 
   return backend;
