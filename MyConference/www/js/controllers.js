@@ -103,7 +103,7 @@ angular.module('starter.controllers', ['services'])
 
 
 
-   //directive to check whether password and confirmed password matched
+   //directive to check whether your password and confirmed password matched
 
   .directive('validateMatch', function () {
     return {

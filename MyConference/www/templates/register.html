@@ -37,7 +37,7 @@
         <label class="item item-input">
           <span class="input-label">Re-Enter Password</span>
           <input type="password" name="pw2" id="pw2" ng-model="user.pw2" validate-match="user.pw1" required>
-          <p ng-show="userForm.pw2.$error.match && userForm.pw1.$dirty" class="help-block">Your passwords do not match</p>
+          <p ng-show="userForm.pw2.$error.match && userForm.pw1.$dirty" class="help-block">Your passwords should be matched</p>
         </label>
 
 
