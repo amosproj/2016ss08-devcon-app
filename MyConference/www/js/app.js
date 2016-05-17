@@ -66,6 +66,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
+            controller: 'EventCtrl'
           }
         }
       })
@@ -88,11 +89,14 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
-.state('app.register', {
+//adding register controller to register page
+      .state('app.register', {
         url: '/register',
         views: {
           'menuContent': {
             templateUrl: 'templates/register.html',
+
+            controller: 'RegisterCtrl'
           }
         }
       })
