@@ -89,20 +89,14 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
-<<<<<<< HEAD
-
+//adding register controller to register page
       .state('app.register', {
-=======
-.state('app.register', {
->>>>>>> 90d710d99d5c74e47e68f463382106d60966414f
         url: '/register',
         views: {
           'menuContent': {
             templateUrl: 'templates/register.html',
-<<<<<<< HEAD
+
             controller: 'RegisterCtrl'
-=======
->>>>>>> 90d710d99d5c74e47e68f463382106d60966414f
           }
         }
       })

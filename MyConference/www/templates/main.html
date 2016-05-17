@@ -4,7 +4,7 @@
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
         </button>
       </ion-nav-buttons>
-     
+
 
  <ion-nav-buttons side="right">
         <a href="#/app/new_event" class="button icon ion-android-add-circle  button-stable" menu-toggle="right"></a>
@@ -12,11 +12,11 @@
 </ion-nav-bar>
 <br><br><br>
 
-  
+
     <ion-list>
       <br>
       <i class="icon ion-chevron-right"> UPCOMING</i><br><br>
-<<<<<<< HEAD
+      <!-- fetch data from database -->
   <ion-item ng-repeat="ev in events"><a href="#app/event?id={{ev.id}}">{{ev.title}} {{(ev.date | date: 'dd/MM/yy')}}</a>
   </ion-item>
 
@@ -25,15 +25,6 @@
       <ion-item>
         ...
       </ion-item>
-=======
-  <ion-item ng-repeat="ev in events"><a href="about">{{ev.title}} ({{ev.date}})</a></ion-item><br>
-
-
-   <i class="icon ion-chevron-right"> PREVIOUS</i><br><br>
-  <ion-item><a href="about">07/2015 Devcon</a></ion-item>
-  <ion-item><a href="about">06/2015 Devcon</a></ion-item>
-  <ion-item><a href="about">.....</a></ion-item>
->>>>>>> 90d710d99d5c74e47e68f463382106d60966414f
 
 
     </ion-list>
