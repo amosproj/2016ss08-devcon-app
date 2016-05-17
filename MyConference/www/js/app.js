@@ -71,6 +71,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
+      .state('app.login', {
+        url: '/login',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/login.html',
+          }
+        }
+      })
+
       .state('app.new_event', {
         url: '/new_event',
         views: {
@@ -80,13 +89,20 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
+<<<<<<< HEAD
 
       .state('app.register', {
+=======
+.state('app.register', {
+>>>>>>> 90d710d99d5c74e47e68f463382106d60966414f
         url: '/register',
         views: {
           'menuContent': {
             templateUrl: 'templates/register.html',
+<<<<<<< HEAD
             controller: 'RegisterCtrl'
+=======
+>>>>>>> 90d710d99d5c74e47e68f463382106d60966414f
           }
         }
       })
