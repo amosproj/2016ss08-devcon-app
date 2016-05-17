@@ -101,7 +101,10 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  //directive to check password match
+
+
+   //directive to check password match
+
   .directive('validateMatch', function () {
     return {
       require: 'ngModel',
@@ -123,6 +126,5 @@ angular.module('starter.controllers', ['services'])
       }
     };
   });
-
 
 ;
