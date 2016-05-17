@@ -75,33 +75,7 @@ angular.module('starter.controllers', ['services'])
     }, true);
 
   })
-
-  .controller('RegisterCtrl', function($scope, $location, $ionicPopup, backendService) {
-
-    backendService.fetchCurrentUser().then(function (res) {
-
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'You are already logged in'
-      });
-      alertPopup.then(function (res) {
-        $location.path('#app/main');
-      })
-    });
-
-    $scope.createAccount = function (user) {
-      backendService.createAccount(user)
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Welcome, '+user.name
-      });
-      alertPopup.then(function (res) {
-        $location.path('#app/main');
-      })
-    }
-  })
-
-
+  
   .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
     backendService.fetchCurrentUser().then(function (res) {
       if(res['data']['user'].name == "default"){ // if user is "not registered" user, logout from system and sign up as registered one
