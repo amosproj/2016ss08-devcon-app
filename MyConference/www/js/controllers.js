@@ -29,16 +29,7 @@ angular.module('starter.controllers', ['services'])
       $scope.modal.show();
     };
 
-    // Perform the login action when the user submits the login form
-    $scope.doLogin = function() {
-      console.log('Doing login', $scope.loginData);
 
-      // Simulate a login delay. Remove this and replace with your login
-      // code if using a login system
-      $timeout(function() {
-        $scope.closeLogin();
-      }, 1000);
-    };
   })
 
   .controller('StartCtrl', function($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
@@ -133,4 +124,56 @@ angular.module('starter.controllers', ['services'])
         $state.go('app.main')
       })
     }
+<<<<<<< Updated upstream
+=======
+  })
+
+  .controller('LoginCtrl', function($scope, backendService, $ionicPopup){
+    backendService.logout();
+
+    $scope.login = function (credentials){
+      backendService.login(credentials.username, credentials.password).then(
+        function (res) {
+          var alertPopup = $ionicPopup.alert({
+            title: 'Done!',
+            template: 'Login successful.'
+          });
+          alertPopup.then(function (re) {
+            $state.go('app.main')
+          });
+        },
+        function (err) {
+          var alertPopup = $ionicPopup.alert({
+            title: 'Error!',
+            template: 'Username and password did not match.'
+          });
+        }
+      )
+
+    };
+  })
+
+   //directive to check whether your passwords are matched
+
+  .directive('validateMatch', function () {
+    return {
+      require: 'ngModel',
+      scope: {
+        validateMatch: '='
+      },
+      link: function(scope, element, attrs, ngModel) {
+
+        scope.$watch('validateMatch', function() {
+          ngModel.$validate();
+        });
+
+        ngModel.$validators.match = function(modelValue) {
+          if (!modelValue || !scope.validateMatch) {
+            return true;
+          }
+          return modelValue === scope.validateMatch;
+        };
+      }
+    };
+>>>>>>> Stashed changes
   });
