@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -ue
+
+cd /etc/nginx
+exec /usr/sbin/nginx
