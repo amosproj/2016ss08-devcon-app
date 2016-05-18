@@ -41,7 +41,39 @@ angular.module('starter.controllers', ['services'])
     };
   })
 
-  .controller('MainCtrl', function($scope, $state, $location, backendService) {
+  .controller('StartCtrl', function($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
+    console.log("Start contorller")
+    $ionicLoading.show({
+      content: 'Loading',
+      animation: 'fade-in',
+      showBackdrop: true,
+      maxWidth: 200,
+      showDelay: 0
+    });
+    backendService.connect().then(function (res) {
+      $ionicLoading.hide();
+      $ionicHistory.nextViewOptions({
+        disableBack: true
+      });
+      $state.go('app.main')
+    }, function (error) {
+      $ionicLoading.hide();
+      var alertPopup = $ionicPopup.alert({
+        title: 'Connection error',
+        template: 'Check your internet connection and try again'
+      });
+      alertPopup.then(function (re) {
+        $state.reload();
+      })
+    })
+  })
+
+  .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
+    backendService.fetchCurrentUser().then(function (res) {
+
+    }, function (error) {
+      $state.go('app.start')
+    })
     backendService.getEvents().then(function (res) {
       $scope.events = res;
     }, function (reason) {
@@ -50,7 +82,7 @@ angular.module('starter.controllers', ['services'])
   })
 
 
-  .controller('CreateEventCtrl', function($scope, $location, $ionicPopup, backendService) {
+  .controller('CreateEventCtrl', function($scope, $state, $ionicPopup, backendService) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
       var alertPopup = $ionicPopup.alert({
@@ -58,7 +90,7 @@ angular.module('starter.controllers', ['services'])
         template: 'Event "'+ev.title+'" created.'
       });
       alertPopup.then(function (res) {
-        $location.path('#app/main');
+        $state.go('app.main')
       })
     }
   })
@@ -75,12 +107,13 @@ angular.module('starter.controllers', ['services'])
     }, true);
 
   })
-  
+
   .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
+    console.log(" REGISTER CONTROLLER ")
     backendService.fetchCurrentUser().then(function (res) {
-      if(res['data']['user'].name == "default"){ // if user is "not registered" user, logout from system and sign up as registered one
+      if(res['data']['user'].name == "default"){
         backendService.logout();
-      }else{ // if user is already logged in then go back to main view
+      }else{
         var alertPopup = $ionicPopup.alert({
           title: 'Done!',
           template: 'You are already logged in'
@@ -100,30 +133,4 @@ angular.module('starter.controllers', ['services'])
         $state.go('app.main')
       })
     }
-  })
-
-   //directive to check whether your passwords are matched
-
-  .directive('validateMatch', function () {
-    return {
-      require: 'ngModel',
-      scope: {
-        validateMatch: '='
-      },
-      link: function(scope, element, attrs, ngModel) {
-
-        scope.$watch('validateMatch', function() {
-          ngModel.$validate();
-        });
-
-        ngModel.$validators.match = function(modelValue) {
-          if (!modelValue || !scope.validateMatch) {
-            return true;
-          }
-          return modelValue === scope.validateMatch;
-        };
-      }
-    };
   });
-
-;
