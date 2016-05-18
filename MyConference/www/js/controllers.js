@@ -124,8 +124,6 @@ angular.module('starter.controllers', ['services'])
         $state.go('app.main')
       })
     }
-<<<<<<< Updated upstream
-=======
   })
 
   .controller('LoginCtrl', function($scope, backendService, $ionicPopup){
@@ -175,5 +173,4 @@ angular.module('starter.controllers', ['services'])
         };
       }
     };
->>>>>>> Stashed changes
   });
