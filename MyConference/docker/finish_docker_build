@@ -1,0 +1,8 @@
+#!/bin/bash
+#
+set -ue
+
+# Install nginx service run script
+mkdir -p /etc/service/nginx
+cp /run /etc/service/nginx/run
+chmod +x /etc/service/nginx/run
