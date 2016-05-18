@@ -50,6 +50,18 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
+
+      .state('app.start', {
+        cache: false,
+        url: '/start',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/start.html',
+            controller: 'StartCtrl'
+          }
+        }
+      })
+
       .state('app.main', {
         cache: false,
         url: '/main',
@@ -71,15 +83,6 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
-      .state('app.login', {
-        url: '/login',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/login.html',
-          }
-        }
-      })
-
       .state('app.new_event', {
         url: '/new_event',
         views: {
@@ -89,18 +92,17 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
-//adding register controller to register page
+
       .state('app.register', {
         url: '/register',
         views: {
           'menuContent': {
             templateUrl: 'templates/register.html',
-
             controller: 'RegisterCtrl'
           }
         }
       })
 
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/app/main');
+    $urlRouterProvider.otherwise('/app/start');
   });
