@@ -64,6 +64,7 @@ services.factory('backendService', function () {
       })
   }
 
+   
   backend.createEvent = function (ev) {
     var newEvent = new Object();
     newEvent.title = ev.title;

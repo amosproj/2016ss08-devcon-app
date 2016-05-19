@@ -1,55 +1,57 @@
-<ion-view view-title="Sign Up">
-  <ion-content>
-    <form name="userForm" ng-submit="createAccount(user)" novalidate>
-      <ion-list>
 
-        <label class="item item-input">
-          <span class="input-label fixed">Username</span>
-          <input type="text" name="first_name" ng-model="user.username" required>
-        </label>
+ <ion-view view-title="Sign Up">
+      <ion-content>
+        <form name="userForm" ng-submit="createAccount(user)" novalidate>
+        <ion-list>
 
-        <label class="item item-input">
-          <span class="input-label fixed">Name</span>
-          <input type="text" name="first_name" ng-model="user.name" required>
-        </label>
+          <label class="item item-input">
+            <span class="input-label fixed">Username</span>
+            <input type="text" name="first_name" ng-model="user.username" required>
+          </label>
 
-        <label class="item item-input">
-          <span class="input-label">Given Name</span>
-          <input type="text" name="given_name" ng-model="user.gName" required>
-        </label>
+          <label class="item item-input">
+            <span class="input-label fixed">Name</span>
+            <input type="text" name="first_name" ng-model="user.name" required>
+          </label>
 
-        <label class="item item-input">
-          <span class="input-label">Email</span>
-          <input type="email" name="email" class="form-control" ng-model="user.email" required>
-          <p ng-show="userForm.email.$invalid && !userForm.email.$pristine" class="help-block"> WRONG! Email form: name@domain.com </p>
-        </label>
+          <label class="item item-input">
+            <span class="input-label">Given Name</span>
+            <input type="text" name="given_name" ng-model="user.gName" required>
+          </label>
 
-        <label class="item item-input">
+          <label class="item item-input">
+            <span class="input-label">Email</span>
+            <input type="email" name="email" class="form-control" ng-model="user.email" required>
+            <p ng-show="userForm.email.$invalid && !userForm.email.$pristine" class="help-block"> WRONG! Email form: name@domain.com </p>
+          </label>
 
-          <span class="input-label">Password</span>
-          <input type="password" name="pw1" id="pw1" ng-model="user.pw1" ng-minlength="6" ng-maxlength="20" ng-pattern="/^(?=.*[!@#$%^&*(0-9]{2,})(?=.*[a-zA-Z]{2,})/" required>
-          <p ng-show="userForm.pw1.$error.minlength && userForm.pw1.$error.pattern" class="help-block">need at least 6 characters </p>
-          <p ng-show="userForm.pw1.$error.minlength && !userForm.pw1.$error.pattern" class="help-block">need at least 6 characters </p>
-          <p ng-show="!userForm.pw1.$error.minlength && userForm.pw1.$error.pattern" class="help-block">need at least 2 characters or numbers</p>
-          <p ng-show="userForm.pw1.$error.maxlength" class="help-block">shorter than 20 characters</p>
-        </label>
+          <label class="item item-input">
 
-        <label class="item item-input">
-          <span class="input-label">Re-Enter Password</span>
-          <input type="password" name="pw2" id="pw2" ng-model="user.pass" validate-match="user.pw1" required>
-          <p ng-show="userForm.user.pass.$error.match && userForm.pw1.$dirty" class="help-block">Confirmed passwords does not match</p>
-        </label>
+            <span class="input-label">Password</span>
+            <input type="password" name="pw1" id="pw1" ng-model="pw1" ng-minlength="6" ng-maxlength="20" ng-pattern="/(?=.*[a-z])(?=.*[0-9])/" required>
+            <p ng-show="userForm.pw1.$error.minlength && userForm.pw1.$error.pattern" class="help-block">need at least 6 characters </p>
+            <p ng-show="userForm.pw1.$error.minlength && !userForm.pw1.$error.pattern" class="help-block">need at least 6 characters </p>
+            <p ng-show="!userForm.pw1.$error.minlength && userForm.pw1.$error.pattern" class="help-block">need both characters & number</p>
+            <p ng-show="userForm.pw1.$error.maxlength" class="help-block">shorter than 20 characters</p>
+          </label>
 
-      </ion-list>
+          <label class="item item-input">
+            <span class="input-label">Re-Enter Password</span>
+            <input type="password" name="pw2" id="pw2" ng-model="user.pass" validate-match="pw1" required>
+            <p ng-show="userForm.user.pass.$error.match && userForm.pw1.$dirty" class="help-block">Passwords do not match</p>
+          </label>
 
-      <div class="padding">
-        <button type="submit" class="button button-block button-positive" ng-disabled="userForm.$invalid">
-          <span ng-show="!loading">Sign Up</span>
-          <i ng-show="loading" class="ion-loading-b"></i>
-        </button>
-      </div>
-    </form>
 
-  </ion-content>
+        </ion-list>
 
-</ion-view>
+        <div class="padding">
+          <button type="submit" class="button button-block button-positive" ng-disabled="userForm.$invalid">
+            <span ng-show="!loading">Sign Up</span>
+            <i ng-show="loading" class="ion-loading-b"></i>
+          </button>
+        </div>
+        </form>
+
+      </ion-content>
+
+    </ion-view>

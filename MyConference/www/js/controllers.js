@@ -75,7 +75,6 @@ angular.module('starter.controllers', ['services'])
     }, true);
 
   })
-
   .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
     backendService.fetchCurrentUser().then(function (res) {
       if(res['data']['user'].name == "default"){ // if user is "not registered" user, logout from system and sign up as registered one
