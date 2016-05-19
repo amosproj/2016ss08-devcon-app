@@ -7,5 +7,3 @@ RUN mkdir -p /etc/service/nginx
 RUN cp /assets/run /etc/service/nginx/run
 RUN chmod +x /etc/service/nginx/run
 
-EXPOSE 80
-
