@@ -76,76 +76,29 @@ angular.module('starter.controllers', ['services'])
 
   })
 
-<<<<<<< HEAD
-  .controller('RegisterCtrl', function($scope, $location, $ionicPopup, backendService) {
-
+  .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
     backendService.fetchCurrentUser().then(function (res) {
-
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'You are already logged in'
-      });
-      alertPopup.then(function (res) {
-        $location.path('#app/main');
-      })
+      if(res['data']['user'].name == "default"){ // if user is "not registered" user, logout from system and sign up as registered one
+        backendService.logout();
+      }else{ // if user is already logged in then go back to main view
+        var alertPopup = $ionicPopup.alert({
+          title: 'Done!',
+          template: 'You are already logged in'
+        });
+        alertPopup.then(function (re) {
+          $state.go('app.main')
+        })
+      }
     });
-
     $scope.createAccount = function (user) {
       backendService.createAccount(user)
       var alertPopup = $ionicPopup.alert({
         title: 'Done!',
         template: 'Welcome, '+user.name
       });
-      alertPopup.then(function (res) {
-        $location.path('#app/main');
+      alertPopup.then(function (re) {
+        $state.go('app.main')
       })
     }
   })
-
-
-=======
-.controller('RegisterCtrl', function($scope, $location, $ionicPopup, backendService) {
-  backendService.fetchCurrentUser().then(function (res) {
-    var alertPopup = $ionicPopup.alert({
-      title: 'Done!',
-      template: 'You are already logged in'
-    });
-    alertPopup.then(function (res) {
-      $location.path('#app/main');
-    })
-    });
-  $scope.createAccount = function (user) {
-    backendService.createAccount(user)
-    var alertPopup = $ionicPopup.alert({
-      title: 'Done!',
-      template: 'Welcome, '+user.name
-    });
-  }
-});
->>>>>>> 569bf8075b25ad59801931064fe93c823d03302d
-
-   //directive to check whether your passwords are matched
-
-  .directive('validateMatch', function () {
-    return {
-      require: 'ngModel',
-      scope: {
-        validateMatch: '='
-      },
-      link: function(scope, element, attrs, ngModel) {
-
-        scope.$watch('validateMatch', function() {
-          ngModel.$validate();
-        });
-
-        ngModel.$validators.match = function(modelValue) {
-          if (!modelValue || !scope.validateMatch) {
-            return true;
-          }
-          return modelValue === scope.validateMatch;
-        };
-      }
-    };
-  });
-
 ;
