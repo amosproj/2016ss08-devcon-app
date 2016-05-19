@@ -27,6 +27,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
 
 
       .state('app', {
+        cache: false,
         url: '/app',
         abstract: true,
         templateUrl: 'templates/menu.html',
@@ -74,7 +75,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       })
 
       .state('app.event', {
-        url: '/event',
+        url: '/event/:eventId',
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
@@ -103,7 +104,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
-      
+
       .state('app.register', {
         url: '/register',
         views: {

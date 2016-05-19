@@ -86,21 +86,15 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('EventCtrl', function($scope, $location, backendService) {
-    $scope.location = $location;
-    $scope.$watch('location.search()', function() {
-      var id = ($location.search()).id;
-      backendService.getEventById(id).then(function (res) {
-        $scope.event = res.data;
-      }, function (reason) {
-        console.log("Error detected because of "+reason);
-      })
-    }, true);
-
+  .controller('EventCtrl', function($scope, $stateParams, backendService) {
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.event = res['data']
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
   })
 
   .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
-    console.log(" REGISTER CONTROLLER ")
     backendService.fetchCurrentUser().then(function (res) {
       if(res['data']['user'].name == "default"){
         backendService.logout();
@@ -126,7 +120,7 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('LoginCtrl', function($scope, backendService, $ionicPopup){
+  .controller('LoginCtrl', function($scope, $ionicHistory, backendService, $ionicPopup){
     backendService.logout();
 
     $scope.login = function (credentials){
@@ -137,7 +131,7 @@ angular.module('starter.controllers', ['services'])
             template: 'Login successful.'
           });
           alertPopup.then(function (re) {
-            $state.go('app.main')
+            $ionicHistory.backView().go();
           });
         },
         function (err) {
