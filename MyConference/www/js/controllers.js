@@ -60,6 +60,18 @@ angular.module('starter.controllers', ['services'])
   })
 
   .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
+    var today = new Date();
+
+    $scope.previousEvents = function(item){
+      var itemDate = new Date(item.date)
+      return today < itemDate;
+    }
+
+    $scope.nextEvents = function(item){
+      console.log("Next  "+item.date)
+      return !$scope.previousEvents(item);
+    }
+
     backendService.fetchCurrentUser().then(function (res) {
 
     }, function (error) {
