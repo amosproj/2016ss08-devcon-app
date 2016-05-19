@@ -62,11 +62,17 @@ angular.module('starter.controllers', ['services'])
   .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
     var today = new Date();
 
+    /*
+    This method is used for filter after prevoius events in the main view
+     */
     $scope.previousEvents = function(item){
       var itemDate = new Date(item.date)
       return today < itemDate;
     }
 
+    /*
+     This method is used for filter after next events in the main view
+     */
     $scope.nextEvents = function(item){
       console.log("Next  "+item.date)
       return !$scope.previousEvents(item);
