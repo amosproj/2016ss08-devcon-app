@@ -63,14 +63,9 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
-   
+
   backend.createEvent = function (ev) {
-    var newEvent = new Object();
-    newEvent.title = ev.title;
-    newEvent.location = ev.location;
-    newEvent.date = ev.date;
-    newEvent.descr = ev.descr;
-    BaasBox.save(newEvent, "events")
+    BaasBox.save(ev, "events")
       .done(function (res) {
         console.log("res ", res);
         BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default") // grant permission to see this event by not registered users
