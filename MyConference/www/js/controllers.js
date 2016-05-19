@@ -126,7 +126,12 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('LoginCtrl', function($scope, backendService, $ionicPopup){
+  /* 
+  Controller for the Login Page. 
+  First logouts an eventually logined user, then calls the backend login and shows success/error popup. 
+  Goes to Main Page if success, stays on login form but deletes pasword if error. 
+  */
+  .controller('LoginCtrl', function($scope, $state, backendService, $ionicPopup){
     backendService.logout();
 
     $scope.login = function (credentials){
@@ -145,6 +150,7 @@ angular.module('starter.controllers', ['services'])
             title: 'Error!',
             template: 'Username and password did not match.'
           });
+          credentials.password = "";
         }
       )
 
