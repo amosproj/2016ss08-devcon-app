@@ -59,6 +59,11 @@ angular.module('starter.controllers', ['services'])
     })
   })
 
+  /*
+  Controller for the Main Page (overview page).
+  Gets the events out of the backend by calling the service function.
+  Provides the filter methods for previous and next events.
+   */
   .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
     var today = new Date();
 
@@ -74,7 +79,6 @@ angular.module('starter.controllers', ['services'])
      This method is used for filter after next events in the main view
      */
     $scope.nextEvents = function(item){
-      console.log("Next  "+item.date)
       return !$scope.previousEvents(item);
     }
 
