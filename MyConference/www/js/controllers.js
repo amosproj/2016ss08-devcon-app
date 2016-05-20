@@ -126,7 +126,7 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('LoginCtrl', function($scope, backendService, $ionicPopup){
+  .controller('LoginCtrl', function($scope, $state, backendService, $ionicPopup){
     backendService.logout();
 
     $scope.login = function (credentials){
@@ -149,6 +149,43 @@ angular.module('starter.controllers', ['services'])
       )
 
     };
+  })
+
+  .controller('MyAccountCtrl', function ($scope, $state, backendService) {
+    backendService.fetchCurrentUser().then(function (res) {
+      if(res['data']['user'].name == "default"){
+        $state.go('app.login')
+      }else {
+        $scope.user = res['data']['visibleByRegisteredUsers'];
+        $scope.user.username = res['data']['user'].name;
+        $scope.user.email = res['data']['visibleByTheUser'].email;
+      }
+    })
+    $scope.goToEdit = function () {
+      $state.go('app.edit-account');
+    }
+    //delete function
+
+  })
+
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.fetchCurrentUser().then(function (res) {
+      $scope.user = res['data']['visibleByRegisteredUsers'];
+      $scope.user.username = res['data']['user'].name;
+      $scope.user.email = res['data']['visibleByTheUser'].email;
+    })
+    $scope.updateAccount = function (user) {
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+      var alertPopup = $ionicPopup.alert({
+        title: 'Done!',
+        template: 'Account updated.'
+      });
+      alertPopup.then(function (re) {
+        $state.go('app.my-account')
+      });
+    }
+
   })
 
    //directive to check whether your passwords are matched
