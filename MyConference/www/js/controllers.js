@@ -1,6 +1,6 @@
 angular.module('starter.controllers', ['services'])
 
-  .controller('AppCtrl', function($scope, $ionicModal, $timeout) {
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService) {
 
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
@@ -15,24 +15,25 @@ angular.module('starter.controllers', ['services'])
     // Create the login modal that we will use later
     $ionicModal.fromTemplateUrl('templates/login.html', {
       scope: $scope
-    }).then(function(modal) {
+    }).then(function (modal) {
       $scope.modal = modal;
     });
 
     // Triggered in the login modal to close it
-    $scope.closeLogin = function() {
+    $scope.closeLogin = function () {
       $scope.modal.hide();
     };
 
     // Open the login modal
-    $scope.login = function() {
+    $scope.login = function () {
       $scope.modal.show();
     };
 
-
+    // TO-DO
+    $scope.isLoggined = false;
   })
 
-  .controller('StartCtrl', function($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
+  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
     console.log("Start contorller")
     $ionicLoading.show({
       content: 'Loading',
@@ -59,26 +60,26 @@ angular.module('starter.controllers', ['services'])
     })
   })
 
-  .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
+  .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
     backendService.fetchCurrentUser().then(function (res) {
-
+      console.log("Current user: "+res['data'].user.name)
     }, function (error) {
       $state.go('app.start')
     })
     backendService.getEvents().then(function (res) {
       $scope.events = res;
     }, function (reason) {
-      console.log("Error detected because of "+reason);
+      console.log("Error detected because of " + reason);
     })
   })
 
 
-  .controller('CreateEventCtrl', function($scope, $state, $ionicPopup, backendService) {
+  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
       var alertPopup = $ionicPopup.alert({
         title: 'Done!',
-        template: 'Event "'+ev.title+'" created.'
+        template: 'Event "' + ev.title + '" created.'
       });
       alertPopup.then(function (res) {
         $state.go('app.main')
@@ -86,25 +87,25 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('EventCtrl', function($scope, $location, backendService) {
+  .controller('EventCtrl', function ($scope, $location, backendService) {
     $scope.location = $location;
-    $scope.$watch('location.search()', function() {
+    $scope.$watch('location.search()', function () {
       var id = ($location.search()).id;
       backendService.getEventById(id).then(function (res) {
         $scope.event = res.data;
       }, function (reason) {
-        console.log("Error detected because of "+reason);
+        console.log("Error detected because of " + reason);
       })
     }, true);
 
   })
 
-  .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
+  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService) {
     console.log(" REGISTER CONTROLLER ")
     backendService.fetchCurrentUser().then(function (res) {
-      if(res['data']['user'].name == "default"){
+      if (res['data']['user'].name == "default") {
         backendService.logout();
-      }else{
+      } else {
         var alertPopup = $ionicPopup.alert({
           title: 'Done!',
           template: 'You are already logged in'
@@ -118,7 +119,7 @@ angular.module('starter.controllers', ['services'])
       backendService.createAccount(user)
       var alertPopup = $ionicPopup.alert({
         title: 'Done!',
-        template: 'Welcome, '+user.name
+        template: 'Welcome, ' + user.name
       });
       alertPopup.then(function (re) {
         $state.go('app.main')
@@ -127,26 +128,25 @@ angular.module('starter.controllers', ['services'])
   })
 
   /* 
-  Controller for the Login Page. 
-  First logouts an eventually logined user, then calls the backend login and shows success/error popup. 
-  Goes to Main Page if success, stays on login form but deletes pasword if error. 
-  */
-  .controller('LoginCtrl', function($scope, $state, backendService, $ionicPopup){
+   Controller for the Login Page. 
+   First logouts the logged in default user, then calls the backend login and shows success/error popup. 
+   Goes to Main Page if success, stays on login form but deletes pasword if error. 
+   */
+  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup) {
     backendService.logout();
 
-    $scope.login = function (credentials){
+    $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          var alertPopup = $ionicPopup.alert({
+          $ionicPopup.alert({
             title: 'Done!',
             template: 'Login successful.'
-          });
-          alertPopup.then(function (re) {
-            $state.go('app.main')
+          }).then(function (re) {
+            $state.go('app.main');
           });
         },
         function (err) {
-          var alertPopup = $ionicPopup.alert({
+          $ionicPopup.alert({
             title: 'Error!',
             template: 'Username and password did not match.'
           });
@@ -157,7 +157,22 @@ angular.module('starter.controllers', ['services'])
     };
   })
 
-   //directive to check whether your passwords are matched
+  /* 
+   Controller for Logout 
+   Logouts the user, shows a popup and then goes to main page. 
+   */
+  .controller('LogoutCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.logout().then(
+      function (res) {
+        $ionicPopup.alert({
+          title: 'Logout',
+          template: 'You are logged out.'
+        });
+        $state.go('app.main');
+      });
+  })
+
+  //directive to check whether your passwords are matched
 
   .directive('validateMatch', function () {
     return {
@@ -165,13 +180,13 @@ angular.module('starter.controllers', ['services'])
       scope: {
         validateMatch: '='
       },
-      link: function(scope, element, attrs, ngModel) {
+      link: function (scope, element, attrs, ngModel) {
 
-        scope.$watch('validateMatch', function() {
+        scope.$watch('validateMatch', function () {
           ngModel.$validate();
         });
 
-        ngModel.$validators.match = function(modelValue) {
+        ngModel.$validators.match = function (modelValue) {
           if (!modelValue || !scope.validateMatch) {
             return true;
           }

@@ -8,7 +8,7 @@
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
         </button>
       </ion-nav-buttons>
-     
+
     </ion-nav-bar>
     <ion-nav-view name="menuContent"></ion-nav-view>
   </ion-side-menu-content>
@@ -26,17 +26,22 @@
         My Events
       </a>
 
-      <a class="item menu-close item-icon-left" href="#/app/login">
+      <a class="item menu-close item-icon-left" href="#/app/login" ng-show="!isLoggined">
+        <i class="icon ion-person-stalker"></i>
+        Login
+      </a>
+
+      <a class="item menu-close item-icon-left" href="#/app/login" ng-show="isLoggined">
         <i class="icon ion-person-stalker"></i>
         My Account
       </a>
 
-      <a class="item menu-close item-icon-left" href="#">
+      <a class="item menu-close item-icon-left" href="#" ng-show="isLoggined">
         <i class="icon ion-ios-gear"></i>
         Settings
       </a>
 
-      <a class="item menu-close item-icon-left" href="#">
+      <a class="item menu-close item-icon-left" href="#/app/logout">
         <i class="icon ion-android-close"></i>
         Logout
       </a>

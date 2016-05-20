@@ -94,6 +94,16 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
+      .state('app.logout', {
+        url: '/logout',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/main.html',
+            controller: 'LogoutCtrl'
+          }
+        }
+      })
+
       .state('app.new_event', {
         url: '/new_event',
         views: {
@@ -103,7 +113,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
-      
+
       .state('app.register', {
         url: '/register',
         views: {
