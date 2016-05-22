@@ -29,19 +29,42 @@ angular.module('starter.controllers', ['services'])
       $scope.modal.show();
     };
 
-    // Perform the login action when the user submits the login form
-    $scope.doLogin = function() {
-      console.log('Doing login', $scope.loginData);
 
-      // Simulate a login delay. Remove this and replace with your login
-      // code if using a login system
-      $timeout(function() {
-        $scope.closeLogin();
-      }, 1000);
-    };
   })
 
-  .controller('MainCtrl', function($scope, $state, $location, backendService) {
+  .controller('StartCtrl', function($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
+    console.log("Start contorller")
+    $ionicLoading.show({
+      content: 'Loading',
+      animation: 'fade-in',
+      showBackdrop: true,
+      maxWidth: 200,
+      showDelay: 0
+    });
+    backendService.connect().then(function (res) {
+      $ionicLoading.hide();
+      $ionicHistory.nextViewOptions({
+        disableBack: true
+      });
+      $state.go('app.main')
+    }, function (error) {
+      $ionicLoading.hide();
+      var alertPopup = $ionicPopup.alert({
+        title: 'Connection error',
+        template: 'Check your internet connection and try again'
+      });
+      alertPopup.then(function (re) {
+        $state.reload();
+      })
+    })
+  })
+
+  .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
+    backendService.fetchCurrentUser().then(function (res) {
+
+    }, function (error) {
+      $state.go('app.start')
+    })
     backendService.getEvents().then(function (res) {
       $scope.events = res;
     }, function (reason) {
@@ -50,7 +73,7 @@ angular.module('starter.controllers', ['services'])
   })
 
 
-  .controller('CreateEventCtrl', function($scope, $location, $ionicPopup, backendService) {
+  .controller('CreateEventCtrl', function($scope, $state, $ionicPopup, backendService) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
       var alertPopup = $ionicPopup.alert({
@@ -58,7 +81,7 @@ angular.module('starter.controllers', ['services'])
         template: 'Event "'+ev.title+'" created.'
       });
       alertPopup.then(function (res) {
-        $location.path('#app/main');
+        $state.go('app.main')
       })
     }
   })
@@ -75,11 +98,13 @@ angular.module('starter.controllers', ['services'])
     }, true);
 
   })
+
   .controller('RegisterCtrl', function($scope, $state, $ionicPopup, backendService) {
+    console.log(" REGISTER CONTROLLER ")
     backendService.fetchCurrentUser().then(function (res) {
-      if(res['data']['user'].name == "default"){ // if user is "not registered" user, logout from system and sign up as registered one
+      if(res['data']['user'].name == "default"){
         backendService.logout();
-      }else{ // if user is already logged in then go back to main view
+      }else{
         var alertPopup = $ionicPopup.alert({
           title: 'Done!',
           template: 'You are already logged in'
@@ -100,4 +125,66 @@ angular.module('starter.controllers', ['services'])
       })
     }
   })
-;
+
+  .controller('LoginCtrl', function($scope, $state, backendService, $ionicPopup){
+    backendService.logout();
+
+    $scope.login = function (credentials){
+      backendService.login(credentials.username, credentials.password).then(
+        function (res) {
+          var alertPopup = $ionicPopup.alert({
+            title: 'Done!',
+            template: 'Login successful.'
+          });
+          alertPopup.then(function (re) {
+            $state.go('app.main')
+          });
+        },
+        function (err) {
+          var alertPopup = $ionicPopup.alert({
+            title: 'Error!',
+            template: 'Username and password did not match.'
+          });
+        }
+      )
+
+    };
+  })
+
+  .controller('MyAccountCtrl', function ($scope, $state, backendService) {
+    backendService.fetchCurrentUser().then(function (res) {
+      if(res['data']['user'].name == "default"){
+        $state.go('app.login')
+      }else {
+        $scope.user = res['data']['visibleByRegisteredUsers'];
+        $scope.user.username = res['data']['user'].name;
+        $scope.user.email = res['data']['visibleByTheUser'].email;
+      }
+    })
+    $scope.goToEdit = function () {
+      $state.go('app.edit-account');
+    }
+    //delete function
+
+  })
+
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.fetchCurrentUser().then(function (res) {
+      $scope.user = res['data']['visibleByRegisteredUsers'];
+      $scope.user.username = res['data']['user'].name;
+      $scope.user.email = res['data']['visibleByTheUser'].email;
+    })
+    $scope.updateAccount = function (user) {
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+      var alertPopup = $ionicPopup.alert({
+        title: 'Done!',
+        template: 'Account updated.'
+      });
+      alertPopup.then(function (re) {
+        $state.go('app.my-account')
+      });
+    }
+
+  })
+  ;

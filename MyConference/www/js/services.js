@@ -8,7 +8,7 @@ services.factory('backendService', function () {
   backend.connect = function () { //this function connects the app to the backend, returns a promise
     BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
     BaasBox.appcode = "1234567890";
-    return backend.login("default", "123546") //default means "not registered" user
+    return backend.login("default", "123456") //default means "not registered" user
   }
   backend.getEvents = function () { //this function gets all events stored in the database, returns a promise
     return BaasBox.loadCollection("events")
@@ -63,7 +63,6 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
-
    
   backend.createEvent = function (ev) {
     var newEvent = new Object();

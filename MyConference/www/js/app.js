@@ -50,6 +50,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives']
           }
         }
       })
+
+      .state('app.start', {
+        cache: false,
+        url: '/start',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/start.html',
+            controller: 'StartCtrl'
+          }
+        }
+      })
+
       .state('app.main', {
         cache: false,
         url: '/main',
@@ -71,11 +83,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives']
         }
       })
 
+
       .state('app.login', {
         url: '/login',
         views: {
           'menuContent': {
             templateUrl: 'templates/login.html',
+            controller: 'LoginCtrl'
           }
         }
       })
@@ -89,18 +103,38 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives']
           }
         }
       })
-      //adding register controller to register page
+
       .state('app.register', {
         url: '/register',
         views: {
           'menuContent': {
             templateUrl: 'templates/register.html',
-
             controller: 'RegisterCtrl'
           }
         }
       })
 
+      .state('app.my-account', {
+        cache: false,
+        url: '/my-account',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/my-account.html',
+            controller: 'MyAccountCtrl'
+          }
+        }
+      })
+
+      .state('app.edit-account', {
+        url: '/edit-account',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-account.html',
+            controller: 'EditAccountCtrl'
+          }
+        }
+      })
+
     // if none of the above states are matched, use this as the fallback
-    $urlRouterProvider.otherwise('/app/main');
+    $urlRouterProvider.otherwise('/app/start');
   });
