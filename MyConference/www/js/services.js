@@ -1,7 +1,3 @@
-/**
- * Created by Murad Isayev on 08.05.2016.
- */
-
 var services = angular.module('services', []);
 services.factory('backendService', function () {
   var backend = {};
