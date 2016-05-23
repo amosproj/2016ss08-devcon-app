@@ -29,8 +29,14 @@ angular.module('starter.controllers', ['services'])
       $scope.modal.show();
     };
 
-    // TO-DO
-    $scope.isLoggined = false;
+    $scope.isLoggedIn = false;
+
+    $scope.$on('user:loginState', function(event,data) {
+      // you could inspect the data to see if what you care about changed, or just update your own scope
+      $scope.isLoggedIn = backendService.loginStatus;
+      console.log("Login event processed: "+backendService.loginStatus)
+    });
+
   })
 
   .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {

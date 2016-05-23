@@ -3,12 +3,18 @@
  */
 
 var services = angular.module('services', []);
-services.factory('backendService', function () {
+services.factory('backendService', function ($rootScope) {
+  // credentials for actions when user is not logged in
+  var defaultUsername = "default";
+  var defaultPassword = "123456";
+
   var backend = {};
+  backend.loginStatus = false;
+
   backend.connect = function () { //this function connects the app to the backend, returns a promise
     BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
     BaasBox.appcode = "1234567890";
-    return backend.login("default", "123456") //default means "not registered" user
+    return backend.login(defaultUsername, defaultPassword) //default means "not registered" user
   }
   backend.getEvents = function () { //this function gets all events stored in the database, returns a promise
     return BaasBox.loadCollection("events")
@@ -37,7 +43,10 @@ services.factory('backendService', function () {
   backend.login = function (username, pass) { //function to login to the system, returns a promise
     return BaasBox.login(username, pass)
       .done(function (user) {
-        console.log("Logged in ", user);
+        if(username != defaultUsername){
+          backend.loginStatus = true;
+        }
+        console.log("Logged in ", username);
       })
       .fail(function (err) {
         console.log(" Login error ", err);
@@ -46,6 +55,7 @@ services.factory('backendService', function () {
   backend.logout = function (username, pass) {//logout function, returns a promise
     return BaasBox.logout()
       .done(function (res) {
+        backend.loginStatus = false;
         console.log(res);
       })
       .fail(function (error) {
@@ -63,7 +73,7 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
-   
+
   backend.createEvent = function (ev) {
     var newEvent = new Object();
     newEvent.title = ev.title;

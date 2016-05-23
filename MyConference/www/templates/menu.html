@@ -26,22 +26,22 @@
         My Events
       </a>
 
-      <a class="item menu-close item-icon-left" href="#/app/login" ng-show="!isLoggined">
+      <a class="item menu-close item-icon-left" href="#/app/login" ng-show="!isLoggedIn">
         <i class="icon ion-person-stalker"></i>
         Login
       </a>
 
-      <a class="item menu-close item-icon-left" href="#/app/login" ng-show="isLoggined">
+      <a class="item menu-close item-icon-left" href="#/app/login" ng-show="isLoggedIn">
         <i class="icon ion-person-stalker"></i>
         My Account
       </a>
 
-      <a class="item menu-close item-icon-left" href="#" ng-show="isLoggined">
+      <a class="item menu-close item-icon-left" href="#" ng-show="isLoggedIn">
         <i class="icon ion-ios-gear"></i>
         Settings
       </a>
 
-      <a class="item menu-close item-icon-left" href="#/app/logout">
+      <a class="item menu-close item-icon-left" href="#/app/logout" ng-show="isLoggedIn">
         <i class="icon ion-android-close"></i>
         Logout
       </a>
