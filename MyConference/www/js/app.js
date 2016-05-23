@@ -95,10 +95,10 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       })
 
       .state('app.logout', {
+        cache: false,
         url: '/logout',
         views: {
           'menuContent': {
-            templateUrl: 'templates/main.html',
             controller: 'LogoutCtrl'
           }
         }
