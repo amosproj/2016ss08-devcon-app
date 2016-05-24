@@ -22,7 +22,7 @@ services.factory('backendService', function () {
   backend.fetchCurrentUser = function () { //function for getting current logged user, returns a promise
     return BaasBox.fetchCurrentUser();
   }
-  backend.createAccount = function (user) { // function for creatig an user account
+  backend.createAccount = function (user) { // function for creating an user account
     BaasBox.signup(user.username, user.pass)
       .done(function (res) {
         console.log("signup ", res);
@@ -43,6 +43,16 @@ services.factory('backendService', function () {
         console.log(" Login error ", err);
       });
   }
+  backend.resetPassword = function (user){ //function to reset Password, return a promise
+     BaasBox.resetPassword(user.email)
+      .done(function(res) {
+        console.log("res ", res);
+      })
+      .fail(function(error) {
+        console.log("error ", error);
+      })
+  }
+
   backend.logout = function (username, pass) {//logout function, returns a promise
     return BaasBox.logout()
       .done(function (res) {
@@ -63,7 +73,7 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
-   
+
   backend.createEvent = function (ev) {
     var newEvent = new Object();
     newEvent.title = ev.title;

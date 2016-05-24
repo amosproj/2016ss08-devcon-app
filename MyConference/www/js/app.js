@@ -103,6 +103,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
+      .state('app.forgot', {
+        url: '/forgot',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/forgotPassword.html',
+            controller: 'ForgotCtrl'
+          }
+        }
+      })
 
       .state('app.register', {
         url: '/register',
@@ -110,27 +119,6 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           'menuContent': {
             templateUrl: 'templates/register.html',
             controller: 'RegisterCtrl'
-          }
-        }
-      })
-
-      .state('app.my-account', {
-        cache: false,
-        url: '/my-account',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/my-account.html',
-            controller: 'MyAccountCtrl'
-          }
-        }
-      })
-
-      .state('app.edit-account', {
-        url: '/edit-account',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/edit-account.html',
-            controller: 'EditAccountCtrl'
           }
         }
       })

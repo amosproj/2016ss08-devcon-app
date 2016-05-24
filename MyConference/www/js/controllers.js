@@ -31,6 +31,47 @@ angular.module('starter.controllers', ['services'])
 
 
   })
+  .controller('ForgotCtrl', function($scope, $state, $ionicLoading, backendService) {
+    $scope.user = {};
+    $scope.error = {};
+    $scope.state = {
+      success: false
+    };
+
+    $scope.reset = function() {
+      $ionicLoading.show({
+        content: 'Sending',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+
+      backendService.resetPassword($scope.user.email, {
+        success: function(){
+          // TODO: show success
+          $ionicLoading.hide();
+          $scope.state.success = true;
+          $scope.$apply();
+        },
+        error: function(err) {
+          $ionicLoading.hide();
+          if (err.code === 125) {
+            $scope.error.message = 'Email address does not exist';
+          } else {
+            $scope.error.message = 'An unknown error has occurred, ' +
+              'please try again';
+          }
+          $scope.$apply();
+        }
+      });
+    };
+
+    $scope.login = function() {
+      $state.go('app.login');
+    };
+  })
+
 
   .controller('StartCtrl', function($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
     console.log("Start contorller")
@@ -126,7 +167,7 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('LoginCtrl', function($scope, $state, backendService, $ionicPopup){
+  .controller('LoginCtrl', function($scope, backendService, $ionicPopup){
     backendService.logout();
 
     $scope.login = function (credentials){
@@ -151,40 +192,26 @@ angular.module('starter.controllers', ['services'])
     };
   })
 
-  .controller('MyAccountCtrl', function ($scope, $state, backendService) {
-    backendService.fetchCurrentUser().then(function (res) {
-      if(res['data']['user'].name == "default"){
-        $state.go('app.login')
-      }else {
-        $scope.user = res['data']['visibleByRegisteredUsers'];
-        $scope.user.username = res['data']['user'].name;
-        $scope.user.email = res['data']['visibleByTheUser'].email;
+   //directive to check whether your passwords are matched
+
+  .directive('validateMatch', function () {
+    return {
+      require: 'ngModel',
+      scope: {
+        validateMatch: '='
+      },
+      link: function(scope, element, attrs, ngModel) {
+
+        scope.$watch('validateMatch', function() {
+          ngModel.$validate();
+        });
+
+        ngModel.$validators.match = function(modelValue) {
+          if (!modelValue || !scope.validateMatch) {
+            return true;
+          }
+          return modelValue === scope.validateMatch;
+        };
       }
-    })
-    $scope.goToEdit = function () {
-      $state.go('app.edit-account');
-    }
-    //delete function
-
-  })
-
-  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
-    backendService.fetchCurrentUser().then(function (res) {
-      $scope.user = res['data']['visibleByRegisteredUsers'];
-      $scope.user.username = res['data']['user'].name;
-      $scope.user.email = res['data']['visibleByTheUser'].email;
-    })
-    $scope.updateAccount = function (user) {
-      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
-      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Account updated.'
-      });
-      alertPopup.then(function (re) {
-        $state.go('app.my-account')
-      });
-    }
-
-  })
-;
+    };
+  });
