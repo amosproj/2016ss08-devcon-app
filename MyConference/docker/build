@@ -5,8 +5,8 @@ cd MyConference/
 npm install -g gulp
 npm install 
 chmod +x hooks/after_prepare/010_add_platform_class.js
-cordova platform add android
 ionic state reset
+cordova platform add android
 gulp build
 ls platforms/android/
 echo
