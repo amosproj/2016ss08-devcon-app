@@ -67,7 +67,7 @@ var BaasBox = (function() {
 
     function buildDeferred() {
       var dfd = new $.Deferred();
-      var promise = {};   
+      var promise = {};
       promise.success = function(fn) {
         promise.then(function(data) {
           fn(data);
@@ -156,6 +156,14 @@ var BaasBox = (function() {
           deferred.reject(error);
         });
         return deferred.promise();
+      },
+
+      //delete account
+      deleteAccount: function(user){
+        return $.ajax({
+          url: BaasBox.endPoint + '/admin/user/suspend/' + user,
+          method: 'PUT'
+        })
       },
 
       logout: function(cb) {
@@ -414,7 +422,7 @@ var BaasBox = (function() {
             url: BaasBox.endPoint + '/me',
             method: 'PUT',
             contentType: 'application/json',
-            data: JSON.stringify(params)          
+            data: JSON.stringify(params)
         });
       },
 
@@ -423,7 +431,7 @@ var BaasBox = (function() {
             url: BaasBox.endPoint + '/me/password',
             method: 'PUT',
             contentType: 'application/json',
-            data: JSON.stringify({old: oldPassword, new: newPassword})            
+            data: JSON.stringify({old: oldPassword, new: newPassword})
         });
       },
 
@@ -453,10 +461,10 @@ var BaasBox = (function() {
 
 	    sendPushNotification: function(params) {
         return $.ajax({
-          url: BaasBox.endPoint + '/push/message', 
+          url: BaasBox.endPoint + '/push/message',
           method: 'POST',
           contentType: 'application/json',
-          data: JSON.stringify(params)  
+          data: JSON.stringify(params)
         })
       },
 
@@ -468,7 +476,7 @@ var BaasBox = (function() {
           mimeType: "multipart/form-data",
           contentType: false,
           cache: false,
-          processData:false       
+          processData:false
         })
       },
 

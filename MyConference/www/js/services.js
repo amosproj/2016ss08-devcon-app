@@ -63,7 +63,18 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
-   
+
+  backend.deleteAccount = function (user) { //function to delete account
+    return BaasBox.deleteAccount(user)
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
+
+  }
+
   backend.createEvent = function (ev) {
     var newEvent = new Object();
     newEvent.title = ev.title;

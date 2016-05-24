@@ -151,7 +151,7 @@ angular.module('starter.controllers', ['services'])
     };
   })
 
-  .controller('MyAccountCtrl', function ($scope, $state, backendService) {
+  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
     backendService.fetchCurrentUser().then(function (res) {
       if(res['data']['user'].name == "default"){
         $state.go('app.login')
@@ -164,8 +164,37 @@ angular.module('starter.controllers', ['services'])
     $scope.goToEdit = function () {
       $state.go('app.edit-account');
     }
-    //delete function
 
+
+    //delete account function
+
+    $scope.deleteAccount = function(user){
+      var susUser = user.username;
+      var confirmPopup = $ionicPopup.confirm({
+        title: 'Delete Account',
+        template: 'Are you sure you want to delete your account?'
+      });
+      confirmPopup.then(function(res) {
+        if(res) {
+          backendService.connect().then(function(){
+            backendService.deleteAccount(susUser).then(function(){
+              backendService.logout();
+                var alertPopup = $ionicPopup.alert({
+                  title: 'Done!',
+                  template: 'Account deleted.'
+                });
+                alertPopup.then(function (re) {
+                  $state.go('app.main')
+                });
+            })
+          })
+          console.log('You are sure');
+        } else {
+          console.log('You are not sure');
+        }
+      });
+
+    }
   })
 
   .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
