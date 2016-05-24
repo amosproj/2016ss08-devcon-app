@@ -8,6 +8,8 @@ npm install -g gulp
 npm install 
 gulp build
 ls platforms/android/
+echo "viewing the AndroidManifest.xml file"
+cat AndroidManifest.xml
 echo
 echo "Copying final artifact to docker assets directory"
 sudo rm -rf docker/assets/android-debug.apk
