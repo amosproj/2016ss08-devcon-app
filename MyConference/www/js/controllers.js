@@ -56,12 +56,30 @@ angular.module('starter.controllers', ['services'])
       })
     })
   })
+
   /*
-   Controller for main view
-   First checks if user logged in, if yes gets list of events from backend
-   if no redirects to start view
+  Controller for the Main Page (overview page).
+  Gets the events out of the backend by calling the service function.
+  Provides the filter methods for previous and next events.
    */
-  .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
+  .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
+    var today = new Date();
+
+    /*
+    This method is used for filter after prevoius events in the main view
+     */
+    $scope.previousEvents = function(item){
+      var itemDate = new Date(item.date)
+      return today < itemDate;
+    }
+
+    /*
+     This method is used for filter after next events in the main view
+     */
+    $scope.nextEvents = function(item){
+      return !$scope.previousEvents(item);
+    }
+
     backendService.fetchCurrentUser().then(function (res) {
     }, function (error) {
       $state.go('app.start')
