@@ -4,7 +4,7 @@
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
         </button>
       </ion-nav-buttons>
-     
+
 
  <ion-nav-buttons side="right">
         <a href="#/app/new_event" class="button icon ion-android-add-circle  button-stable" menu-toggle="right"></a>
@@ -12,10 +12,10 @@
 </ion-nav-bar>
 <br><br><br>
 
-  
+
     <ion-list>
        <ion-item class="icon ion-chevron-right"> UPCOMING</ion-item>
-  <ion-item ng-repeat="ev in events"><a href="#app/event?id={{ev.id}}">{{ev.title}} {{(ev.date | date: 'dd/MM/yy')}}</a>
+  <ion-item ng-repeat="ev in events"><a href="#app/event/{{ev.id}}">{{ev.title}} {{(ev.date | date: 'dd/MM/yy')}}</a>
   </ion-item>
 
 
