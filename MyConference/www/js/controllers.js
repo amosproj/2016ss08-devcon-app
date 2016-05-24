@@ -173,6 +173,57 @@ angular.module('starter.controllers', ['services'])
       )
     };
   })
+  /*
+    Controller for MyAccount view
+    First checks if user is "not registered" user
+    If yes redirects to login view,
+    if no gets username, name, given name and email information about logged user
+     */
+  .controller('MyAccountCtrl', function ($scope, $state, backendService) {
+    backendService.fetchCurrentUser().then(function (res) {
+      if(res['data']['user'].name == "default"){
+        $state.go('app.login')
+      }else {
+        $scope.user = res['data']['visibleByRegisteredUsers'];
+        $scope.user.username = res['data']['user'].name;
+        $scope.user.email = res['data']['visibleByTheUser'].email;
+      }
+    })
+    /*
+    Function that is called after clicking edit button on MyAccount view
+    changes state to edit account view
+     */
+    $scope.goToEdit = function () {
+      $state.go('app.edit-account');
+    }
+    //delete function - Luongs part
+
+  })
+    /*
+    Controller for editing user information
+    First gets user current personal information stored on backend
+    After clicking submit button in edit-account view calls update account function with user form as a parameter
+    Then redirects to MyAccount view
+     */
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.fetchCurrentUser().then(function (res) {
+      $scope.user = res['data']['visibleByRegisteredUsers'];
+      $scope.user.username = res['data']['user'].name;
+      $scope.user.email = res['data']['visibleByTheUser'].email;
+    })
+    $scope.updateAccount = function (user) {
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+      var alertPopup = $ionicPopup.alert({
+        title: 'Done!',
+        template: 'Account updated.'
+      });
+      alertPopup.then(function (re) {
+        $state.go('app.my-account')
+      });
+    }
+
+  })
 
   //directive to check whether your passwords are matched
   .directive('validateMatch', function () {
