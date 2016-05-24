@@ -3,7 +3,7 @@
  */
 
 angular.module('starter.directives', [])
-
+//password match check
   .directive('validateMatch', function () {
     return {
       require: 'ngModel',
