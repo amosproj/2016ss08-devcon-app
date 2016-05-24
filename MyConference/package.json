@@ -1,5 +1,5 @@
 {
-  "name": "myconference",
+  "name": "my-conference",
   "version": "1.1.1",
   "description": "MyConference: An Ionic project",
   "dependencies": {
@@ -24,5 +24,7 @@
     "cordova-plugin-statusbar",
     "ionic-plugin-keyboard"
   ],
-  "cordovaPlatforms": []
+  "cordovaPlatforms": [
+    "android"
+  ]
 }
