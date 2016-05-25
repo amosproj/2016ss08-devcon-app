@@ -1,3 +1,0 @@
-#!/bin/bash
-set -ue
-/opt/baasbox/start -Dhttp.port=9000 -Dorient.baasbox.path="/persistent"
