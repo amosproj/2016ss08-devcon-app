@@ -1,6 +1,12 @@
 var services = angular.module('services', []);
-services.factory('backendService', function () {
+services.factory('backendService', function ($rootScope) {
+  // credentials for actions when user is not logged in
+  var defaultUsername = "default";
+  var defaultPassword = "123456";
+
   var backend = {};
+  backend.loginStatus = false;
+
   /*
    Function for establishing connection to the backend
    After getting a connection logs in as a default user
@@ -10,7 +16,7 @@ services.factory('backendService', function () {
   backend.connect = function () {
     BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
     BaasBox.appcode = "1234567890";
-    return backend.login("default", "123456")
+    return backend.login(defaultUsername, defaultPassword);
   }
   /*
    Function for getting list of events from backend
@@ -58,7 +64,11 @@ services.factory('backendService', function () {
   backend.login = function (username, pass) {
     return BaasBox.login(username, pass)
       .done(function (user) {
-        console.log("Logged in ", user);
+        if(username != defaultUsername){
+          backend.loginStatus = true;
+          $rootScope.$broadcast('user:loginState',backend.loginStatus); //trigger menu refresh
+        }
+        console.log("Logged in ", username);
       })
       .fail(function (err) {
         console.log(" Login error ", err);
@@ -71,6 +81,8 @@ services.factory('backendService', function () {
   backend.logout = function (username, pass) {
     return BaasBox.logout()
       .done(function (res) {
+        backend.loginStatus = false;
+        $rootScope.$broadcast('user:loginState',backend.loginStatus); //trigger menu refresh
         console.log(res);
       })
       .fail(function (error) {
@@ -91,7 +103,7 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
-
+  
   backend.deleteAccount = function (user) { //function to delete account
     return BaasBox.deleteAccount(user)
       .done(function (res) {
@@ -102,7 +114,7 @@ services.factory('backendService', function () {
       });
 
   }
-      
+
   /*
    Function for creating a new event
    First saves a new document in "events" collection

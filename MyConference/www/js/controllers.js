@@ -1,5 +1,6 @@
 angular.module('starter.controllers', ['services'])
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout) {
+
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService) {
 
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
@@ -23,7 +24,17 @@ angular.module('starter.controllers', ['services'])
     $scope.login = function () {
       $scope.modal.show();
     };
+
+    $scope.isLoggedIn = false;
+
+    $scope.$on('user:loginState', function(event,data) {
+      // you could inspect the data to see if what you care about changed, or just update your own scope
+      $scope.isLoggedIn = backendService.loginStatus;
+      console.log("Login event processed: "+backendService.loginStatus)
+    });
+
   })
+
   /*
    Controller for starter view
    Shows loading while establishing connection to the backend
@@ -81,6 +92,7 @@ angular.module('starter.controllers', ['services'])
     }
 
     backendService.fetchCurrentUser().then(function (res) {
+
     }, function (error) {
       $state.go('app.start')
     })
@@ -108,6 +120,7 @@ angular.module('starter.controllers', ['services'])
       })
     }
   })
+
   /*
    Controller for showing event information
    Gets event by its id form backend
@@ -151,29 +164,49 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('LoginCtrl', function($scope, $state, backendService, $ionicPopup){
+  /* 
+   Controller for the Login Page. 
+   First logouts the logged in default user, then calls the backend login and shows success/error popup. 
+   Goes to Main Page if success, stays on login form but deletes pasword if error. 
+   */
+  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup) {
     backendService.logout();
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          var alertPopup = $ionicPopup.alert({
+          $ionicPopup.alert({
             title: 'Done!',
             template: 'Login successful.'
-          });
-          alertPopup.then(function (re) {
-            $ionicHistory.backView().go();
+          }).then(function (re) {
+            $state.go('app.main');
           });
         },
         function (err) {
-          var alertPopup = $ionicPopup.alert({
+          $ionicPopup.alert({
             title: 'Error!',
             template: 'Username and password did not match.'
           });
+          credentials.password = "";
         }
       )
     };
   })
-    
+
+  /* 
+   Controller for Logout 
+   Logouts the user, shows a popup and then goes to main page. 
+   */
+  .controller('LogoutCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.logout().then(
+      function (res) {
+        $ionicPopup.alert({
+          title: 'Logout',
+          template: 'You are logged out.'
+        });
+        $state.go('app.main');
+      });
+  })
+
   /*
     Controller for MyAccount view
     First checks if user is "not registered" user
@@ -197,9 +230,8 @@ angular.module('starter.controllers', ['services'])
     $scope.goToEdit = function () {
       $state.go('app.edit-account');
     }
-    
-    //delete account function
 
+    //delete account function
     $scope.deleteAccount = function(user){
       var susUser = user.username;
       var confirmPopup = $ionicPopup.confirm({
@@ -253,24 +285,3 @@ angular.module('starter.controllers', ['services'])
     }
 
   })
-
-  //directive to check whether your passwords are matched
-  .directive('validateMatch', function () {
-    return {
-      require: 'ngModel',
-      scope: {
-        validateMatch: '='
-      },
-      link: function (scope, element, attrs, ngModel) {
-        scope.$watch('validateMatch', function () {
-          ngModel.$validate();
-        });
-        ngModel.$validators.match = function (modelValue) {
-          if (!modelValue || !scope.validateMatch) {
-            return true;
-          }
-          return modelValue === scope.validateMatch;
-        };
-      }
-    };
-  });

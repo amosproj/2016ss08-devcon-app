@@ -1,4 +1,4 @@
-<ion-side-menus enable-menu-with-back-views="false">
+<ion-side-menus enable-menu-with-back-views="true">
   <ion-side-menu-content>
     <ion-nav-bar class="bar-stable">
       <ion-nav-back-button>
@@ -31,12 +31,12 @@
         My Account
       </a>
 
-      <a class="item menu-close item-icon-left" href="#">
+      <a class="item menu-close item-icon-left" href="#" ng-show="isLoggedIn">
         <i class="icon ion-ios-gear"></i>
         Settings
       </a>
 
-      <a class="item menu-close item-icon-left" href="#">
+      <a class="item menu-close item-icon-left" href="#/app/logout" ng-show="isLoggedIn">
         <i class="icon ion-android-close"></i>
         Logout
       </a>

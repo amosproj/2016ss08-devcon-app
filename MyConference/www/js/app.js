@@ -95,6 +95,16 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
+      .state('app.logout', {
+        cache: false,
+        url: '/logout',
+        views: {
+          'menuContent': {
+            controller: 'LogoutCtrl'
+          }
+        }
+      })
+
       .state('app.new_event', {
         url: '/new_event',
         views: {
