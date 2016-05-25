@@ -219,8 +219,9 @@ angular.module('starter.controllers', ['services'])
         $ionicPopup.alert({
           title: 'Logout',
           template: 'You are logged out.'
-        });
-        $state.go('app.main');
+        }).then(function (re) {
+          $state.go('app.start');
+        })
       });
   })
 
