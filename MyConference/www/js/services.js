@@ -1,7 +1,3 @@
-/**
- * Created by Murad Isayev on 08.05.2016.
- */
-
 var services = angular.module('services', []);
 services.factory('backendService', function ($rootScope) {
   // credentials for actions when user is not logged in
@@ -11,12 +7,23 @@ services.factory('backendService', function ($rootScope) {
   var backend = {};
   backend.loginStatus = false;
 
-  backend.connect = function () { //this function connects the app to the backend, returns a promise
+  /*
+   Function for establishing connection to the backend
+   After getting a connection logs in as a default user
+   "default" means "not registered" user
+   returns a promise
+   */
+  backend.connect = function () {
     BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
     BaasBox.appcode = "1234567890";
-    return backend.login(defaultUsername, defaultPassword) //default means "not registered" user
+    return backend.login(defaultUsername, defaultPassword);
   }
-  backend.getEvents = function () { //this function gets all events stored in the database, returns a promise
+  /*
+   Function for getting list of events from backend
+   Loads a collection where events are stored
+   returns a promise
+   */
+  backend.getEvents = function () {
     return BaasBox.loadCollection("events")
       .done(function (res) {
         console.log("res ", res);
@@ -25,22 +32,36 @@ services.factory('backendService', function ($rootScope) {
         console.log("error ", error);
       })
   };
-  backend.fetchCurrentUser = function () { //function for getting current logged user, returns a promise
+  /*
+   Function for fetching a current logged user
+   returns a promise
+   */
+  backend.fetchCurrentUser = function () {
     return BaasBox.fetchCurrentUser();
   }
-  backend.createAccount = function (user) { // function for creatig an user account
+  /*
+   Function for creating new user account
+   First signs up using username and password credentials,
+   then logs in as a new user and updates "visibleByTheUser" field adding email information
+   and "visibleByRegisteredUsers" field saving name and given name
+   */
+  backend.createAccount = function (user) {
     BaasBox.signup(user.username, user.pass)
       .done(function (res) {
         console.log("signup ", res);
         backend.login(user.username, user.pass);
-        backend.updateUserProfile({"visibleByTheUser": {"email": user.email}}); // adding email for new created user
-        backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}}); // adding Name and Given Name
+        backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+        backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
       })
       .fail(function (error) {
         console.log("SIgnup error ", error);
       })
   }
-  backend.login = function (username, pass) { //function to login to the system, returns a promise
+  /*
+   Function for logging in using login credentials
+   returns a promise
+   */
+  backend.login = function (username, pass) {
     return BaasBox.login(username, pass)
       .done(function (user) {
         if(username != defaultUsername){
@@ -53,7 +74,11 @@ services.factory('backendService', function ($rootScope) {
         console.log(" Login error ", err);
       });
   }
-  backend.logout = function (username, pass) {//logout function, returns a promise
+  /*
+   Function for logout
+   returns a promise
+   */
+  backend.logout = function (username, pass) {
     return BaasBox.logout()
       .done(function (res) {
         backend.loginStatus = false;
@@ -64,8 +89,11 @@ services.factory('backendService', function ($rootScope) {
         console.log("error ", error);
       })
   }
-  // function to update user information,
-  // requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
+  /*
+   Function for updating user account
+   requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
+   returns a promise
+   */
   backend.updateUserProfile = function (params) {
     return BaasBox.updateUserProfile(params)
       .done(function (res) {
@@ -75,24 +103,39 @@ services.factory('backendService', function ($rootScope) {
         console.log("Update error ", error);
       })
   }
+  
+  backend.deleteAccount = function (user) { //function to delete account
+    return BaasBox.deleteAccount(user)
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
 
+  }
+
+  /*
+   Function for creating a new event
+   First saves a new document in "events" collection
+   Then grants read permission to registered and not registered users
+   */
   backend.createEvent = function (ev) {
-    var newEvent = new Object();
-    newEvent.title = ev.title;
-    newEvent.location = ev.location;
-    newEvent.date = ev.date;
-    newEvent.descr = ev.descr;
-    BaasBox.save(newEvent, "events")
+    BaasBox.save(ev, "events")
       .done(function (res) {
         console.log("res ", res);
-        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default") // grant permission to see this event by not registered users
-        BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE) // grant permission to see this event by registered users
+        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default")
+        BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
       })
       .fail(function (error) {
         console.log("error ", error);
       })
   }
-  backend.getEventById = function (id) { // function for getting a event by its id, returns a promise
+  /*
+   Function for getting an event by id
+   returns a promise
+   */
+  backend.getEventById = function (id) {
     return BaasBox.loadObject("events", id)
   }
   return backend;

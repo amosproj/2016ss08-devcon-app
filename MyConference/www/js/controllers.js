@@ -8,22 +8,18 @@ angular.module('starter.controllers', ['services'])
     // listen for the $ionicView.enter event:
     //$scope.$on('$ionicView.enter', function(e) {
     //});
-
     // Form data for the login modal
     $scope.loginData = {};
-
     // Create the login modal that we will use later
     $ionicModal.fromTemplateUrl('templates/login.html', {
       scope: $scope
     }).then(function (modal) {
       $scope.modal = modal;
     });
-
     // Triggered in the login modal to close it
     $scope.closeLogin = function () {
       $scope.modal.hide();
     };
-
     // Open the login modal
     $scope.login = function () {
       $scope.modal.show();
@@ -39,6 +35,12 @@ angular.module('starter.controllers', ['services'])
 
   })
 
+  /*
+   Controller for starter view
+   Shows loading while establishing connection to the backend
+   If connection successfully establishes redirects to main view,
+   if no shows an error alert and reloads controller
+   */
   .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
     console.log("Start contorller")
     $ionicLoading.show({
@@ -66,9 +68,31 @@ angular.module('starter.controllers', ['services'])
     })
   })
 
-  .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
+  /*
+  Controller for the Main Page (overview page).
+  Gets the events out of the backend by calling the service function.
+  Provides the filter methods for previous and next events.
+   */
+  .controller('MainCtrl', function($scope, $state, $ionicPopup, backendService) {
+    var today = new Date();
+
+    /*
+    This method is used for filter after prevoius events in the main view
+     */
+    $scope.previousEvents = function(item){
+      var itemDate = new Date(item.date)
+      return today < itemDate;
+    }
+
+    /*
+     This method is used for filter after next events in the main view
+     */
+    $scope.nextEvents = function(item){
+      return !$scope.previousEvents(item);
+    }
+
     backendService.fetchCurrentUser().then(function (res) {
-      console.log("Current user: "+res['data'].user.name)
+
     }, function (error) {
       $state.go('app.start')
     })
@@ -79,7 +103,11 @@ angular.module('starter.controllers', ['services'])
     })
   })
 
-
+  /*
+   Controller for creating an event
+   Calls createEvent service, shows a popup alert about successful creation of an event
+   and redirects to main view
+   */
   .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
@@ -93,21 +121,24 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
-  .controller('EventCtrl', function ($scope, $location, backendService) {
-    $scope.location = $location;
-    $scope.$watch('location.search()', function () {
-      var id = ($location.search()).id;
-      backendService.getEventById(id).then(function (res) {
-        $scope.event = res.data;
-      }, function (reason) {
-        console.log("Error detected because of " + reason);
-      })
-    }, true);
-
+  /*
+   Controller for showing event information
+   Gets event by its id form backend
+   */
+  .controller('EventCtrl', function ($scope, $stateParams, backendService) {
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.event = res['data']
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
   })
-
+  /*
+   Controller for user registration
+   First checks if user already logged in, if yes shows alert message and redirects to main view,
+   if no calls createAccount service with user form as a parameter
+   "default" user means "not registered" user
+   */
   .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService) {
-    console.log(" REGISTER CONTROLLER ")
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         backendService.logout();
@@ -140,7 +171,6 @@ angular.module('starter.controllers', ['services'])
    */
   .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup) {
     backendService.logout();
-
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
@@ -159,7 +189,6 @@ angular.module('starter.controllers', ['services'])
           credentials.password = "";
         }
       )
-
     };
   })
 
@@ -178,26 +207,81 @@ angular.module('starter.controllers', ['services'])
       });
   })
 
-  //directive to check whether your passwords are matched
-
-  .directive('validateMatch', function () {
-    return {
-      require: 'ngModel',
-      scope: {
-        validateMatch: '='
-      },
-      link: function (scope, element, attrs, ngModel) {
-
-        scope.$watch('validateMatch', function () {
-          ngModel.$validate();
-        });
-
-        ngModel.$validators.match = function (modelValue) {
-          if (!modelValue || !scope.validateMatch) {
-            return true;
-          }
-          return modelValue === scope.validateMatch;
-        };
+  /*
+    Controller for MyAccount view
+    First checks if user is "not registered" user
+    If yes redirects to login view,
+    if no gets username, name, given name and email information about logged user
+     */
+  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.fetchCurrentUser().then(function (res) {
+      if(res['data']['user'].name == "default"){
+        $state.go('app.login')
+      }else {
+        $scope.user = res['data']['visibleByRegisteredUsers'];
+        $scope.user.username = res['data']['user'].name;
+        $scope.user.email = res['data']['visibleByTheUser'].email;
       }
-    };
-  });
+    })
+    /*
+    Function that is called after clicking edit button on MyAccount view
+    changes state to edit account view
+     */
+    $scope.goToEdit = function () {
+      $state.go('app.edit-account');
+    }
+
+    //delete account function
+    $scope.deleteAccount = function(user){
+      var susUser = user.username;
+      var confirmPopup = $ionicPopup.confirm({
+        title: 'Delete Account',
+        template: 'Are you sure you want to delete your account?'
+      });
+      confirmPopup.then(function(res) {
+        if(res) {
+          backendService.connect().then(function(){
+            backendService.deleteAccount(susUser).then(function(){
+              backendService.logout();
+                var alertPopup = $ionicPopup.alert({
+                  title: 'Done!',
+                  template: 'Account deleted.'
+                });
+                alertPopup.then(function (re) {
+                  $state.go('app.main')
+                });
+            })
+          })
+          console.log('You are sure');
+        } else {
+          console.log('You are not sure');
+        }
+      });
+
+    }
+  })
+    /*
+    Controller for editing user information
+    First gets user current personal information stored on backend
+    After clicking submit button in edit-account view calls update account function with user form as a parameter
+    Then redirects to MyAccount view
+     */
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.fetchCurrentUser().then(function (res) {
+      $scope.user = res['data']['visibleByRegisteredUsers'];
+      $scope.user.username = res['data']['user'].name;
+      $scope.user.email = res['data']['visibleByTheUser'].email;
+    })
+    $scope.updateAccount = function (user) {
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+      var alertPopup = $ionicPopup.alert({
+        title: 'Done!',
+        template: 'Account updated.'
+      });
+      alertPopup.then(function (re) {
+        $state.go('app.my-account')
+      });
+    }
+
+  })

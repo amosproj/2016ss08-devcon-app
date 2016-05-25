@@ -1,11 +1,12 @@
-<ion-view view-title="{{event.title}}">
+<ion-view>
+  <ion-nav-title>
+    {{event.title}}
+  </ion-nav-title>
   <ion-content>
-    <ion-list>
-      <!-- fetch data from database -->
-      <div class="bar-stable"> </div>
-      <a class="item item-icon-left"><i class="icon ion-clock"></i> {{(event.date | date: 'dd MMM yyyy') || "t.b.a"}} </a>
-      <a class="item item-icon-left"> <i class="icon ion-map"></i>: {{event.location || "t.b.a"}}</a>
-      <a class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : AGENDA</a>
+    <ion-list class="bar-stable">
+      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{(event.date | date: 'dd MMM yyyy') || "t.b.a"}} </ion-item>
+      <ion-item class="item item-icon-left"> <i class="icon ion-map"></i>: {{event.location || "t.b.a"}}</ion-item>
+      <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : AGENDA</ion-item>
     </ion-list>
     <p>
       {{event.descr}}
