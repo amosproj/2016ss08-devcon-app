@@ -1,11 +1,25 @@
 #!/usr/bin/env sh
+# This file is part of MyConference.
+#
+# MyConference is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License version 3
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should find a copy of the GNU Affero General Public License in the
+# root directory along with this program.
+
 
 scriptdir=`dirname $0`
 classpath="$scriptdir/lib/*"
 
 # check if the RUNNING_PID file exists. In this case it will be deleted if there is no process with the same PID stored in it
 # RUNNING_PID file is created by BaasBox when it starts. If it quits unexpectedly (kill -9, server crash) the file is not deleted and BaasBox will not restarts
- 
+
 if [ -f RUNNING_PID ];
 then
 	ps -p $(cat RUNNING_PID) > /dev/null; test $? -eq 1 && rm RUNNING_PID
