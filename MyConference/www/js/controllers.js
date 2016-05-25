@@ -173,13 +173,14 @@ angular.module('starter.controllers', ['services'])
       )
     };
   })
+    
   /*
     Controller for MyAccount view
     First checks if user is "not registered" user
     If yes redirects to login view,
     if no gets username, name, given name and email information about logged user
      */
-  .controller('MyAccountCtrl', function ($scope, $state, backendService) {
+  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
     backendService.fetchCurrentUser().then(function (res) {
       if(res['data']['user'].name == "default"){
         $state.go('app.login')
@@ -196,8 +197,36 @@ angular.module('starter.controllers', ['services'])
     $scope.goToEdit = function () {
       $state.go('app.edit-account');
     }
-    //delete function - Luongs part
+    
+    //delete account function
 
+    $scope.deleteAccount = function(user){
+      var susUser = user.username;
+      var confirmPopup = $ionicPopup.confirm({
+        title: 'Delete Account',
+        template: 'Are you sure you want to delete your account?'
+      });
+      confirmPopup.then(function(res) {
+        if(res) {
+          backendService.connect().then(function(){
+            backendService.deleteAccount(susUser).then(function(){
+              backendService.logout();
+                var alertPopup = $ionicPopup.alert({
+                  title: 'Done!',
+                  template: 'Account deleted.'
+                });
+                alertPopup.then(function (re) {
+                  $state.go('app.main')
+                });
+            })
+          })
+          console.log('You are sure');
+        } else {
+          console.log('You are not sure');
+        }
+      });
+
+    }
   })
     /*
     Controller for editing user information

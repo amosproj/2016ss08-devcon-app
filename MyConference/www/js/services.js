@@ -91,6 +91,18 @@ services.factory('backendService', function () {
         console.log("Update error ", error);
       })
   }
+
+  backend.deleteAccount = function (user) { //function to delete account
+    return BaasBox.deleteAccount(user)
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
+
+  }
+      
   /*
    Function for creating a new event
    First saves a new document in "events" collection
