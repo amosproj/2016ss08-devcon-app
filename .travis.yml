@@ -23,6 +23,7 @@ env:
 # Set execution rights
 before_script:
   - chmod +x MyConference/docker/build
+  - chmod +x deploy_script.sh
   
 script:
   # Build .apk file and build docker image (inside docker container)
