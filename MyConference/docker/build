@@ -18,6 +18,7 @@ set -ue
 cd MyConference/
 npm install -g gulp
 npm install
+bower install
 chmod +x hooks/after_prepare/010_add_platform_class.js
 ionic state reset
 cordova platform add android
