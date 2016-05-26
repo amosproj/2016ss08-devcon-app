@@ -31,44 +31,29 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   </ion-side-menu-content>
   <ion-side-menu side="left">
 
-    <div class="list">
-
-      <a class="item menu-close item-icon-left" href="#/app/main">
-        <i class="icon menu-close ion-home"></i>
+    <ion-list>
+      <ion-item menu-close href="#/app/main">
         Overview
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#/app/event">
-        <i class="icon ion-heart"></i>
-        My Events
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#/app/my-account">
-        <i class="icon ion-person-stalker"></i>
+      </ion-item>
+      <ion-item menu-close href="#/app/my-account">
         My Account
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#" ng-show="isLoggedIn">
-        <i class="icon ion-ios-gear"></i>
+      </ion-item>
+      <ion-item menu-close href="#" ng-show="isLoggedIn">
         Settings
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#/app/logout" ng-show="isLoggedIn">
-        <i class="icon ion-android-close"></i>
+      </ion-item>
+      <ion-item menu-close href="#/app/logout" ng-show="isLoggedIn">
         Logout
-      </a>
-
-    </div>
-
-    <li class="item item-toggle">
-      English
-      <label class="toggle toggle-assertive" >
-        <input type="checkbox">
-        <div class="track">
-          <div class="handle"></div>
-        </div>
-      </label>
-    </li>
+      </ion-item>
+      <ion-item class="item item-toggle">
+        Switch to english
+        <label class="toggle toggle-positive">
+          <input type="checkbox">
+          <div class="track">
+            <div class="handle"></div>
+          </div>
+        </label>
+      </ion-item>
+    </ion-list>
 
 
     </ion-content>
