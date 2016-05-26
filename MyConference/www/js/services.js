@@ -34,7 +34,8 @@ services.factory('backendService', function ($rootScope) {
     BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
     BaasBox.appcode = "1234567890";
     return backend.login(defaultUsername, defaultPassword);
-  }
+  };
+
   /*
    Function for getting list of events from backend
    Loads a collection where events are stored
@@ -49,13 +50,15 @@ services.factory('backendService', function ($rootScope) {
         console.log("error ", error);
       })
   };
+
   /*
    Function for fetching a current logged user
    returns a promise
    */
   backend.fetchCurrentUser = function () {
     return BaasBox.fetchCurrentUser();
-  }
+  };
+
   /*
    Function for creating new user account
    First signs up using username and password credentials,
@@ -71,9 +74,10 @@ services.factory('backendService', function ($rootScope) {
         backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
       })
       .fail(function (error) {
-        console.log("SIgnup error ", error);
+        console.log("Signup error ", error);
       })
-  }
+  };
+
   /*
    Function for logging in using login credentials
    returns a promise
@@ -81,31 +85,33 @@ services.factory('backendService', function ($rootScope) {
   backend.login = function (username, pass) {
     return BaasBox.login(username, pass)
       .done(function (user) {
-        if(username != defaultUsername){
+        if (username != defaultUsername) {
           backend.loginStatus = true;
-          $rootScope.$broadcast('user:loginState',backend.loginStatus); //trigger menu refresh
+          $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
         }
         console.log("Logged in ", username);
       })
       .fail(function (err) {
         console.log(" Login error ", err);
       });
-  }
+  };
+
   /*
    Function for logout
    returns a promise
    */
-  backend.logout = function (username, pass) {
+  backend.logout = function () {
     return BaasBox.logout()
       .done(function (res) {
         backend.loginStatus = false;
-        $rootScope.$broadcast('user:loginState',backend.loginStatus); //trigger menu refresh
+        $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
         console.log(res);
       })
       .fail(function (error) {
         console.log("error ", error);
       })
-  }
+  };
+
   /*
    Function for updating user account
    requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
@@ -119,8 +125,14 @@ services.factory('backendService', function ($rootScope) {
       .fail(function (error) {
         console.log("Update error ", error);
       })
-  }
+  };
 
+  /*
+   Function for deleting an account.
+   Gets the user as parameter.
+   Calls the BaasBox function for deleting a user.
+   Returns a promise.
+   */
   backend.deleteAccount = function (user) { //function to delete account
     return BaasBox.deleteAccount(user)
       .done(function (res) {
@@ -130,7 +142,7 @@ services.factory('backendService', function ($rootScope) {
         console.log("Delete error ", err);
       });
 
-  }
+  };
 
   /*
    Function for creating a new event
@@ -141,19 +153,21 @@ services.factory('backendService', function ($rootScope) {
     BaasBox.save(ev, "events")
       .done(function (res) {
         console.log("res ", res);
-        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default")
+        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
         BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
       })
       .fail(function (error) {
         console.log("error ", error);
       })
-  }
+  };
+
   /*
    Function for getting an event by id
    returns a promise
    */
   backend.getEventById = function (id) {
     return BaasBox.loadObject("events", id)
-  }
+  };
+
   return backend;
 });
