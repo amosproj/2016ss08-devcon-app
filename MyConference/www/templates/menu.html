@@ -33,19 +33,19 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 
     <ion-list>
       <ion-item menu-close href="#/app/main">
-        Overview
+        <div translate>Overview</div>
       </ion-item>
       <ion-item menu-close href="#/app/my-account">
-        My Account
+        <div translate>My Account</div>
       </ion-item>
       <ion-item menu-close href="#" ng-show="isLoggedIn">
-        Settings
+        <div translate>Settings</div>
       </ion-item>
       <ion-item menu-close href="#/app/logout" ng-show="isLoggedIn">
-        Logout
+        <div translate>Logout</div>
       </ion-item>
       <ion-item class="item item-toggle">
-        Switch to english
+        <div translate>Switch to english</div>
         <label class="toggle toggle-positive" ng-click="changeLanguage()">
           <input type="checkbox">
           <div class="track">
