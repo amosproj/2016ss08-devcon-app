@@ -17,7 +17,7 @@ script:
 # Deploy via script, only on master
 deploy:
   provider: script
-  script: deploy_script.sh
+  script: "./deploy_script.sh"
   skip_cleanup: true
   on:
       branch: travis-script-adjustment
