@@ -14,9 +14,7 @@
  root directory along with this program.
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
-
-angular.module('starter.controllers', ['services'])
-
+angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService) {
 
     // With the new view caching in Ionic, Controllers are only called
@@ -41,9 +39,7 @@ angular.module('starter.controllers', ['services'])
     $scope.login = function () {
       $scope.modal.show();
     };
-
     $scope.isLoggedIn = false;
-
     $scope.$on('user:loginState', function (event, data) {
       // you could inspect the data to see if what you care about changed, or just update your own scope
       $scope.isLoggedIn = backendService.loginStatus;
@@ -91,7 +87,6 @@ angular.module('starter.controllers', ['services'])
    */
   .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
     var today = new Date();
-
     /*
      This method is used for filter after prevoius events in the main view
      */
@@ -99,16 +94,13 @@ angular.module('starter.controllers', ['services'])
       var itemDate = new Date(item.date);
       return today < itemDate;
     };
-
     /*
      This method is used for filter after next events in the main view
      */
     $scope.nextEvents = function (item) {
       return !$scope.previousEvents(item);
     };
-
     backendService.fetchCurrentUser().then(function (res) {
-
     }, function (error) {
       $state.go('app.start')
     });
@@ -139,14 +131,57 @@ angular.module('starter.controllers', ['services'])
 
   /*
    Controller for showing event information
-   Gets event by its id form backend
+   Gets event by its id rom backend, gets agenda file name and download url if it exist
+   Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $stateParams, backendService) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicPopup, $cordovaInAppBrowser) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
+      if (typeof res['data'].fileId !== 'undefined' && res['data'].fileId != "") {
+        backendService.getFileDetails(res['data'].fileId).then(function (file) {
+          $scope.filename = file['data'].fileName;
+          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+          $scope.agenda = true;
+        }, function (fileError) {
+          console.log("Error by getting file details")
+        })
+      }
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
+    $scope.upload = false;
+    $scope.agenda = false;
+    $("#uploadForm").submit(function (e) {
+      e.preventDefault();
+      var formData = new FormData();
+      formData.append('file', $('input[type=file]')[0].files[0])
+      backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
+        $ionicPopup.alert({
+          title: 'Done!',
+          template: 'File successfully uploaded'
+        }).then(function (re) {
+          $state.reload();
+        })
+      }, function (error) {
+        $ionicPopup.alert({
+          title: 'Error',
+          template: 'Error occurred by uploading a file'
+        }).then(function (re) {
+          $state.reload();
+        })
+      })
+    })
+    $scope.download = function (url) {
+      $ionicPlatform.ready(function () {
+        $cordovaInAppBrowser.open(url, '_system')
+          .then(function (event) {
+            // success
+          })
+          .catch(function (event) {
+            // error
+          });
+      });
+    }
   })
 
   /*
@@ -248,7 +283,6 @@ angular.module('starter.controllers', ['services'])
     $scope.goToEdit = function () {
       $state.go('app.edit-account');
     };
-
     //delete account function
     $scope.deleteAccount = function (user) {
       var susUser = user.username;
