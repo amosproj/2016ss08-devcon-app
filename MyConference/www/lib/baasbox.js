@@ -484,6 +484,10 @@ var BaasBox = (function() {
         return $.get(BaasBox.endPoint + '/file/' + fileId + "?X-BB-SESSION=" + BaasBox.getCurrentUser().token)
       },
 
+      getFileUrl: function (fileId) {
+        return ""+BaasBox.endPoint + '/file/' + fileId + "?download=true&X-BB-SESSION=" + BaasBox.getCurrentUser().token
+      },
+
       deleteFile: function(fileId) {
         return $.ajax({
           url: BaasBox.endPoint + '/file/' + fileId,
