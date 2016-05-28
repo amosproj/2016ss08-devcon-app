@@ -214,9 +214,9 @@ angular.module('starter.controllers', ['services'])
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
           $translate('Done!').then(
-            function (res) {
+            function (result) {
               $ionicPopup.alert({
-                title: res,
+                title: result,
                 template: "{{'Login successful.' | translate}}"
               }).then(function (re) {
                 $state.go('app.main');
@@ -248,9 +248,9 @@ angular.module('starter.controllers', ['services'])
     backendService.logout().then(
       function (res) {
         $translate('Done!').then(
-          function (res) {
+          function (result) {
             $ionicPopup.alert({
-              title: res,
+              title: result,
               template: "{{'You are logged out' | translate}}"
             }).then(function (res) {
               $state.go('app.start')
@@ -293,15 +293,15 @@ angular.module('starter.controllers', ['services'])
           $ionicPopup.confirm({
             title: res,
             template: "{{'Are you sure you want to delete your account?' | translate}}"
-          }).then(function (res) {
-            if (res) {
+          }).then(function (result) {
+            if (result) {
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   backendService.logout();
                   $translate('Done!').then(
-                    function (res) {
+                    function (res2) {
                       $ionicPopup.alert({
-                        title: res,
+                        title: res2,
                         template: "{{'Account deleted.' | translate}}"
                       }).then(function (res) {
                         $state.go('app.main')
