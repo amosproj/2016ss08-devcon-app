@@ -17,7 +17,7 @@
 
 angular.module('starter.controllers', ['services'])
 
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService) {
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate) {
 
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
@@ -41,6 +41,17 @@ angular.module('starter.controllers', ['services'])
     $scope.login = function () {
       $scope.modal.show();
     };
+
+    $scope.languageSwitched = false;
+    $scope.changeLanguage = function () {
+      if ($scope.languageSwitched) {
+        $translate.use("de");
+      } else {
+        $translate.use("en");
+      }
+      $scope.languageSwitched = !$scope.languageSwitched;
+      console.log($scope.languageSwitched);
+    }
 
     $scope.isLoggedIn = false;
 
@@ -72,15 +83,16 @@ angular.module('starter.controllers', ['services'])
         disableBack: true
       });
       $state.go('app.main')
-    }, function (error) {
-      $ionicLoading.hide();
-      var alertPopup = $ionicPopup.alert({
-        title: 'Connection error',
-        template: 'Check your internet connection and try again'
-      });
-      alertPopup.then(function (re) {
-        $state.reload();
-      })
+    }, function (err) {
+      $translate('Connection error').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Check your internet connection and try again' | translate}}"
+          });
+          credentials.password = "";
+        }
+      );
     })
   })
 
@@ -124,16 +136,20 @@ angular.module('starter.controllers', ['services'])
    Calls createEvent service, shows a popup alert about successful creation of an event
    and redirects to main view
    */
-  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService) {
+  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Event "' + ev.title + '" created.'
-      });
-      alertPopup.then(function (res) {
-        $state.go('app.main')
-      })
+
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'created' | translate}}" + "."
+          }).then(function (res) {
+            $state.go('app.main')
+          });
+        }
+      );
     }
   })
 
@@ -155,55 +171,70 @@ angular.module('starter.controllers', ['services'])
    if no calls createAccount service with user form as a parameter
    "default" user means "not registered" user
    */
-  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService) {
+  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         backendService.logout();
       } else {
-        var alertPopup = $ionicPopup.alert({
-          title: 'Done!',
-          template: 'You are already logged in'
-        });
-        alertPopup.then(function (re) {
-          $state.go('app.main')
-        })
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'You are already logged in' | translate}}"
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        );
       }
     });
     $scope.createAccount = function (user) {
       backendService.createAccount(user);
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Welcome, ' + user.name
-      });
-      alertPopup.then(function (re) {
-        $state.go('app.main')
-      })
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Welcome' | translate}}" + ', ' + user.name
+          }).then(function (res) {
+            $state.go('app.main')
+          });
+        }
+      );
     }
   })
 
   /* 
    Controller for the Login Page. 
    First logouts the logged in default user, then calls the backend login and shows success/error popup. 
-   Goes to Main Page if success, stays on login form but deletes pasword if error. 
+   Goes to Main Page if success, stays on login form but deletes password if error. 
    */
-  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.logout();
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          $ionicPopup.alert({
-            title: 'Done!',
-            template: 'Login successful.'
-          }).then(function (re) {
-            $state.go('app.main');
-          });
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Login successful.' | translate}}"
+              }).then(function (re) {
+                $state.go('app.main');
+              });
+            }
+          )
+
         },
         function (err) {
-          $ionicPopup.alert({
-            title: 'Error!',
-            template: 'Username and password did not match.'
-          });
-          credentials.password = "";
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Username and password did not match.' | translate}}"
+              });
+              credentials.password = "";
+            }
+          );
         }
       )
     };
@@ -213,15 +244,19 @@ angular.module('starter.controllers', ['services'])
    Controller for Logout 
    Logouts the user, shows a popup and then goes to main page. 
    */
-  .controller('LogoutCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('LogoutCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.logout().then(
       function (res) {
-        $ionicPopup.alert({
-          title: 'Logout',
-          template: 'You are logged out.'
-        }).then(function (re) {
-          $state.go('app.start');
-        })
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'You are logged out' | translate}}"
+            }).then(function (res) {
+              $state.go('app.start')
+            });
+          }
+        );
       });
   })
 
@@ -241,6 +276,7 @@ angular.module('starter.controllers', ['services'])
         $scope.user.email = res['data']['visibleByTheUser'].email;
       }
     });
+
     /*
      Function that is called after clicking edit button on MyAccount view
      changes state to edit account view
@@ -252,31 +288,37 @@ angular.module('starter.controllers', ['services'])
     //delete account function
     $scope.deleteAccount = function (user) {
       var susUser = user.username;
-      var confirmPopup = $ionicPopup.confirm({
-        title: 'Delete Account',
-        template: 'Are you sure you want to delete your account?'
-      });
-      confirmPopup.then(function (res) {
-        if (res) {
-          backendService.connect().then(function () {
-            backendService.deleteAccount(susUser).then(function () {
-              backendService.logout();
-              var alertPopup = $ionicPopup.alert({
-                title: 'Done!',
-                template: 'Account deleted.'
+      $translate('Delete Account').then(
+        function (res) {
+          $ionicPopup.confirm({
+            title: res,
+            template: "{{'Are you sure you want to delete your account?' | translate}}"
+          }).then(function (res) {
+            if (res) {
+              backendService.connect().then(function () {
+                backendService.deleteAccount(susUser).then(function () {
+                  backendService.logout();
+                  $translate('Done!').then(
+                    function (res) {
+                      $ionicPopup.alert({
+                        title: res,
+                        template: "{{'Account deleted.' | translate}}"
+                      }).then(function (res) {
+                        $state.go('app.main')
+                      });
+                    }
+                  );
+                })
               });
-              alertPopup.then(function (re) {
-                $state.go('app.main')
-              });
-            })
+              console.log('You are sure');
+            } else {
+              console.log('You are not sure');
+            }
           });
-          console.log('You are sure');
-        } else {
-          console.log('You are not sure');
-        }
-      });
+        });
     }
   })
+
 
   /*
    Controller for editing user information
@@ -284,21 +326,24 @@ angular.module('starter.controllers', ['services'])
    After clicking submit button in edit-account view calls update account function with user form as a parameter
    Then redirects to MyAccount view
    */
-  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
-    backendService.fetchCurrentUser().then(function (res) {
-      $scope.user = res['data']['visibleByRegisteredUsers'];
-      $scope.user.username = res['data']['user'].name;
-      $scope.user.email = res['data']['visibleByTheUser'].email;
+    .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+      backendService.fetchCurrentUser().then(function (res) {
+        $scope.user = res['data']['visibleByRegisteredUsers'];
+        $scope.user.username = res['data']['user'].name;
+        $scope.user.email = res['data']['visibleByTheUser'].email;
+      });
+      $scope.updateAccount = function (user) {
+        backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+        backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Account updated.' | translate}}"
+            }).then(function (res) {
+              $state.go('app.my-account')
+            });
+          }
+        );
+      }
     });
-    $scope.updateAccount = function (user) {
-      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
-      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Account updated.'
-      });
-      alertPopup.then(function (re) {
-        $state.go('app.my-account')
-      });
-    }
-  });
