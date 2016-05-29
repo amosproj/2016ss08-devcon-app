@@ -84,6 +84,47 @@ angular.module('starter.controllers', ['services'])
     })
   })
 
+  .controller('ForgotCtrl', function($scope, $state, $ionicLoading, backendService) {
+    $scope.user = {};
+    $scope.error = {};
+    $scope.state = {
+      success: false
+    };
+
+    $scope.reset = function() {
+      $ionicLoading.show({
+        content: 'Sending',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+
+      backendService.resetPassword($scope.user.email, {
+        success: function(){
+          backendService.resetPassword({"visibleByTheUser": {"email": user.email}});
+          $ionicLoading.hide();
+          $scope.state.success = true;
+          $scope.$apply();
+        },
+        error: function(err) {
+          $ionicLoading.hide();
+          if (err.code === 125) {
+            $scope.error.message = 'Email address does not exist';
+          } else {
+            $scope.error.message = 'An unknown error has occurred, ' +
+              'please try again';
+          }
+          $scope.$apply();
+        }
+      });
+    };
+
+    $scope.login = function() {
+      $state.go('app.login');
+    };
+  })
+
   /*
    Controller for the Main Page (overview page).
    Gets the events out of the backend by calling the service function.
