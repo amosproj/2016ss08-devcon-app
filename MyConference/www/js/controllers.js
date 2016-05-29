@@ -83,7 +83,12 @@ angular.module('starter.controllers', ['services'])
       })
     })
   })
-
+ /*
+   Controller for forgot password page
+   Calls resetPassword service, shows a popup alert about error reseting of a password
+   and redirects to login view
+   
+   */
   .controller('ForgotCtrl', function($scope, $state, $ionicLoading, backendService) {
     $scope.user = {};
     $scope.error = {};
