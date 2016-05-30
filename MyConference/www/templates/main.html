@@ -30,11 +30,11 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   <ion-list>
     <br><br>
     <ion-item class="item item-divider icon ion-chevron-right"> UPCOMING</ion-item>
-    <ion-item ng-repeat="ev in events | filter: previousEvents"><a href="#app/event/{{ev.id}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
+    <ion-item ng-repeat="ev in events | filter: previousEvents"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
     </ion-item>
 
     <ion-item class="item item-divider icon ion-chevron-right"> PREVIOUS</ion-item>
-    <ion-item ng-repeat="ev in events | filter: nextEvents"><a href="#app/event/{{ev.id}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
+    <ion-item ng-repeat="ev in events | filter: nextEvents"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
     </ion-item>
 
 
