@@ -80,6 +80,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
   })
 
+  /*
+   Controller for transition handling
+   redirects to the defined as a parameter state
+   */
   .controller('TransitionCtrl', function ($scope, $state, $ionicHistory, $stateParams) {
     $ionicHistory.nextViewOptions({
       disableBack: true
