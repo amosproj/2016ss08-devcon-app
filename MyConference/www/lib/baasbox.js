@@ -310,11 +310,11 @@ var BaasBox = (function() {
           "data" : []
         });
         var req = $.ajax({
-            url: url, //	Specifies the URL to send the request to. Default is the current page
-            type: 'PUT', //Specifies the type of request. (GET or POST
-            contentType: 'application/json', //The content type used when sending data to the server. Default is: "application/x-www-form-urlencoded"
-            dataType: 'json', //The data type expected of the server response.
-            data: json //Specifies data to be sent to the server
+            url: url,
+            type: 'PUT',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: json
           })
           .done(function(res) {
             deferred.resolve(res['data']);
