@@ -80,6 +80,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
   })
 
+  .controller('TransitionCtrl', function ($scope, $state, $ionicHistory, $stateParams) {
+    $ionicHistory.nextViewOptions({
+      disableBack: true
+    });
+    $state.go($stateParams.to, $stateParams.data)
+  })
+
   /*
    Controller for the Main Page (overview page).
    Gets the events out of the backend by calling the service function.
@@ -134,14 +141,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicPopup, $cordovaInAppBrowser) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser) {
+    $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
-      if (typeof res['data'].fileId !== 'undefined' && res['data'].fileId != "") {
+      if ($scope.agenda) {
         backendService.getFileDetails(res['data'].fileId).then(function (file) {
           $scope.filename = file['data'].fileName;
           $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
-          $scope.agenda = true;
         }, function (fileError) {
           console.log("Error by getting file details")
         })
@@ -150,24 +157,31 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       console.log("Error by retrieving the event", error)
     })
     $scope.upload = false;
-    $scope.agenda = false;
     $("#uploadForm").submit(function (e) {
       e.preventDefault();
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
       var formData = new FormData();
       formData.append('file', $('input[type=file]')[0].files[0])
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
+        $ionicLoading.hide();
         $ionicPopup.alert({
           title: 'Done!',
           template: 'File successfully uploaded'
         }).then(function (re) {
-          $state.reload();
+          res = jQuery.parseJSON(res);
+          $state.go('app.transition', {to: 'app.event', data: {eventId: $stateParams.eventId, agenda: res['data'].id}})
         })
       }, function (error) {
+        $ionicLoading.hide();
         $ionicPopup.alert({
           title: 'Error',
           template: 'Error occurred by uploading a file'
-        }).then(function (re) {
-          $state.reload();
         })
       })
     })
