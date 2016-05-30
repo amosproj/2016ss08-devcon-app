@@ -258,6 +258,10 @@ angular.module('starter.controllers', ['services'])
       });
       confirmPopup.then(function (res) {
         if (res) {
+          //overwrite user's data: name, email, given name
+          //do not overwrite username
+          backendService.updateUserProfile({"visibleByTheUser": {"email": 'deleted@deleted.com'}});
+          backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": 'deleted', "gName": 'deleted'}});
           backendService.connect().then(function () {
             backendService.deleteAccount(susUser).then(function () {
               backendService.logout();
