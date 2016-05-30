@@ -298,19 +298,51 @@ var BaasBox = (function() {
         return deferred.promise();
       },
 
-      updateField: function(objectId, collection, fieldName, newValue) {
+      /*
+      function to create an empty array name agenda when create new event
+      it serves the later agenda addition
+      */
+
+      createEmptyArray: function(objectId, collection, fieldName) {
         var deferred = buildDeferred();
         url = BaasBox.endPoint + '/document/' + collection + '/' + objectId + '/.' + fieldName;
         var json = JSON.stringify({
-            "data": newValue
+          "data" : []
         });
         var req = $.ajax({
-          url: url,
-          type: 'PUT',
-          contentType: 'application/json',
-          dataType: 'json',
-          data: json
-        })
+            url: url, //	Specifies the URL to send the request to. Default is the current page
+            type: 'PUT', //Specifies the type of request. (GET or POST
+            contentType: 'application/json', //The content type used when sending data to the server. Default is: "application/x-www-form-urlencoded"
+            dataType: 'json', //The data type expected of the server response.
+            data: json //Specifies data to be sent to the server
+          })
+          .done(function(res) {
+            deferred.resolve(res['data']);
+          })
+          .fail(function(error) {
+            deferred.reject(error);
+          })
+        return deferred.promise();
+      },
+
+      /*
+      function to add agenda to an event
+      add new agenda to an array of agenda, which has been created since the creation of an event
+      */
+
+      updateEventAgenda: function(newValue, objectId, index) {
+        var deferred = buildDeferred();
+        url = BaasBox.endPoint + '/document/events/' + objectId + '/.' + 'agenda' + '%5B' + index + '%5D'; //
+        var json = JSON.stringify({
+          "data": newValue
+        });
+        var req = $.ajax({
+            url: url,
+            type: 'PUT',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: json
+           })
           .done(function(res) {
             deferred.resolve(res['data']);
           })
