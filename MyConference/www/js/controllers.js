@@ -147,6 +147,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    */
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
+    $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
       if ($scope.agenda) {
@@ -160,9 +161,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
-    $scope.upload = false;
-    $("#uploadForm").submit(function (e) {
+    $(document).on("submit", "#uploadForm", function(e) {
       e.preventDefault();
+      e.stopImmediatePropagation();
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -173,6 +174,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var formData = new FormData();
       formData.append('file', $('input[type=file]')[0].files[0])
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
+        // if there was already an agenda file then delete it
+        if($scope.agenda){
+          backendService.deleteFile($stateParams.agenda);
+        }
         $ionicLoading.hide();
         $ionicPopup.alert({
           title: 'Done!',
@@ -188,7 +193,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           template: 'Error occurred by uploading a file'
         })
       })
-    })
+    });
     $scope.download = function (url) {
       $ionicPlatform.ready(function () {
         $cordovaInAppBrowser.open(url, '_system')
