@@ -134,15 +134,16 @@ services.factory('backendService', function ($rootScope) {
    Returns a promise.
    */
   backend.deleteAccount = function (user) { //function to delete account
-    return BaasBox.deleteAccount(user)
+    //return
+    BaasBox.deleteAccount(user)
       .done(function (res) {
         console.log(res);
       })
       .fail(function (err) {
         console.log("Delete error ", err);
       });
-
   };
+
 
   /*
    Function for creating a new event with an empty array of agenda
@@ -153,7 +154,6 @@ services.factory('backendService', function ($rootScope) {
     BaasBox.save(ev, "events")
       .done(function (res) {
         console.log("res ", res);
-        BaasBox.createEmptyArray(res.id, "events", "agenda"); //create empty array of agenda
         BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
         BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
       })
@@ -167,16 +167,34 @@ services.factory('backendService', function ($rootScope) {
    Requires two parameters: object to update and ID of event, in which the agenda is created
    */
 
-  backend.addingAgenda = function (newValue, eventId, index) {
-    BaasBox.updateEventAgenda(newValue, eventId, index)
-  }
-  
+  backend.addingAgenda = function (ag, evId) {
+    BaasBox.save(ag, "agenda")
+      .done(function (res) {
+        console.log("res ", res);
+        BaasBox.updateEventAgenda(res, evId);
+        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
+        BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+      })
+      .fail(function (error) {
+        console.log("error ", error);
+      })
+  };
+
   /*
    Function for getting an event by id
    returns a promise
    */
   backend.getEventById = function (id) {
     return BaasBox.loadObject("events", id)
+  };
+
+  /*
+   Function for getting an event by id
+   returns a promise
+   */
+  backend.loadAgendaWithParams = function (evId) {
+    return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"}); //"eventID = evId"
+    //(collection, params)
   };
 
   return backend;
