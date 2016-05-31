@@ -89,45 +89,18 @@ angular.module('starter.controllers', ['services'])
    and redirects to login view
 
    */
-  .controller('ForgotCtrl', function($scope, $state, $ionicLoading, backendService) {
-    $scope.user = {};
-    $scope.error = {};
-    $scope.state = {
-      success: false
-    };
-
-    $scope.reset = function() {
-      $ionicLoading.show({
-        content: 'Sending',
-        animation: 'fade-in',
-        showBackdrop: true,
-        maxWidth: 200,
-        showDelay: 0
+   .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    backendService.resetPassword().then(
+      function (res) {
+        $ionicPopup.alert({
+          title: ' Reset Password ',
+          template: 'An email has been sent to you with instructions on resetting your password.'
+        }).then(function (re) {
+          $state.go('app.login');
+        })
       });
-
-      backendService.resetPassword($scope.user.email, {
-        success: function(){
-          $ionicLoading.hide();
-          $scope.state.success = true;
-          $scope.$apply();
-        },
-        error: function(err) {
-          $ionicLoading.hide();
-          if (err.code === 125) {
-            $scope.error.message = 'Email address does not exist';
-          } else {
-            $scope.error.message = 'An unknown error has occurred, ' +
-              'please try again';
-          }
-          $scope.$apply();
-        }
-      });
-    };
-
-    $scope.login = function() {
-      $state.go('app.login');
-    };
   })
+
 
   /*
    Controller for the Main Page (overview page).
