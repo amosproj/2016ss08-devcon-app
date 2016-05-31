@@ -16,6 +16,9 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
+  <ion-nav-buttons side="right">
+    <buttom  ng-click="goToEdit_Event()" class="button icon ion-edit" menu-toggle="right"></buttom>
+  </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
       <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{(event.date | date: 'dd MMM yyyy') || "t.b.a"}} </ion-item>
