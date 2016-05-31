@@ -21,7 +21,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.translate'])
+angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
 
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
@@ -84,7 +84,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
       })
 
       .state('app.event', {
-        url: '/event/:eventId',
+        cache: false,
+        url: '/event/:eventId/:agenda',
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
@@ -144,6 +145,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
+      
+      .state('app.forgotPassword', {
+        url: '/forgotPassword',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/forgotPassword.html',
+            controller: 'ForgotCtrl'
+          }
+        }
+      })
 
       .state('app.edit-account', {
         url: '/edit-account',
@@ -153,7 +164,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
             controller: 'EditAccountCtrl'
           }
         }
-      });
+      })
+
+    .state('app.transition', {
+      url: '/transition/:to/',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/transition.html',
+          controller: 'TransitionCtrl'
+        },
+      },
+      params: {data: null}
+    });
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');
