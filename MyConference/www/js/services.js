@@ -123,7 +123,7 @@ services.factory('backendService', function ($rootScope) {
    Calls the BaasBox function for deleting a user.
    Returns a promise.
    */
-  backend.deleteAccount = function (user) { //function to delete account
+  backend.deleteAccount = function (user) {
     return BaasBox.deleteAccount(user)
       .done(function (res) {
         console.log(res);
@@ -201,6 +201,18 @@ services.factory('backendService', function ($rootScope) {
    */
   backend.getFileDetails = function (fileId) {
     return BaasBox.fetchFileDetails(fileId)
+  }
+  /*
+  Function for deleting a file
+   */
+  backend.deleteFile = function (fileId) {
+    BaasBox.deleteFile(fileId)
+      .done(function(res) {
+        console.log("res ", res);
+      })
+      .fail(function(error) {
+        console.log("error ", error);
+      })
   }
   return backend;
 });
