@@ -141,49 +141,44 @@ angular.module('starter.controllers', ['services'])
    Controller for showing event information
    Gets event by its id form backend
    */
-  .controller('EventCtrl', function ($scope, $stateParams, backendService) {
+  .controller('EventCtrl', function ($scope, $state, $ionicPopup, $stateParams, backendService) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
-  })
 
-  /*
-   Controller for adding an agenda
-   Calls addingAgenda service, shows a popup alert about successful creation of an event and then reload
-   */
-
-  .controller('AddingAgendaCtrl', function ($scope, $ionicPopup, $state, backendService, $stateParams) {
     ///hide - show after click on adding agenda 
     $scope.addingAgendaForm = false;
+    //$scope.myButton = 'Add New Agenda';
     $scope.showAddingAgenda = function() {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+      if($scope.myButton === "Add New Agenda"){
+        $scope.myButton = 'Hide';
+      }else{
+        $scope.myButton = "Add New Agenda";
+      }
     };
 
-    //adding a new agenda
+    //adding a new agenda in agenda collection
 
-    $scope.addingAgenda = function (newValue) {
-      backendService.getEventById($stateParams.eventId).then(function (res) {
-        for (i = 0; i < 1000;i++){
-          if(typeof res['data']['agenda'][i] !== 'undefined'){
-
-          } else {
-            var index = i;
-            backendService.addingAgenda(newValue, $stateParams.eventId, index)
-            break;
-          }
-        }
-        var alertPopup = $ionicPopup.alert({
-          title: 'Done!',
-          template: 'Add new agenda successfully'
-        });
-        alertPopup.then(function (re) {
-          $state.reload()
-        })
+    $scope.addingAgenda = function (ag) {
+      backendService.addingAgenda(ag, $stateParams.eventId);
+      var alertPopup = $ionicPopup.alert({
+        title: 'Done!',
+        template: 'New Agenda Point is added.'
+      });
+      alertPopup.then(function (res) {
+        $state.reload()
       })
-    }     
+    }
+    //retrieve agenda by condition
+    backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
+      $scope.agendaList = res;
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
     })
+  })
 
   /*
    Controller for user registration
@@ -287,13 +282,17 @@ angular.module('starter.controllers', ['services'])
 
     //delete account function
     $scope.deleteAccount = function (user) {
-      var susUser = user.username;
+      var susUser = user.username; //user = object --> user.username = needed variable
       var confirmPopup = $ionicPopup.confirm({
         title: 'Delete Account',
         template: 'Are you sure you want to delete your account?'
       });
       confirmPopup.then(function (res) {
         if (res) {
+          //overwrite user's data: name, email, given name
+          backendService.updateUserProfile({"visibleByTheUser": {"email": 'deleted@deleted.com'}});
+          backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": 'deleted', "gName": 'deleted'}});
+
           backendService.connect().then(function () {
             backendService.deleteAccount(susUser).then(function () {
               backendService.logout();
@@ -306,6 +305,7 @@ angular.module('starter.controllers', ['services'])
               });
             })
           });
+
           console.log('You are sure');
         } else {
           console.log('You are not sure');
