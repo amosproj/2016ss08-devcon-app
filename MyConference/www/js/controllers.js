@@ -137,16 +137,43 @@ angular.module('starter.controllers', ['services'])
     }
   })
 
+
+
   /*
    Controller for showing event information
    Gets event by its id form backend
    */
-  .controller('EventCtrl', function ($scope, $stateParams, backendService) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
+    /*
+     Function that is called after clicking edit button on MyAccount view
+     changes state to edit account view
+     */
+    $scope.goToEdit_Event = function () {
+      $state.go('app.edit-event');
+    };
+  })
+
+  .controller('EditEventCtrl', function ($scope, $stateParams, backendService) {
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.event = res['data']
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
+    $scope.updateEvent = function (eventId, fieldToUpdate, value) {
+      backendService.updateField(eventId, "events", fieldToUpdate, value);
+      var alertPopup = $ionicPopup.alert({
+        title: 'Done!',
+        template: 'Event "' + ev.title + '" updated.'
+      });
+      alertPopup.then(function (res) {
+        $state.go('app.main')
+      })
+    }
   })
 
   /*
@@ -302,3 +329,4 @@ angular.module('starter.controllers', ['services'])
       });
     }
   });
+
