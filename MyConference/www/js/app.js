@@ -78,9 +78,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
-            //redundant to list the controllers here but it is good to remember
-            controller: 'EventCtrl',
-            controller: 'AddingAgendaCtrl'
+            controller: 'EventCtrl'
           }
         }
       })

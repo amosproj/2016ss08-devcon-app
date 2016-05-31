@@ -150,42 +150,6 @@ angular.module('starter.controllers', ['services'])
   })
 
   /*
-   Controller for adding an agenda
-   Calls addingAgenda service, shows a popup alert about successful creation of an event and then reload
-   */
-
-  .controller('AddingAgendaCtrl', function ($scope, $ionicPopup, $state, backendService, $stateParams) {
-    ///hide - show after click on adding agenda 
-    $scope.addingAgendaForm = false;
-    $scope.showAddingAgenda = function() {
-      $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
-    };
-
-    //adding a new agenda
-
-    $scope.addingAgenda = function (newValue) {
-      backendService.getEventById($stateParams.eventId).then(function (res) {
-        for (i = 0; i < 1000;i++){
-          if(typeof res['data']['agenda'][i] !== 'undefined'){
-
-          } else {
-            var index = i;
-            backendService.addingAgenda(newValue, $stateParams.eventId, index)
-            break;
-          }
-        }
-        var alertPopup = $ionicPopup.alert({
-          title: 'Done!',
-          template: 'Add new agenda successfully'
-        });
-        alertPopup.then(function (re) {
-          $state.reload()
-        })
-      })
-    }     
-    })
-
-  /*
    Controller for user registration
    First checks if user already logged in, if yes shows alert message and redirects to main view,
    if no calls createAccount service with user form as a parameter

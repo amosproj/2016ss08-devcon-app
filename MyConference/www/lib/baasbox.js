@@ -298,51 +298,19 @@ var BaasBox = (function() {
         return deferred.promise();
       },
 
-      /*
-      function to create an empty array name agenda when create new event
-      it serves the later agenda addition
-      */
-
-      createEmptyArray: function(objectId, collection, fieldName) {
+      updateField: function(objectId, collection, fieldName, newValue) {
         var deferred = buildDeferred();
         url = BaasBox.endPoint + '/document/' + collection + '/' + objectId + '/.' + fieldName;
         var json = JSON.stringify({
-          "data" : []
+            "data": newValue
         });
         var req = $.ajax({
-            url: url,
-            type: 'PUT',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: json
-          })
-          .done(function(res) {
-            deferred.resolve(res['data']);
-          })
-          .fail(function(error) {
-            deferred.reject(error);
-          })
-        return deferred.promise();
-      },
-
-      /*
-      function to add agenda to an event
-      add new agenda to an array of agenda, which has been created since the creation of an event
-      */
-
-      updateEventAgenda: function(newValue, objectId, index) {
-        var deferred = buildDeferred();
-        url = BaasBox.endPoint + '/document/events/' + objectId + '/.' + 'agenda' + '%5B' + index + '%5D'; //
-        var json = JSON.stringify({
-          "data": newValue
-        });
-        var req = $.ajax({
-            url: url,
-            type: 'PUT',
-            contentType: 'application/json',
-            dataType: 'json',
-            data: json
-           })
+          url: url,
+          type: 'PUT',
+          contentType: 'application/json',
+          dataType: 'json',
+          data: json
+        })
           .done(function(res) {
             deferred.resolve(res['data']);
           })

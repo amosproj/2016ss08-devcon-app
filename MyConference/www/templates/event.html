@@ -15,60 +15,15 @@ root directory along with this program.
 If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
-  <ion-nav-title ng-controller="EventCtrl">{{event.title}}</ion-nav-title>
+  <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-content>
-    <ion-list class="bar-stable" ng-controller="EventCtrl">
-      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i>: {{(event.date | date: 'dd MMM yyyy') || "t.b.a"}} </ion-item>
+    <ion-list class="bar-stable">
+      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{(event.date | date: 'dd MMM yyyy') || "t.b.a"}} </ion-item>
       <ion-item class="item item-icon-left"> <i class="icon ion-map"></i>: {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : AGENDA</ion-item>
     </ion-list>
-    <!-- Form to add agenda -->
-    <div ng-controller="AddingAgendaCtrl">
-      <form name="addAgendaForm" ng-submit="addingAgenda(ag)" ng-show="addingAgendaForm" novalidate>
-        <!-- input type time is not supported by firefox. However, in phone, it works well -->
-        <div class="list">
-          <div class="item item-divider" align="center">New Agenda Information</div>
-        </div>
-        <label class="item item-input">
-          <span class="input-label fixed">Begin</span>
-          <input type="time" ng-model="ag.begin" required>
-        </label>
-        <label class="item item-input">
-          <span class="input-label fixed">End</span>
-          <input type="time" ng-model="ag.end" required>
-        </label>
-        <label class="item item-input">
-          <span class="input-label fixed">Speaker</span>
-          <input type="text" ng-model="ag.speaker" required>
-        </label>
-        <label class="item item-input">
-          <span class="input-label fixed">Topic</span>
-          <textarea rows="3" ng-model="ag.topic" required></textarea>
-        </label>
-        <div class="button-bar">
-          <button type="submit" class="button button-block button-balanced" ng-disabled="addAgendaForm.$invalid">Submit</button>
-          <button type="reset" class="button button-block button-stable">Clear Fields</button>
-        </div>
-      </form>
-      <!-- button to show add new agenda.
-       It is shown only to logged in user -> ng-show="isLoggedIn"
-       however, if ng-show="isLoggedIn" is added, cannot add new agenda in smartphone (in computer it is still okay)
-      -->
-      <input type="button" class="button button-block button-positive"
-             ng-click="showAddingAgenda()" onclick="changeAddAgenda(this)" value="Add New Agenda">
-    </div>
-    <ion-list class="bar-stable" ng-controller="EventCtrl">
-    <!-- Agenda List
-    agendas are listed by beginning time
-    -->
-    <ion-item class="item item-icon-left" ng-repeat="i in event['agenda'] | orderBy: 'begin': false">
-      <b>From</b> {{i.begin | date: 'HH:mm' || "n/a"}} <b>to</b> {{i.end | date: 'HH:mm' || "n/a"}}<br>
-      <b>Speaker</b>: {{i.speaker || "n/a"}}<br>
-      <b>Topic</b>: {{i.topic || "n/a"}}<br>
-    </ion-item>
-  </ion-list>
-    <div ng-controller="EventCtrl">
+    <p>
       {{event.descr}}
-    </div>
+    </p>
   </ion-content>
 </ion-view>

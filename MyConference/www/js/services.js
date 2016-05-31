@@ -145,7 +145,7 @@ services.factory('backendService', function ($rootScope) {
   };
 
   /*
-   Function for creating a new event with an empty array of agenda
+   Function for creating a new event
    First saves a new document in "events" collection
    Then grants read permission to registered and not registered users
    */
@@ -153,7 +153,6 @@ services.factory('backendService', function ($rootScope) {
     BaasBox.save(ev, "events")
       .done(function (res) {
         console.log("res ", res);
-        BaasBox.createEmptyArray(res.id, "events", "agenda"); //create empty array of agenda
         BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
         BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
       })
@@ -162,14 +161,6 @@ services.factory('backendService', function ($rootScope) {
       })
   };
 
-  /*
-   Function for adding an agenda to an event
-   Requires two parameters: object to update and ID of event, in which the agenda is created
-   */
-
-  backend.addingAgenda = function (newValue, eventId, index) {
-    BaasBox.updateEventAgenda(newValue, eventId, index)
-  
   /*
    Function for getting an event by id
    returns a promise
