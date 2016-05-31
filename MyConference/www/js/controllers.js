@@ -79,6 +79,27 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     })
   })
+ /*
+   Controller for forgot password page
+   Calls resetPassword service, shows a popup alert about successful  reset of a password
+   and redirects to login view
+
+   */
+  .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    $scope.resetPassword = function(user){
+      console.log("ctrl "+user.email)
+      backendService.resetPassword(user);
+      var alertPopup = $ionicPopup.alert({
+        title: 'Reset Password',
+        template: 'An email has been sent to you with instructions on resetting your password.'
+      });
+      alertPopup.then(function (re) {
+        $state.reload();
+      })
+    }
+  })
+
+
 
   /*
    Controller for transition handling

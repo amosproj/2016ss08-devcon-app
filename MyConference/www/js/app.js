@@ -135,6 +135,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
           }
         }
       })
+      
+      .state('app.forgotPassword', {
+        url: '/forgotPassword',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/forgotPassword.html',
+            controller: 'ForgotCtrl'
+          }
+        }
+      })
 
       .state('app.edit-account', {
         url: '/edit-account',
