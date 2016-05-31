@@ -219,11 +219,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
         $ionicLoading.hide();
         $translate('Done!').then(
-          function (res) {
+          function (res2) {
             $ionicPopup.alert({
-              title: res,
+              title: res2,
               template: "{{'File successfully uploaded' | translate}}"
-            }).then(function (res) {
+            }).then(function (res3) {
               res = jQuery.parseJSON(res);
               $state.go('app.transition', {to: 'app.event', data: {eventId: $stateParams.eventId, agenda: res['data'].id}})
             });
@@ -266,9 +266,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         backendService.logout();
       } else {
         $translate('Error!').then(
-          function (res) {
+          function (res2) {
             $ionicPopup.alert({
-              title: res,
+              title: res2,
               template: "{{'You are already logged in' | translate}}"
             }).then(function (res) {
               $state.go('app.main')
