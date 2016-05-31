@@ -54,7 +54,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
        It is shown only to logged in user -> ng-show="isLoggedIn"
        however, if ng-show="isLoggedIn" is added, cannot add new agenda in smartphone (in computer it is still okay)
       -->
-      <input type="button" class="button button-block button-positive"
+      <input type="button" class="button button-block button-positive" ng-show="isLoggedIn"
              ng-click="showAddingAgenda()" onclick="changeAddAgenda(this)" value="Add New Agenda">
     </div>
     <ion-list class="bar-stable" ng-controller="EventCtrl">
