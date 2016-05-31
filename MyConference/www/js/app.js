@@ -138,8 +138,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         url: '/forgot',
         views: {
           'menuContent': {
-            templateUrl: 'templates/forgotPassword.html',
             controller: 'ForgotCtrl'
+          }
+        }
+      })
+      .state('app.forgotPassword', {
+        url: '/forgotPassword',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/forgotPassword.html',
           }
         }
       })
