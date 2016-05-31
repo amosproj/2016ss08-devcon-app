@@ -134,6 +134,16 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
+     
+      .state('app.edit-event', {
+        url: '/edit-event',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-event.html',
+            controller: 'EditEventCtrl'
+          }
+        }
+      })
 
       .state('app.edit-account', {
         url: '/edit-account',
