@@ -64,7 +64,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    If connection successfully establishes redirects to main view,
    if no shows an error alert and reloads controller
    */
-  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
+  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService, $translate) {
     console.log("Start contorller");
     $ionicLoading.show({
       content: 'Loading',
@@ -97,17 +97,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    and redirects to login view
 
    */
-  .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     $scope.resetPassword = function(user){
-      console.log("ctrl "+user.email)
       backendService.resetPassword(user);
-      var alertPopup = $ionicPopup.alert({
-        title: 'Reset Password',
-        template: 'An email has been sent to you with instructions on resetting your password.'
-      });
-      alertPopup.then(function (re) {
-        $state.reload();
-      })
+      $translate('Reset Password').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'An email has been sent to you with instructions on resetting your password.' | translate}}"
+          }).then(function (res) {
+            $state.reload();
+          });
+        }
+      );
     }
   })
 
@@ -182,7 +184,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
@@ -216,19 +218,27 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           backendService.deleteFile($stateParams.agenda);
         }
         $ionicLoading.hide();
-        $ionicPopup.alert({
-          title: 'Done!',
-          template: 'File successfully uploaded'
-        }).then(function (re) {
-          res = jQuery.parseJSON(res);
-          $state.go('app.transition', {to: 'app.event', data: {eventId: $stateParams.eventId, agenda: res['data'].id}})
-        })
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'File successfully uploaded' | translate}}"
+            }).then(function (res) {
+              res = jQuery.parseJSON(res);
+              $state.go('app.transition', {to: 'app.event', data: {eventId: $stateParams.eventId, agenda: res['data'].id}})
+            });
+          }
+        );
       }, function (error) {
         $ionicLoading.hide();
-        $ionicPopup.alert({
-          title: 'Error',
-          template: 'Error occurred by uploading a file'
-        })
+        $translate('Error').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Error occurred by uploading a file' | translate}}"
+            });
+          }
+        );
       })
     });
     $scope.download = function (url) {
@@ -345,7 +355,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    If yes redirects to login view,
    if no gets username, name, given name and email information about logged user
    */
-  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         $state.go('app.login')
@@ -404,7 +414,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    After clicking submit button in edit-account view calls update account function with user form as a parameter
    Then redirects to MyAccount view
    */
-    .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+    .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
       backendService.fetchCurrentUser().then(function (res) {
         $scope.user = res['data']['visibleByRegisteredUsers'];
         $scope.user.username = res['data']['user'].name;
