@@ -90,15 +90,17 @@ angular.module('starter.controllers', ['services'])
 
    */
   .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup) {
-    backendService.resetPassword().then(
-      function (res) {
-        $ionicPopup.alert({
-          title: ' Reset Password ',
-          template: 'An email has been sent to you with instructions on resetting your password.'
-        }).then(function (re) {
-          $state.go('app.login');
-        })
+    $scope.resetPassword = function(user){
+      console.log("ctrl "+user.email)
+      backendService.resetPassword(user);
+      var alertPopup = $ionicPopup.alert({
+        title: 'Reset Password',
+        template: 'An email has been sent to you with instructions on resetting your password.'
       });
+      alertPopup.then(function (re) {
+        $state.reload();
+      })
+    }
   })
 
 

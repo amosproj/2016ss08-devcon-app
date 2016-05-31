@@ -66,7 +66,7 @@ services.factory('backendService', function ($rootScope) {
    and "visibleByRegisteredUsers" field saving name and given name
    */
   backend.createAccount = function (user) {
-    BaasBox.signup(user.username, user.pass)
+    BaasBox.signup(user.email, user.pass)
       .done(function (res) {
         console.log("signup ", res);
         backend.login(user.username, user.pass);
@@ -116,14 +116,8 @@ services.factory('backendService', function ($rootScope) {
    Function for Reset
    returns a promise
    */
-  backend.resetPassword = function () {
-    return BaasBox.resetPassword()
-      .done(function(res) {
-        console.log("res ", res);
-      })
-      .fail(function(error) {
-        console.log("error ", error);
-      })
+  backend.resetPassword = function (user) {
+    BaasBox.resetPasswordForUser(user);
   };
 
   /*

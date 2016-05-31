@@ -440,6 +440,10 @@ var BaasBox = (function() {
         return $.get(BaasBox.endPoint + '/user/' + user.username + '/password/reset');
       },
 
+      resetPasswordForUser: function(user) {
+        return $.get(BaasBox.endPoint + '/user/' + user.email + '/password/reset');
+      },
+
       followUser: function (username) {
         return $.post(BaasBox.endPoint + '/follow/' + username);
       },
