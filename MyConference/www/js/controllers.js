@@ -85,11 +85,11 @@ angular.module('starter.controllers', ['services'])
   })
  /*
    Controller for forgot password page
-   Calls resetPassword service, shows a popup alert about error reseting of a password
+   Calls resetPassword service, shows a popup alert about successful  reset of a password
    and redirects to login view
 
    */
-   .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup) {
     backendService.resetPassword().then(
       function (res) {
         $ionicPopup.alert({
@@ -100,6 +100,7 @@ angular.module('starter.controllers', ['services'])
         })
       });
   })
+
 
 
   /*
