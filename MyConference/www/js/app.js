@@ -134,15 +134,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
-      .state('app.forgot', {
-        url: '/forgot',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/forgotPassword.html',
-            controller: 'ForgotCtrl'
-          }
-        }
-      })
+      
 
       .state('app.edit-account', {
         url: '/edit-account',
