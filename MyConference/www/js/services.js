@@ -112,6 +112,20 @@ services.factory('backendService', function ($rootScope) {
       })
   };
 
+   /*
+   Function for Reset
+   returns a promise
+   */
+  backend.resetPassword = function () {
+    return BaasBox.resetPassword()
+      .done(function(res) {
+        console.log("res ", res);
+      })
+      .fail(function(error) {
+        console.log("error ", error);
+      })
+  };
+
   /*
    Function for updating user account
    requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
