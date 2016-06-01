@@ -45,5 +45,11 @@
   "Change agenda": "Agenda ändern",
   "Cancel": "Abbrechen",
   "Description": "Beschreibung",
-  "Enter your email": "Email eingeben"
+  "Enter your email": "Email eingeben",
+  "Join event": "Für Event registrieren",
+  "Leave event": "Von Event abmelden",
+  "You are now registrated for this event.": "Registrierung erfolreich abgeschlossen.",
+  "Error while registration.": "Fehler bei der Registrierung.",
+  "You are no longer registrated for this event.": "Registrierung erfolgreich gelöscht.",
+  "Error while undoing registration.": "Fehler beim Löschen der Registrierung."
 }
