@@ -140,11 +140,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var itemDate = new Date(item.date);
       return today < itemDate;
     };
+    /* 
+     This method is used for filter after today's events in the main view 
+     */
+    $scope.todaysEvents = function (item) {
+      var itemDate = new Date(item.date);
+      return itemDate.getDay() == today.getDay() &&
+        itemDate.getMonth() == today.getMonth() &&
+        itemDate.getFullYear() == today.getFullYear();
+    };
+
     /*
      This method is used for filter after next events in the main view
      */
     $scope.nextEvents = function (item) {
-      return !$scope.previousEvents(item);
+      return !$scope.todaysEvents(item) && !$scope.previousEvents(item);
     };
     backendService.fetchCurrentUser().then(function (res) {
     }, function (error) {
