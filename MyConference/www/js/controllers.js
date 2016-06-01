@@ -279,7 +279,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               $scope.isCurrentUserRegistered = true;
               $ionicPopup.alert({
                 title: res2,
-                template: "{{'You are now registrated for this event.' | translate}}"
+                template: "{{'We are happy to see you at' | translate}}" + " " + $scope.event.title + "!"
               });
             }
           );
@@ -304,7 +304,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               $scope.isCurrentUserRegistered = false;
               $ionicPopup.alert({
                 title: res2,
-                template: "{{'You are no longer registrated for this event.' | translate}}"
+                template: "{{'We are sad not seeing you at' | translate}}" + " " + $scope.event.title + "!"
               });
             }
           );

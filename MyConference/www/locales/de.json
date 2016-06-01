@@ -48,8 +48,8 @@
   "Enter your email": "Email eingeben",
   "Join event": "Für Event registrieren",
   "Leave event": "Von Event abmelden",
-  "You are now registrated for this event.": "Registrierung erfolreich abgeschlossen.",
+  "We are happy to see you at": "Wir freuen uns auf deinen Besuch bei",
   "Error while registration.": "Fehler bei der Registrierung.",
-  "You are no longer registrated for this event.": "Registrierung erfolgreich gelöscht.",
+  "We are sad not seeing you at": "Schade, dass wir dich nicht begrüßen dürfen bei",
   "Error while undoing registration.": "Fehler beim Löschen der Registrierung."
 }
