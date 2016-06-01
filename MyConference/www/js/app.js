@@ -21,7 +21,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers'])
+angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
 
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
@@ -36,6 +36,16 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         // org.apache.cordova.statusbar required
         StatusBar.styleDefault();
       }
+    });
+  })
+
+  .config(function ($translateProvider) {
+    $translateProvider.useStaticFilesLoader({
+      prefix: 'locales/',
+      suffix: '.json'
+    });
+    $translateProvider.determinePreferredLanguage(function () {
+      return 'de';
     });
   })
 
@@ -74,7 +84,8 @@ angular.module('starter', ['ionic', 'starter.controllers'])
       })
 
       .state('app.event', {
-        url: '/event/:eventId',
+        cache: false,
+        url: '/event/:eventId/:agenda',
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
@@ -134,6 +145,7 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           }
         }
       })
+<<<<<<< HEAD
      
       .state('app.edit-event', {
         url: '/edit-event',
@@ -141,6 +153,15 @@ angular.module('starter', ['ionic', 'starter.controllers'])
           'menuContent': {
             templateUrl: 'templates/edit-event.html',
             controller: 'EditEventCtrl'
+=======
+      
+      .state('app.forgotPassword', {
+        url: '/forgotPassword',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/forgotPassword.html',
+            controller: 'ForgotCtrl'
+>>>>>>> refs/remotes/origin/master
           }
         }
       })
@@ -153,7 +174,18 @@ angular.module('starter', ['ionic', 'starter.controllers'])
             controller: 'EditAccountCtrl'
           }
         }
-      });
+      })
+
+    .state('app.transition', {
+      url: '/transition/:to/',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/transition.html',
+          controller: 'TransitionCtrl'
+        },
+      },
+      params: {data: null}
+    });
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');

@@ -23,10 +23,19 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <ion-list class="bar-stable">
       <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{(event.date | date: 'dd MMM yyyy') || "t.b.a"}} </ion-item>
       <ion-item class="item item-icon-left"> <i class="icon ion-map"></i>: {{event.location || "t.b.a"}}</ion-item>
-      <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : AGENDA</ion-item>
-    </ion-list>
-    <p>
-      {{event.descr}}
-    </p>
+      <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : {{"Description" | translate}}</ion-item>
+      <p>
+        {{event.descr}}
+      </p>
+      <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> : AGENDA ({{"click to download" | translate}})</ion-item>
+      <button ng-show="agenda" ng-click="download(downloadUrl)">{{filename}}</button>
+      </ion-list>
+      <form ng-show="upload" id="uploadForm" method="post">
+      <input type = "file">
+      <input type="submit" class="button button-positive small_button" value="OK">
+      </form>
+     <button ng-click="upload = !upload" ng-show="upload" class="button button-block button-assertive">{{"Cancel" | translate}}</button>
+      <button ng-click="upload = !upload" ng-show="!upload && !agenda" class="button button-block button-positive">{{"Add agenda" | translate}}</button>
+    <button ng-click="upload = !upload" ng-show="!upload && agenda" class="button button-block button-positive">{{"Change agenda" | translate}}</button>
   </ion-content>
 </ion-view>
