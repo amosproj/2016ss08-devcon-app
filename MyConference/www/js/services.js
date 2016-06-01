@@ -189,12 +189,11 @@ services.factory('backendService', function ($rootScope) {
   };
 
   /*
-   Function for getting an event by id
-   returns a promise
+   Function for getting an agenda by eventID
+   returns a collection
    */
   backend.loadAgendaWithParams = function (evId) {
-    return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"}); //"eventID = evId"
-    //(collection, params)
+    return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
   };
 
   return backend;
