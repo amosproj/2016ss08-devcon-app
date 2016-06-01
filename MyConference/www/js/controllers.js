@@ -150,7 +150,7 @@ angular.module('starter.controllers', ['services'])
 
     ///hide - show after click on adding agenda 
     $scope.addingAgendaForm = false;
-    //$scope.myButton = 'Add New Agenda';
+    $scope.myButton = 'Add New Agenda';
     $scope.showAddingAgenda = function() {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
       if($scope.myButton === "Add New Agenda"){
