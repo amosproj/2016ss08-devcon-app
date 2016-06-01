@@ -324,7 +324,7 @@ var BaasBox = (function() {
       },
 
       /*
-      function to add eventID to agendas, which are created in this event
+      function to add eventID to agendas, which have been created in this event
       */
 
       updateEventAgenda: function(object, evId) {
