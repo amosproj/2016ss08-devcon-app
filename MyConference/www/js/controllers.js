@@ -166,7 +166,7 @@ angular.module('starter.controllers', ['services'])
     hide - show form after click on adding agenda 
      */
     $scope.addingAgendaForm = false;
-    $scope.myButton = 'Add New Agenda Information';
+    $scope.myButton = 'Add New Agenda Talk';
     $scope.showAddingAgenda = function() {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
@@ -174,10 +174,10 @@ angular.module('starter.controllers', ['services'])
     Change add agenda button text after clicking
      */
     $scope.changeButton = function(){
-      if($scope.myButton === "Add New Agenda Information"){
+      if($scope.myButton === "Add New Agenda Talk"){
       $scope.myButton = 'Hide';
     }else{
-      $scope.myButton = "Add New Agenda Information";
+      $scope.myButton = "Add New Agenda Talk";
     }
     };
     //retrieve agenda by condition
