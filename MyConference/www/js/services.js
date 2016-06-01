@@ -211,16 +211,24 @@ services.factory('backendService', function ($rootScope) {
     return BaasBox.fetchFileDetails(fileId)
   }
   /*
-  Function for deleting a file
+   Function for deleting a file
    */
   backend.deleteFile = function (fileId) {
     BaasBox.deleteFile(fileId)
-      .done(function(res) {
+      .done(function (res) {
         console.log("res ", res);
       })
-      .fail(function(error) {
+      .fail(function (error) {
         console.log("error ", error);
       })
   }
+  /*
+   Function for getting an agenda by eventID
+   returns a collection
+   */
+  backend.loadAgendaWithParams = function (evId) {
+    return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+  };
+
   return backend;
 });
