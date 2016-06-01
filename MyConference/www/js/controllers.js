@@ -147,21 +147,11 @@ angular.module('starter.controllers', ['services'])
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
-
-    ///hide - show after click on adding agenda 
-    $scope.addingAgendaForm = false;
-    $scope.myButton = 'Add New Agenda';
-    $scope.showAddingAgenda = function() {
-      $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
-      if($scope.myButton === "Add New Agenda"){
-        $scope.myButton = 'Hide';
-      }else{
-        $scope.myButton = "Add New Agenda";
-      }
-    };
-
-    //adding a new agenda in agenda collection
-
+    /*
+    function for adding a new agenda in agenda collection
+    in the new agenda object, the ID of the event, in which this agenda has been created
+    is stored
+     */
     $scope.addingAgenda = function (ag) {
       backendService.addingAgenda(ag, $stateParams.eventId);
       var alertPopup = $ionicPopup.alert({
@@ -172,6 +162,24 @@ angular.module('starter.controllers', ['services'])
         $state.reload()
       })
     }
+    /*
+    hide - show form after click on adding agenda 
+     */
+    $scope.addingAgendaForm = false;
+    $scope.myButton = 'Add New Agenda Information';
+    $scope.showAddingAgenda = function() {
+      $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+    };
+    /*
+    Change add agenda button text after clicking
+     */
+    $scope.changeButton = function(){
+      if($scope.myButton === "Add New Agenda Information"){
+      $scope.myButton = 'Hide';
+    }else{
+      $scope.myButton = "Add New Agenda Information";
+    }
+    };
     //retrieve agenda by condition
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
