@@ -271,6 +271,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
     };
 
+    //function for the Join-Event-Button
     $scope.joinEvent = function () {
       backendService.addCurrentUserToEvent($scope.event.id).then(
         function (res) {
@@ -295,7 +296,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     };
 
-
+    //function for the Leave-Event-Button
     $scope.leaveEvent = function () {
       backendService.removeCurrentUserFromEvent($scope.event.id).then(
         function (res) {

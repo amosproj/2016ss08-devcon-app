@@ -301,10 +301,6 @@ services.factory('backendService', function ($rootScope, $q) {
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
         index = event.participants.indexOf(user.username);
-        console.log(event.participants);
-        console.log(user.username);
-        console.log(index);
-        console.log(index != -1);
         deferred.resolve(index != -1);
       }), function (err) {
         deferred.reject(err)
