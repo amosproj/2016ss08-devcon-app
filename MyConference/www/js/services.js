@@ -15,7 +15,7 @@
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
 var services = angular.module('services', []);
-services.factory('backendService', function ($rootScope, $q) {
+services.factory('backendService', function ($rootScope, $q, $filter) {
     // credentials for actions when user is not logged in
     var defaultUsername = "default";
     var defaultPassword = "123456";
@@ -146,7 +146,13 @@ services.factory('backendService', function ($rootScope, $q) {
      Then grants read permission to registered and not registered users
      */
     backend.createEvent = function (ev) {
-      ev.participants = [BaasBox.getCurrentUser().username];
+      ev.participants = [];
+      creator = {};
+      creator.name = BaasBox.getCurrentUser().username;
+      creator.status = "joined";
+      ev.participants.push(creator);
+      console.log(creator);
+      console.log(ev.participants);
       BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
@@ -233,9 +239,18 @@ services.factory('backendService', function ($rootScope, $q) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        if (event.participants.indexOf(user.username) == -1) {
-          event.participants.push(user.username);
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        if (searchResult.length == 0) {
+          // user never registered, insert into list
+          participant = {};
+          participant.name = user.username;
+          participant.status = "joined";
+          event.participants.push(participant);
+        } else {
+          //user already in participants list, so just change status
+          searchResult[0].status = "joined";
         }
+
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -266,10 +281,8 @@ services.factory('backendService', function ($rootScope, $q) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        index = event.participants.indexOf(user.username);
-        if (index != -1) {
-          event.participants.splice(index, 1);
-        }
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        searchResult[0].status = "left";
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -300,8 +313,15 @@ services.factory('backendService', function ($rootScope, $q) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        index = event.participants.indexOf(user.username);
-        deferred.resolve(index != -1);
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        console.log(searchResult);
+        if (searchResult.length == 0) {
+          //user not in participants list, so he's not registred
+          deferred.resolve(false);
+        } else {
+          //user is in participants list, but is he still registred?
+          deferred.resolve(searchResult[0].status == "joined")
+        }
       }), function (err) {
         deferred.reject(err)
       };
