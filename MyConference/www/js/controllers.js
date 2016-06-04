@@ -48,7 +48,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
       $scope.languageSwitched = !$scope.languageSwitched;
       console.log($scope.languageSwitched);
-    }
+    };
 
     $scope.isLoggedIn = false;
     $scope.$on('user:loginState', function (event, data) {
@@ -91,14 +91,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       );
     })
   })
- /*
+  /*
    Controller for forgot password page
    Calls resetPassword service, shows a popup alert about successful  reset of a password
    and redirects to login view
 
    */
   .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
-    $scope.resetPassword = function(user){
+    $scope.resetPassword = function (user) {
       backendService.resetPassword(user);
       $translate('Reset Password').then(
         function (res) {
@@ -196,7 +196,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-<<<<<<< HEAD
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
@@ -212,14 +211,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
   })
 
-  .controller('EditEventCtrl', function ($scope, $stateParams, backendService) {
-=======
+
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
->>>>>>> refs/remotes/origin/master
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
+      $scope.event = res['data'];
+      backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
+        function (res) {
+          $scope.isCurrentUserRegistered = res;
+        }
+      );
       if ($scope.agenda) {
         backendService.getFileDetails(res['data'].fileId).then(function (file) {
           $scope.filename = file['data'].fileName;
@@ -230,8 +232,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     }, function (error) {
       console.log("Error by retrieving the event", error)
-    })
-<<<<<<< HEAD
+    });
     $scope.updateEvent = function (eventId, fieldToUpdate, value) {
       backendService.updateField(eventId, "events", fieldToUpdate, value);
       var alertPopup = $ionicPopup.alert({
@@ -241,8 +242,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       alertPopup.then(function (res) {
         $state.go('app.main')
       })
-=======
-    $(document).on("submit", "#uploadForm", function(e) {
+    $(document).on("submit", "#uploadForm", function (e) {
       e.preventDefault();
       e.stopImmediatePropagation();
       $ionicLoading.show({
@@ -253,10 +253,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         showDelay: 0
       });
       var formData = new FormData();
-      formData.append('file', $('input[type=file]')[0].files[0])
+      formData.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
         // if there was already an agenda file then delete it
-        if($scope.agenda){
+        if ($scope.agenda) {
           backendService.deleteFile($stateParams.agenda);
         }
         $ionicLoading.hide();
@@ -267,7 +267,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               template: "{{'File successfully uploaded' | translate}}"
             }).then(function (res3) {
               res = jQuery.parseJSON(res);
-              $state.go('app.transition', {to: 'app.event', data: {eventId: $stateParams.eventId, agenda: res['data'].id}})
+              $state.go('app.transition', {
+                to: 'app.event',
+                data: {eventId: $stateParams.eventId, agenda: res['data'].id}
+              })
             });
           }
         );
@@ -293,7 +296,56 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             // error
           });
       });
->>>>>>> refs/remotes/origin/master
+    };
+
+    //function for the Join-Event-Button
+    $scope.joinEvent = function () {
+      backendService.addCurrentUserToEvent($scope.event.id).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $scope.isCurrentUserRegistered = true;
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'We are happy to see you at' | translate}}" + " " + $scope.event.title + "!"
+              });
+            }
+          );
+        }, function (err) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Error while registration.' | translate}}"
+              });
+            }
+          );
+        });
+    };
+
+    //function for the Leave-Event-Button
+    $scope.leaveEvent = function () {
+      backendService.removeCurrentUserFromEvent($scope.event.id).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $scope.isCurrentUserRegistered = false;
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'We are sad not seeing you at' | translate}}" + " " + $scope.event.title + "!"
+              });
+            }
+          );
+        }, function (err) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Error while undoing registration.' | translate}}"
+              });
+            }
+          );
+        });
     }
   })
 
@@ -457,30 +509,30 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    After clicking submit button in edit-account view calls update account function with user form as a parameter
    Then redirects to MyAccount view
    */
-    .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
-      backendService.fetchCurrentUser().then(function (res) {
-        $scope.user = res['data']['visibleByRegisteredUsers'];
-        $scope.user.username = res['data']['user'].name;
-        $scope.user.email = res['data']['visibleByTheUser'].email;
-      });
-<<<<<<< HEAD
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+    backendService.fetchCurrentUser().then(function (res) {
+      $scope.user = res['data']['visibleByRegisteredUsers'];
+      $scope.user.username = res['data']['user'].name;
+      $scope.user.email = res['data']['visibleByTheUser'].email;
+    });
+
     }
   });
 
-=======
-      $scope.updateAccount = function (user) {
-        backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
-        backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-        $translate('Done!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Account updated.' | translate}}"
-            }).then(function (res) {
-              $state.go('app.my-account')
-            });
-          }
-        );
-      }
-    });
->>>>>>> refs/remotes/origin/master
+
+    $scope.updateAccount = function (user) {
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Account updated.' | translate}}"
+          }).then(function (res) {
+            $state.go('app.my-account')
+          });
+        }
+      );
+    }
+  });
+
