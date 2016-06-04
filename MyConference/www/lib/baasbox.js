@@ -440,10 +440,6 @@ var BaasBox = (function() {
         return $.get(BaasBox.endPoint + '/user/' + user.username + '/password/reset');
       },
 
-      resetPasswordForUser: function(user) {
-        return $.get(BaasBox.endPoint + '/user/' + user.email + '/password/reset');
-      },
-
       followUser: function (username) {
         return $.post(BaasBox.endPoint + '/follow/' + username);
       },
@@ -486,10 +482,6 @@ var BaasBox = (function() {
 
       fetchFile: function(fileId) {
         return $.get(BaasBox.endPoint + '/file/' + fileId + "?X-BB-SESSION=" + BaasBox.getCurrentUser().token)
-      },
-
-      getFileUrl: function (fileId) {
-        return ""+BaasBox.endPoint + '/file/' + fileId + "?download=true&X-BB-SESSION=" + BaasBox.getCurrentUser().token
       },
 
       deleteFile: function(fileId) {

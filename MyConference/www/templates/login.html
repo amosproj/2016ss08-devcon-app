@@ -15,7 +15,7 @@ root directory along with this program.
 If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 
-<ion-view view-title="{{ 'My Account' | translate }}">
+<ion-view view-title="My Account">
   <ion-content>
 
 
@@ -27,34 +27,25 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 
         <label class="item item-input">
 
-          <input type="password" placeholder="{{ 'Password' | translate }}" ng-model="credentials.password" required>
+          <input type="password" placeholder="Password" ng-model="credentials.password" required>
         </label>
 
 
         <div class="item item-button-right">
-          <h2>{{ 'Remember me' | translate }} &nbsp <input type="checkbox" ng-model="filter.blue"></h2></ion-checkbox>
-          <button class="button button-positive " translate>Log In</button>
+          <h2>Remember Me &nbsp <input type="checkbox" ng-model="filter.blue"></h2></ion-checkbox>
+          <button class="button button-positive ">Log In</button>
         </div>
       </div>
-    </form>
 
-    <div class="col text-right">
-      <a href="#/app/forgotPassword" class="button button-clear button-calm" translate>Forgot your password?</a>
-    </div>
 
-<<<<<<< HEAD
       <div class="col text-right">
         <a href="" class="button button-clear button-calm" >Forgot my password ?</a>
       </div>
 
 
       </br>
-=======
 
-    </br>
-
-    <a href="#/app/register" class="button button-block button-positive" translate>Register</a>
->>>>>>> refs/remotes/origin/master
-
+<a href="#/app/register" class="button button-block button-positive">Register</a>
+    </form>
   </ion-content>
 </ion-view>

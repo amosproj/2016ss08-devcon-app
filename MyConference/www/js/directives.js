@@ -19,8 +19,19 @@
 angular.module('starter.directives', [])
 
 
-//directive to check password match
-
+//directive to convert the model value
+  .directive('dateInput', function(){
+  return {
+    restrict : 'A',
+    scope : {
+      ngModel : '='
+    },
+    link: function (scope) {
+      if (scope.ngModel) scope.ngModel = new Date(scope.ngModel);
+    }
+  }
+})
+  //directive to check password match
   .directive('validateMatch', function () {
     return {
       require: 'ngModel',
