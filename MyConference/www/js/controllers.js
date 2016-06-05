@@ -91,14 +91,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       );
     })
   })
- /*
+  /*
    Controller for forgot password page
    Calls resetPassword service, shows a popup alert about successful  reset of a password
    and redirects to login view
 
    */
   .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
-    $scope.resetPassword = function(user){
+    $scope.resetPassword = function (user) {
       backendService.resetPassword(user);
       $translate('Reset Password').then(
         function (res) {
@@ -195,6 +195,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Contains functions for uploading and downloading a file
    */
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
@@ -210,7 +211,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
-    $(document).on("submit", "#uploadForm", function(e) {
+    $(document).on("submit", "#uploadForm", function (e) {
       e.preventDefault();
       e.stopImmediatePropagation();
       $ionicLoading.show({
@@ -224,7 +225,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       formData.append('file', $('input[type=file]')[0].files[0])
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
         // if there was already an agenda file then delete it
-        if($scope.agenda){
+        if ($scope.agenda) {
           backendService.deleteFile($stateParams.agenda);
         }
         $ionicLoading.hide();
@@ -235,7 +236,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               template: "{{'File successfully uploaded' | translate}}"
             }).then(function (res3) {
               res = jQuery.parseJSON(res);
-              $state.go('app.transition', {to: 'app.event', data: {eventId: $stateParams.eventId, agenda: res['data'].id}})
+              $state.go('app.transition', {
+                to: 'app.event',
+                data: {eventId: $stateParams.eventId, agenda: res['data'].id}
+              })
             });
           }
         );
@@ -417,6 +421,63 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
 
+  /*
+  Controller for feedback page.
+  Loads agenda for talks specific feedback.
+  Then creates the rating objects for every category.
+  Last define the save function for storing the results in the backend.
+   */
+  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService) {
+    backendService.loadAgendaWithParams($stateParams.eventId).then(
+      function (res) {
+        console.log(res);
+        $scope.talks = res;
+      }, function (err) {
+        console.log(err)
+      });
+
+
+    /*
+     Function for creating a new crating object
+     Used for avoid redundance.
+     Gets name of the objecvt which defines where in the $scope.results array the rating has to be pushed.
+     Returns a rating object.
+     */
+    addNewRatingObject = function (title) {
+      initialRating = 3;
+
+      $scope.ratingObjects[title] = {
+        title: title,
+        comment: "",
+        iconOnColor: '#387ef5',
+        iconOffColor: '#387ef5',
+        rating: initialRating,
+        callback: function (rating) {
+          $scope.ratingObjects[title].rating = rating;
+        }
+      };
+    }
+
+    $scope.ratingObjects = {}
+
+    $scope.generalCategories = ["Whole Event","Foods and Drinks","Location"];
+    for (nr in $scope.generalCategories) {
+      addNewRatingObject($scope.generalCategories[nr])
+    }
+
+    for (talkNr in $scope.talks) {
+      addNewRatingObject($scope.talks[talkNr].topic)
+    }
+
+    $scope.saveFeedback = function () {
+      for (ratingObjectTitle in $scope.ratingObjects) {
+        console.log(ratingObjectTitle + " " + $scope.ratingObjects[ratingObjectTitle].rating + " " + $scope.ratingObjects[ratingObjectTitle].comment)
+      }
+    }
+
+
+  })
+
 
   /*
    Controller for editing user information
@@ -424,24 +485,24 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    After clicking submit button in edit-account view calls update account function with user form as a parameter
    Then redirects to MyAccount view
    */
-    .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
-      backendService.fetchCurrentUser().then(function (res) {
-        $scope.user = res['data']['visibleByRegisteredUsers'];
-        $scope.user.username = res['data']['user'].name;
-        $scope.user.email = res['data']['visibleByTheUser'].email;
-      });
-      $scope.updateAccount = function (user) {
-        backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
-        backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-        $translate('Done!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Account updated.' | translate}}"
-            }).then(function (res) {
-              $state.go('app.my-account')
-            });
-          }
-        );
-      }
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+    backendService.fetchCurrentUser().then(function (res) {
+      $scope.user = res['data']['visibleByRegisteredUsers'];
+      $scope.user.username = res['data']['user'].name;
+      $scope.user.email = res['data']['visibleByTheUser'].email;
     });
+    $scope.updateAccount = function (user) {
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Account updated.' | translate}}"
+          }).then(function (res) {
+            $state.go('app.my-account')
+          });
+        }
+      );
+    }
+  });

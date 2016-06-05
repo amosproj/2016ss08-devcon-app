@@ -94,6 +94,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       })
 
+      .state('app.feedback', {
+        cache: false,
+        url: '/event/:eventId/feedback',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/feedback.html',
+            controller: 'FeedbackCtrl'
+          }
+        }
+      })
 
       .state('app.login', {
         url: '/login',
@@ -145,7 +155,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
-      
+
       .state('app.forgotPassword', {
         url: '/forgotPassword',
         views: {
@@ -166,16 +176,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       })
 
-    .state('app.transition', {
-      url: '/transition/:to/',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/transition.html',
-          controller: 'TransitionCtrl'
+      .state('app.transition', {
+        url: '/transition/:to/',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/transition.html',
+            controller: 'TransitionCtrl'
+          },
         },
-      },
-      params: {data: null}
-    });
+        params: {data: null}
+      });
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');
