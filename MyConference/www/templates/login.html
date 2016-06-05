@@ -1,25 +1,51 @@
-<ion-modal-view>
-  <ion-header-bar>
-    <h1 class="title">Login</h1>
-    <div class="buttons">
-      <button class="button button-clear" ng-click="closeLogin()">Close</button>
-    </div>
-  </ion-header-bar>
+<!--
+This file is part of MyConference.
+
+MyConference is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should find a copy of the GNU Affero General Public License in the
+root directory along with this program.
+If not, see http://www.gnu.org/licenses/agpl-3.0.html.
+-->
+
+<ion-view view-title="{{ 'My Account' | translate }}">
   <ion-content>
-    <form ng-submit="doLogin()">
+
+
+    <form ng-submit="login(credentials)">
       <div class="list">
         <label class="item item-input">
-          <span class="input-label">Username</span>
-          <input type="text" ng-model="loginData.username">
+          <input type="text" placeholder="Username" ng-model="credentials.username" required>
         </label>
+
         <label class="item item-input">
-          <span class="input-label">Password</span>
-          <input type="password" ng-model="loginData.password">
+
+          <input type="password" placeholder="{{ 'Password' | translate }}" ng-model="credentials.password" required>
         </label>
-        <label class="item">
-          <button class="button button-block button-positive" type="submit">Log in</button>
-        </label>
+
+
+        <div class="item item-button-right">
+          <h2>{{ 'Remember me' | translate }} &nbsp <input type="checkbox" ng-model="filter.blue"></h2></ion-checkbox>
+          <button class="button button-positive " translate>Log In</button>
+        </div>
       </div>
     </form>
+
+    <div class="col text-right">
+      <a href="#/app/forgotPassword" class="button button-clear button-calm" translate>Forgot your password?</a>
+    </div>
+
+
+    </br>
+
+    <a href="#/app/register" class="button button-block button-positive" translate>Register</a>
+
   </ion-content>
-</ion-modal-view>
+</ion-view>

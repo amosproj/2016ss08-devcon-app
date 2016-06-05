@@ -1,3 +1,4 @@
+#!/usr/bin/env sh
 # This file is part of MyConference.
 #
 # MyConference is free software: you can redistribute it and/or modify
@@ -12,27 +13,16 @@
 # You should find a copy of the GNU Affero General Public License in the
 # root directory along with this program.
 
-sudo: required
 
-services: 
-  - docker
+scriptdir=`dirname $0`
+classpath="$scriptdir/lib/*"
 
-env:
-  - TRAVIS_CI_BUILD=true
+# check if the RUNNING_PID file exists. In this case it will be deleted if there is no process with the same PID stored in it
+# RUNNING_PID file is created by BaasBox when it starts. If it quits unexpectedly (kill -9, server crash) the file is not deleted and BaasBox will not restarts
 
-# Set execution rights
-before_script:
-  - chmod +x MyConference/docker/build
-  - chmod +x deploy_script.sh
-  
-script:
-  # Build .apk file and build docker image (inside docker container)
-  - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
+if [ -f RUNNING_PID ];
+then
+	ps -p $(cat RUNNING_PID) > /dev/null; test $? -eq 1 && rm RUNNING_PID
+fi
 
-# Deploy via script, only on master
-deploy:
-  provider: script
-  script: "./deploy_script.sh"
-  skip_cleanup: true
-  on:
-      branch: master
+exec java ${1+"$@"} -cp "$classpath"  -Dhttp.port=9000   -Dorient.baasbox.path="/persistent"  play.core.server.NettyServer `dirname $0`

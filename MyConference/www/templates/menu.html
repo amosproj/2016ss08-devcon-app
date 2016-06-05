@@ -1,4 +1,21 @@
-<ion-side-menus enable-menu-with-back-views="false">
+<!--
+This file is part of MyConference.
+
+MyConference is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should find a copy of the GNU Affero General Public License in the
+root directory along with this program.
+If not, see http://www.gnu.org/licenses/agpl-3.0.html.
+-->
+
+<ion-side-menus enable-menu-with-back-views="true">
   <ion-side-menu-content>
     <ion-nav-bar class="bar-stable">
       <ion-nav-back-button>
@@ -8,53 +25,35 @@
         <button class="button button-icon button-clear ion-navicon" menu-toggle="left">
         </button>
       </ion-nav-buttons>
-      <ion-nav-buttons side="right">
-        <a href="#/app/new_event" class="button icon ion-android-add-circle  button-stable"
-                 menu-toggle="right"></a>
-      </ion-nav-buttons>
+
     </ion-nav-bar>
     <ion-nav-view name="menuContent"></ion-nav-view>
   </ion-side-menu-content>
   <ion-side-menu side="left">
 
-    <div class="list">
-
-      <a class="item menu-close item-icon-left" href="#/app/main">
-        <i class="icon menu-close ion-home"></i>
-        Overview
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#/app/event">
-        <i class="icon ion-heart"></i>
-        My Events
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#/app/login">
-        <i class="icon ion-person-stalker"></i>
-        My Profile
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#">
-        <i class="icon ion-ios-gear"></i>
-        Settings
-      </a>
-
-      <a class="item menu-close item-icon-left" href="#">
-        <i class="icon ion-android-close"></i>
-        Logout
-      </a>
-
-    </div>
-
-    <li class="item item-toggle">
-      English
-      <label class="toggle toggle-assertive" >
-        <input type="checkbox">
-        <div class="track">
-          <div class="handle"></div>
-        </div>
-      </label>
-    </li>
+    <ion-list>
+      <ion-item menu-close href="#/app/main">
+        <div translate>Overview</div>
+      </ion-item>
+      <ion-item menu-close href="#/app/my-account">
+        <div translate>My Account</div>
+      </ion-item>
+      <ion-item menu-close href="#" ng-show="isLoggedIn">
+        <div translate>Settings</div>
+      </ion-item>
+      <ion-item menu-close href="#/app/logout" ng-show="isLoggedIn">
+        <div translate>Logout</div>
+      </ion-item>
+      <ion-item class="item item-toggle">
+        <div translate>Switch to english</div>
+        <label class="toggle toggle-positive" ng-click="changeLanguage()">
+          <input type="checkbox">
+          <div class="track">
+            <div class="handle"></div>
+          </div>
+        </label>
+      </ion-item>
+    </ion-list>
 
 
     </ion-content>

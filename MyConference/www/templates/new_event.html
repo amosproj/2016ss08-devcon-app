@@ -1,20 +1,37 @@
-<ion-view view-title="Create event">
+<!--
+This file is part of MyConference.
+
+MyConference is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should find a copy of the GNU Affero General Public License in the
+root directory along with this program.
+If not, see http://www.gnu.org/licenses/agpl-3.0.html.
+-->
+
+<ion-view view-title="{{ 'Create event' | translate }}">
   <ion-content>
 
       <form ng-submit="createEvent(ev)">
         <label class="item item-input">
-          <input type="text" placeholder="Title" ng-model="ev.title" required>
+          <input type="text" placeholder="{{ 'Title' | translate }}" ng-model="ev.title" required>
           </label>
         <label class="item item-input">
-          <input type="text" ng-model="ev.location" placeholder="Location">
+          <input type="text" ng-model="ev.location" placeholder="{{ 'Location' | translate }}">
         </label>
-        <label class="item item-input">Date:
+        <label class="item item-input">{{ 'Date' | translate }}:
           <input type="date" ng-model="ev.date">
         </label>
         <label class="item item-input">
-          <textarea rows="5" placeholder="Short description" ng-model="ev.descr"></textarea>
+          <textarea rows="5" placeholder="{{ 'Short description' | translate }}" ng-model="ev.descr"></textarea>
         </label>
-        <button type="submit" class="button button-block button-positive">Create Event</button>
+        <button type="submit" class="button button-block button-positive" translate>Create event</button>
 
       </form>
 

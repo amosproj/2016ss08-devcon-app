@@ -1,3 +1,5 @@
+#!/bin/sh
+set -e
 # This file is part of MyConference.
 #
 # MyConference is free software: you can redistribute it and/or modify
@@ -11,28 +13,10 @@
 #
 # You should find a copy of the GNU Affero General Public License in the
 # root directory along with this program.
+# Script for deploy image to docker hub
 
-sudo: required
-
-services: 
-  - docker
-
-env:
-  - TRAVIS_CI_BUILD=true
-
-# Set execution rights
-before_script:
-  - chmod +x MyConference/docker/build
-  - chmod +x deploy_script.sh
-  
-script:
-  # Build .apk file and build docker image (inside docker container)
-  - docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
-
-# Deploy via script, only on master
-deploy:
-  provider: script
-  script: "./deploy_script.sh"
-  skip_cleanup: true
-  on:
-      branch: master
+cd MyConference/
+docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
+docker pull osrgroup/amos-downloader-base-image:1.0
+docker build -t clemenshuebner/amos-ss16-proj8:1.0 docker/
+docker push clemenshuebner/amos-ss16-proj8:1.0

@@ -1,0 +1,24 @@
+<ion-view>
+  <ion-nav-title>{{user.username}}</ion-nav-title>
+  <ion-content>
+    <form name="editForm" ng-submit="updateAccount(user)">
+      <label class="item item-input">
+        <span class = "input-label fixed">{{ 'Name' | translate }}:</span>
+        <input type="text" ng-model="user.name" required>
+      </label>
+
+      <label class="item item-input">
+        <span class = "input-label fixed">{{ 'Given name' | translate }}:</span>
+        <input type="text" ng-model="user.gName" required>
+      </label>
+
+      <label class="item item-input">
+        <span class = "input-label fixed">{{ 'Email' | translate }}:</span>
+        <input type="email" class="form-control" ng-model="user.email" ng-pattern="/[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/" required>
+        <p ng-show="editForm.email.$invalid && !editForm.email.$pristine" class="help-block"> {{'WRONG! Email form: name@domain.com' | translate}} </p>
+      </label>
+      <button type="submit" class="button button-block button-positive" ng-disabled="editForm.$invalid">{{ 'Submit' | translate }}</button>
+    </form>
+  </ion-content>
+
+</ion-view>
