@@ -246,6 +246,28 @@ var BaasBox = (function() {
         })
       },
 
+      /*
+       Function to load a collection of agendas, which have been created in the same event
+       */
+      loadAgendaWithParams: function(collection, evId, params) {
+        var deferred = buildDeferred();
+        var url = BaasBox.endPoint + '/document/' + collection + '?where=eventID%3D%3F&params=' + evId;
+        var req = $.ajax({
+          url: url,
+          method: 'GET',
+          timeout: BaasBox.timeout,
+          dataType: 'json',
+          data: params
+        })
+          .done(function(res) {
+            deferred.resolve(res['data']);
+          })
+          .fail(function(error) {
+            deferred.reject(error);
+          })
+        return deferred.promise();
+      },
+
       loadCollectionWithParams: function(collection, params) {
         var deferred = buildDeferred();
         var url = BaasBox.endPoint + '/document/' + collection;
