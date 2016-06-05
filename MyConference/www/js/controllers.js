@@ -49,7 +49,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.languageSwitched = !$scope.languageSwitched;
       console.log($scope.languageSwitched);
     };
-
     $scope.isLoggedIn = false;
     $scope.$on('user:loginState', function (event, data) {
       // you could inspect the data to see if what you care about changed, or just update your own scope
@@ -149,7 +148,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         itemDate.getMonth() == today.getMonth() &&
         itemDate.getFullYear() == today.getFullYear();
     };
-
     /*
      This method is used for filter after next events in the main view
      */
@@ -175,7 +173,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
-
       $translate('Done!').then(
         function (res) {
           $ionicPopup.alert({
@@ -194,7 +191,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
@@ -263,14 +260,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $ionicPlatform.ready(function () {
         $cordovaInAppBrowser.open(url, '_system')
           .then(function (event) {
-            // success
+            console.log("url successfully opened")
           })
           .catch(function (event) {
-            // error
+            console.log("error by opening url")
           });
       });
     };
-
     //function for the Join-Event-Button
     $scope.joinEvent = function () {
       backendService.addCurrentUserToEvent($scope.event.id).then(
@@ -295,7 +291,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
-
     //function for the Leave-Event-Button
     $scope.leaveEvent = function () {
       backendService.removeCurrentUserFromEvent($scope.event.id).then(
@@ -319,6 +314,102 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           );
         });
+    }
+    // function to get an alert with 3 possible actions to choose
+    $scope.showAlert = function () {
+      $ionicPlatform.ready(function () {
+        $ionicPopup.show({
+          scope: $scope,
+          buttons: [
+            {
+              text: '<b>Send E-mail</b>',
+              type: 'button-positive',
+              onTap: function (e) {
+                e.preventDefault();
+                createCSV($scope.event.participants.length - 1, 'email')
+              }
+            },
+            {
+              text: '<b>Download</b>',
+              type: 'button-positive',
+              onTap: function (e) {
+                e.preventDefault();
+                createCSV($scope.event.participants.length - 1, 'download')
+              }
+            },
+            {text: 'Cancel'}
+          ]
+        });
+      })
+    }
+    $scope.arr = [];
+    /*
+     Recursive function for creating CSV file with event participants data
+     gets integer for iterations and String object action as a parameter
+     if action is 'download' new created CSV file is downloaded to the users device
+     otherwise it is sent by email to the users email address
+     */
+    function createCSV(i, action) {
+      if (i < 0) {
+        var csv = 'Name,Given name,E-mail,Status\n';
+        for (var i = 0; i < $scope.arr.length; i++) {
+          var line = '';
+          for (var ind in $scope.arr[i]) {
+            if (typeof $scope.arr[i][ind] !== 'object') {
+              if (line != '') line += ','
+              line += $scope.arr[i][ind];
+            }
+          }
+          csv += line + '\n';
+        }
+        $cordovaFile.writeFile(cordova.file.externalRootDirectory, $scope.event.title + "-participants-list.csv", csv, true)
+          .then(function (success) {
+            console.log("File is created", success)
+          }, function (error) {
+            console.log("Error by writing a file", error);
+          });
+        if (action === 'download') {
+          $scope.download(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+        } else {
+          sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+        }
+        $scope.arr = [];
+        return;
+      }
+      var user = $scope.event.participants[i];
+      console.log("User is", user)
+      backendService.getUser(user.name).then(function (res) {
+        var obj = res['data']['visibleByRegisteredUsers'];
+        obj.email = res['data'].user.name;
+        obj.status = user.status;
+        $scope.arr.push(obj);
+        createCSV(i - 1, action);
+      })
+    }
+
+    //Function for sending file to the users email address
+    function sendEmail(file) {
+      $ionicPlatform.ready(function () {
+      backendService.fetchCurrentUser().then(function (res) {
+          $cordovaEmailComposer.isAvailable().then(function (available) {
+            var email = {
+              to: res['data']['visibleByTheUser'].email,
+              attachments: [file],
+              subject: $scope.event.title + ' Participants list',
+              body: 'Participants list for the event: ' + $scope.event.title,
+              isHtml: true
+            };
+            $cordovaEmailComposer.open(email).then(null, function () {
+              // email is sent or cancelled
+            });
+          }, function (notAvailable) {
+            $ionicPopup.alert({
+              title: 'Error',
+              template: 'Your device doesn\'t have an installed mail app'
+            })
+          });
+        }, false);
+      })
     }
   })
 
@@ -380,7 +471,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               });
             }
           )
-
         },
         function (err) {
           $translate('Error!').then(
@@ -433,7 +523,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.user.email = res['data']['visibleByTheUser'].email;
       }
     });
-
     /*
      Function that is called after clicking edit button on MyAccount view
      changes state to edit account view
