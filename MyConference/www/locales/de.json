@@ -51,5 +51,21 @@
   "We are happy to see you at": "Wir freuen uns auf deinen Besuch bei",
   "Error while registration.": "Fehler bei der Registrierung.",
   "We are sad not seeing you at": "Schade, dass wir dich nicht begrüßen dürfen bei",
-  "Error while undoing registration.": "Fehler beim Löschen der Registrierung."
+  "Error while undoing registration.": "Fehler beim Löschen der Registrierung.",
+  "Delete This Talk": "Löschen Diese Sitzung",
+  "Speaker File": "Sitzung File",
+  "New Talk Session is added": "Neue Sitzung wird hinzugefügt",
+  "Add New Talk Session": "Neue Sitzung hinzufügen",
+  "Hide": "Verstecken",
+  "Delete A Talk": "Sitzung Löschen",
+  "Are you sure you want to delete this talk?": "Sind Sie sicher, diese Sitzung zu löschen?",
+  "This Talk Has Been Deleted.": "Diese Sitzung wurde gelöscht",
+  "Clear Fields": "Felder löschen",
+  "New Agenda Information": "",
+  "Begin": "Beginn",
+  "End": "Ende",
+  "Speaker": "Sprecher",
+  "Speaker Information": "Sprecherinformation",
+  "Topic": "Thema",
+  "Talk Summary": "Zusammenfassung"
 }

@@ -94,6 +94,18 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
         }
       })
 
+      //
+      .state('app.agenda', {
+        cache: false,
+        url: '/agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/agenda.html',
+            controller: 'AgendaCtrl'
+          }
+        }
+      })
+
 
       .state('app.login', {
         url: '/login',
@@ -145,7 +157,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-      
+
       .state('app.forgotPassword', {
         url: '/forgotPassword',
         views: {
