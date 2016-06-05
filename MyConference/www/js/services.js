@@ -63,7 +63,7 @@ services.factory('backendService', function ($rootScope, $q) {
       BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
-          backend.login(user.username, user.pass);
+          backend.login(user.email, user.pass);
           backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
           backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
         })
@@ -314,6 +314,20 @@ services.factory('backendService', function ($rootScope, $q) {
      */
     backend.isCurrentUserRegisteredForEvent = function (eventId) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
+    };
+
+    /*
+    Function for getting a user by his username
+    returns a promise
+     */
+    backend.getUser = function (user) {
+      return BaasBox.fetchUserProfile(user)
+        .done(function(res) {
+          console.log("res ", res['data']);
+        })
+        .fail(function(error) {
+          console.log("error ", error);
+        })
     };
 
     return backend;
