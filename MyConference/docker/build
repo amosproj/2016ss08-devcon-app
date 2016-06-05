@@ -21,6 +21,7 @@ npm install
 bower install --allow-root
 chmod +x hooks/after_prepare/010_add_platform_class.js
 ionic state reset
+cordova plugin add https://github.com/katzer/cordova-plugin-email-composer.git#0.8.2
 cordova platform add android
 gulp build
 ls platforms/android/
