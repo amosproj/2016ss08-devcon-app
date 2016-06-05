@@ -428,15 +428,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   Last define the save function for storing the results in the backend.
    */
   .controller('FeedbackCtrl', function ($scope, $stateParams, backendService) {
-    backendService.loadAgendaWithParams($stateParams.eventId).then(
-      function (res) {
-        console.log(res);
-        $scope.talks = res;
-      }, function (err) {
-        console.log(err)
-      });
-
-
     /*
      Function for creating a new crating object
      Used for avoid redundance.
@@ -465,9 +456,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       addNewRatingObject($scope.generalCategories[nr])
     }
 
-    for (talkNr in $scope.talks) {
-      addNewRatingObject($scope.talks[talkNr].topic)
-    }
+    backendService.loadAgendaWithParams($stateParams.eventId).then(
+      function (res) {
+        console.log(res);
+        $scope.talks = res;
+
+      }, function (err) {
+        console.log(err)
+
+      });
 
     $scope.saveFeedback = function () {
       for (ratingObjectTitle in $scope.ratingObjects) {
