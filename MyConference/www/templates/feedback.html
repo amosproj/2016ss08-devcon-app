@@ -18,12 +18,12 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   <ion-nav-title>{{"Feedback" | translate}} {{event.title}}</ion-nav-title>
   <ion-content>
     <ion-list>
-      <ion-item class="item item-divider">
+      <ion-item class="item item-divider" ng-show="generalCategories.length>0">
         {{"General feedback" | translate }}
       </ion-item>
       <feedback-group ng-repeat="category in generalCategories" rating-object="ratingObjects[category]"></feedback-group>
 
-      <ion-item class="item item-divider">
+      <ion-item class="item item-divider" ng-show="talks.length>0">
         {{"Talk specific feedback" | translate }}
       </ion-item>
       <feedback-group ng-repeat="talk in talks" rating-object="ratingObjects[talk.topic]"></feedback-group>
