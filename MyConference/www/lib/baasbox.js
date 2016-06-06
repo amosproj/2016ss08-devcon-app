@@ -165,6 +165,32 @@ var BaasBox = (function() {
           method: 'PUT'
         })
       },
+      ////////
+
+      /*
+       Function to load a collection of agendas, which have been created in the same event
+       */
+      loadAgendaWithParams: function(collection, evId, params) {
+        var deferred = buildDeferred();
+        var url = BaasBox.endPoint + '/document/' + collection + '?where=eventID%3D%3F&params=' + evId;
+        var req = $.ajax({
+          url: url,
+          method: 'GET',
+          timeout: BaasBox.timeout,
+          dataType: 'json',
+          data: params
+        })
+          .done(function(res) {
+            deferred.resolve(res['data']);
+          })
+          .fail(function(error) {
+            deferred.reject(error);
+          })
+        return deferred.promise();
+      },
+
+
+      /////////
 
       logout: function(cb) {
         var deferred = buildDeferred();
@@ -341,6 +367,33 @@ var BaasBox = (function() {
           })
         return deferred.promise();
       },
+      
+      /*
+       function to add eventID to agendas, which have been created in this event
+       */
+
+      updateEventAgenda: function(object, evId) {
+        var deferred = buildDeferred();
+        url = BaasBox.endPoint + '/document/agenda/' + object.id + '/.' + 'eventID'; //
+        var json = JSON.stringify({
+          "data": evId
+        });
+        var req = $.ajax({
+          url: url,
+          type: 'PUT',
+          contentType: 'application/json',
+          dataType: 'json',
+          data: json
+        })
+          .done(function(res) {
+            deferred.resolve(res['data']);
+          })
+          .fail(function(error) {
+            deferred.reject(error);
+          })
+        return deferred.promise();
+      },
+      ///////////
 
       deleteObject: function(objectId, collection) {
         return $.ajax({

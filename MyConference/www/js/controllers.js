@@ -48,7 +48,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
       $scope.languageSwitched = !$scope.languageSwitched;
       console.log($scope.languageSwitched);
-    }
+    };
 
     $scope.isLoggedIn = false;
     $scope.$on('user:loginState', function (event, data) {
@@ -199,7 +199,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
+      $scope.event = res['data'];
+      backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
+        function (res) {
+          $scope.isCurrentUserRegistered = res;
+        }
+      );
       if ($scope.agenda) {
         backendService.getFileDetails(res['data'].fileId).then(function (file) {
           $scope.filename = file['data'].fileName;
@@ -210,7 +215,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     }, function (error) {
       console.log("Error by retrieving the event", error)
-    })
+    });
     $(document).on("submit", "#uploadForm", function (e) {
       e.preventDefault();
       e.stopImmediatePropagation();
@@ -222,7 +227,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         showDelay: 0
       });
       var formData = new FormData();
-      formData.append('file', $('input[type=file]')[0].files[0])
+      formData.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
         // if there was already an agenda file then delete it
         if ($scope.agenda) {
@@ -264,6 +269,191 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           .catch(function (event) {
             // error
           });
+      });
+    };
+
+    //function for the Join-Event-Button
+    $scope.joinEvent = function () {
+      backendService.addCurrentUserToEvent($scope.event.id).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $scope.isCurrentUserRegistered = true;
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'We are happy to see you at' | translate}}" + " " + $scope.event.title + "!"
+              });
+            }
+          );
+        }, function (err) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Error while registration.' | translate}}"
+              });
+            }
+          );
+        });
+    };
+
+    //function for the Leave-Event-Button
+    $scope.leaveEvent = function () {
+      backendService.removeCurrentUserFromEvent($scope.event.id).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $scope.isCurrentUserRegistered = false;
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'We are sad not seeing you at' | translate}}" + " " + $scope.event.title + "!"
+              });
+            }
+          );
+        }, function (err) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Error while undoing registration.' | translate}}"
+              });
+            }
+          );
+        });
+    }
+
+    /*
+     function for adding a new agenda in agenda collection
+     in the new agenda object, the ID of the event, in which this agenda has been created
+     is stored
+     */
+    $scope.addingAgenda = function (ag) {
+      backendService.addingAgenda(ag, $stateParams.eventId);
+
+      $translate('Done!').then(
+        function (res2) {
+          var alertPopup = $ionicPopup.alert({
+            title: res2,
+            template: "{{'New Talk Session is added' | translate}}"
+          });
+          alertPopup.then(function (res) {
+            $state.reload()
+          });
+        }
+      );
+    }
+    /*
+     hide - show form after click on adding agenda 
+     */
+    $scope.addingAgendaForm = false;
+    $scope.showAddingAgenda = function() {
+      $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+    };
+
+    //retrieve agenda by condition
+    backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
+      $scope.agendaList = res;
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
+
+  })
+
+  /*
+  Controller for speaker / agenda page with more detail about the speaker, topic
+  can delete talk, edit talk information
+   */
+
+  .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+    $scope.upload = false;
+    backendService.getAgendaById($stateParams.agendaId).then(function (res) {
+      $scope.agenda = res['data'];
+      backendService.getFileDetails(res['data'].fileId).then(function (file) {
+          $scope.filename = file['data'].fileName;
+          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+        }, function (fileError) {
+          console.log("Error by getting file details")
+        })
+    }, function (error) {
+      console.log("Error by retrieving the agenda", error)
+    })
+
+    $scope.uploadAgenda = function(agendaId) {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      var formDataSpeaker = new FormData();
+      formDataSpeaker.append('file', $('input[type=file]')[0].files[0]);
+      backendService.uploadFileAgenda(formDataSpeaker, agendaId).then(function (res) {
+        // if there was already a speaker file then delete it
+         if ($scope.agendaId) {
+         backendService.deleteFile(agendaId);
+         }
+        $ionicLoading.hide();
+        $translate('Done!').then(
+          function (res2) {
+            $ionicPopup.alert({
+              title: res2,
+              template: "{{'File successfully uploaded' | translate}}"
+            }).then(function (res3) {
+              res = jQuery.parseJSON(res);
+              $state.go('app.transition', {
+                to: 'app.agenda',
+                data: {agendaId: agendaId}
+              })
+            });
+          }
+        );
+      }, function (error) {
+        $ionicLoading.hide();
+        $translate('Error').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Error occurred by uploading a file' | translate}}"
+            });
+          }
+        );
+      })
+    };
+
+    $scope.download = function (url) {
+      $ionicPlatform.ready(function () {
+        $cordovaInAppBrowser.open(url, '_system')
+          .then(function (event) {
+            // success
+          })
+          .catch(function (event) {
+            // error
+          });
+      });
+    };
+
+    //delete talk function
+    $scope.deleteAgenda = function (xId) {
+      var confirmPopup = $ionicPopup.confirm({
+        title: 'Delete A Talk',
+        template: "{{'Are you sure you want to delete this talk?' | translate}}"
+      });
+      confirmPopup.then(function (res) {
+        if (res) {
+          backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
+            backendService.deleteFile(res2['data'].fileId);
+          })
+          backendService.deleteAgenda($stateParams.agendaId);
+          var alertPopup = $ionicPopup.alert({
+            title: 'Done!',
+            template: "{{'This Talk Has Been Deleted.' | translate}}"
+          });
+          alertPopup.then(function (re) {
+            $state.go('app.event', {eventId: xId}, {reload: true});
+          });
+        }else{
+        }
       });
     }
   })
@@ -479,7 +669,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
 
   })
-
 
   /*
    Controller for editing user information

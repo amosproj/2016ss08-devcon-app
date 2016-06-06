@@ -6,3 +6,4 @@ MyConference/platforms/
 MyConference/plugins/
 .idea/
 MyConference/.idea/
+MyConference/www/lib/angular*
