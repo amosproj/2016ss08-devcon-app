@@ -197,7 +197,8 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.getEventById = function (id) {
       return BaasBox.loadObject("events", id)
     };
-    /*
+
+  /*
      Function for updating an event
      Requires two parameters: attribute name to update and corresponding value for this attribute
      */
@@ -210,8 +211,9 @@ services.factory('backendService', function ($rootScope, $q) {
           console.log("Event update error ", error);
         })
     };
-
-  ///////update agenda
+/*
+    Function for updating an agenda
+ */
 
   backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
     BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
@@ -245,7 +247,14 @@ services.factory('backendService', function ($rootScope, $q) {
         })
     };
 
-  ///////need to be improved
+  /*
+   Function for uploading a file to the backend
+   Gets a form with input file and ID of the agenda that it belongs to
+   First uploads a file, then grants access permission to all users,
+   after adds id of new uploaded file to the agenda that it belongs to
+   Returns a promise
+   */
+
   backend.uploadFileAgenda = function (uploadForm, agendaId) {
     return BaasBox.uploadFile(uploadForm)
       .done(function (res) {
@@ -378,9 +387,6 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.isCurrentUserRegisteredForEvent = function (eventId) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
-
-
-  ///////////
 
   /*
    Function for getting an agenda by eventID

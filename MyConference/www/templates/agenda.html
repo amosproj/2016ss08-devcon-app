@@ -16,9 +16,11 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
   <ion-nav-title>{{agenda.speaker}}</ion-nav-title>
+  <ion-nav-buttons side="right">
+    <button ng-click="goToEdit(agenda.id)" class="button icon ion-edit" menu-toggle="right"></button>
+  </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
-      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i>: {{agenda.begin | date: 'HH:mm' || "n/a"}} - {{agenda.end | date: 'HH:mm' || "n/a"}} </ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-android-contact"></i>: {{agenda.speaker}} </ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-university"></i>: {{(agenda.speakerInformation) || "n/a"}} </ion-item>
       <ion-item class="item item-icon-left"> <i class="icon ion-speakerphone"></i>: {{agenda.topic}}</ion-item>
@@ -26,23 +28,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> Talk File: ({{"click to download" | translate}})
     </ion-item>
     <button ng-show="agenda" ng-click="download(downloadUrl)">{{filename}}</button>
-
     </ion-list>
-    <form ng-show="upload" type = "hidden" id="formDataTalk" method="post">
-      <input type="file">
-      <input type="submit" ng-click="uploadAgenda(agenda.id)" class="button button-positive small_button" value="OK">
-    </form>
-
-    <button ng-click="upload = !upload" ng-show="upload" class="button button-block button-assertive">
-      {{"Cancel" | translate}}
-    </button>
-    <button ng-click="upload = !upload" ng-show="!upload && !agenda" class="button button-block button-positive">
-      {{"Add agenda" | translate}}
-    </button>
-    <button ng-click="upload = !upload" ng-show="!upload && agenda" class="button button-block button-positive">
-      {{"Change agenda" | translate}}
-    </button>
-    <buton ng-click="deleteAgenda(agenda.eventID)" class="button button-block button-assertive">{{"Delete This Talk" | translate}}</buton>
-
   </ion-content>
 </ion-view>

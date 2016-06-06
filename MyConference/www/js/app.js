@@ -106,6 +106,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
         }
       })
 
+      .state('app.edit-agenda', {
+        cache: false,
+        url: '/edit-agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-agenda.html',
+            controller: 'EditAgendaCtrl'
+          }
+        }
+      })
+
 
       .state('app.login', {
         url: '/login',
