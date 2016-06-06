@@ -317,29 +317,34 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
     // function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
-      $ionicPlatform.ready(function () {
-        $ionicPopup.show({
-          scope: $scope,
-          buttons: [
-            {
-              text: '<b>Send E-mail</b>',
-              type: 'button-positive',
-              onTap: function (e) {
-                e.preventDefault();
-                createCSV($scope.event.participants.length - 1, 'email')
-              }
-            },
-            {
-              text: '<b>Download</b>',
-              type: 'button-positive',
-              onTap: function (e) {
-                e.preventDefault();
-                createCSV($scope.event.participants.length - 1, 'download')
-              }
-            },
-            {text: 'Cancel'}
-          ]
-        });
+        $translate('Send Email').then(function (send) {
+          $translate('Download').then(function (down) {
+            $translate('Cancel').then(function (cancel) {
+              $ionicPopup.show({
+                scope: $scope,
+                buttons: [
+                  {
+                    text: send,
+                    type: 'button-positive',
+                    onTap: function (e) {
+                      e.preventDefault();
+                      createCSV($scope.event.participants.length - 1, 'email')
+                    }
+                  },
+                  {
+                    text: down,
+                    type: 'button-positive',
+                    onTap: function (e) {
+                      e.preventDefault();
+                      createCSV($scope.event.participants.length - 1, 'download')
+                    }
+                  },
+                  {text: cancel}
+                ]
+              });
+            })
+          })
+
       })
     }
     $scope.arr = [];
@@ -351,39 +356,53 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     function createCSV(i, action) {
       if (i < 0) {
-        var csv = 'Name,Given name,E-mail,Status\n';
-        for (var i = 0; i < $scope.arr.length; i++) {
-          var line = '';
-          for (var ind in $scope.arr[i]) {
-            if (typeof $scope.arr[i][ind] !== 'object') {
-              if (line != '') line += ','
-              line += $scope.arr[i][ind];
+        $translate('Name').then(function (name) {
+          $translate('Given name').then(function(gName){
+            csv = name+','+gName+',E-mail,Status\n';
+            for (var i = 0; i < $scope.arr.length; i++) {
+              var line = '';
+              for (var ind in $scope.arr[i]) {
+                if (typeof $scope.arr[i][ind] !== 'object') {
+                  if (line != '') line += ','
+                  line += $scope.arr[i][ind];
+                }
+              }
+              csv += line + '\n';
             }
-          }
-          csv += line + '\n';
-        }
-        $cordovaFile.writeFile(cordova.file.externalRootDirectory, $scope.event.title + "-participants-list.csv", csv, true)
-          .then(function (success) {
-            console.log("File is created", success)
-          }, function (error) {
-            console.log("Error by writing a file", error);
-          });
-        if (action === 'download') {
-          $scope.download(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
-        } else {
-          sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
-        }
-        $scope.arr = [];
-        return;
+            $cordovaFile.writeFile(cordova.file.externalRootDirectory, $scope.event.title + "-participants-list.csv", csv, true)
+              .then(function (success) {
+                console.log("File is created", success)
+              }, function (error) {
+                console.log("Error by writing a file", error);
+              });
+            if (action === 'download') {
+              $scope.download(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+            } else {
+              sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+            }
+            $scope.arr = [];
+            return;
+          })
+        })
+
       }
       var user = $scope.event.participants[i];
       console.log("User is", user)
       backendService.getUser(user.name).then(function (res) {
         var obj = res['data']['visibleByRegisteredUsers'];
-        obj.email = res['data'].user.name;
+        obj.email = res['data']['visibleByTheUser'].email;
         obj.status = user.status;
         $scope.arr.push(obj);
         createCSV(i - 1, action);
+      })
+    }
+
+    $scope.goo = function () {
+      $translate('Participants list').then(function (list) {
+        $translate('Participants list for the event: ').then(function (listForEvent) {
+          console.log("LIST", list);
+          console.log("For eventakshag", listForEvent)
+        })
       })
     }
 
@@ -391,23 +410,31 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     function sendEmail(file) {
       $ionicPlatform.ready(function () {
       backendService.fetchCurrentUser().then(function (res) {
-          $cordovaEmailComposer.isAvailable().then(function (available) {
-            var email = {
-              to: res['data']['visibleByTheUser'].email,
-              attachments: [file],
-              subject: $scope.event.title + ' Participants list',
-              body: 'Participants list for the event: ' + $scope.event.title,
-              isHtml: true
-            };
-            $cordovaEmailComposer.open(email).then(null, function () {
-              // email is sent or cancelled
+        $translate('Participants list').then(function (list) {
+          $translate('Participants list for the event').then(function (listForEvent) {
+            $cordovaEmailComposer.isAvailable().then(function (available) {
+              var email = {
+                to: res['data']['visibleByTheUser'].email,
+                attachments: [file],
+                subject: $scope.event.title + ' ' + list,
+                body: listForEvent + ': ' + $scope.event.title,
+                isHtml: true
+              };
+              $cordovaEmailComposer.open(email).then(null, function () {
+                // email is sent or cancelled
+              });
+            }, function (notAvailable) {
+              $translate('Error!').then(
+                function (res2) {
+                  $ionicPopup.alert({
+                    title: res2,
+                    template: "{{'You dont have an installed mail app on your device' | translate}}"
+                  });
+                }
+              );
             });
-          }, function (notAvailable) {
-            $ionicPopup.alert({
-              title: 'Error',
-              template: 'Your device doesn\'t have an installed mail app'
-            })
-          });
+          })
+        })
         }, false);
       })
     }
