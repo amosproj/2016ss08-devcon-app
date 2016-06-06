@@ -460,6 +460,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       function (res) {
         console.log(res);
         $scope.talks = res;
+        
+        console.log("TALKS: "+$scope.talks);
+        for (talkNr in $scope.talks) {
+          addNewRatingObject($scope.talks[talkNr].topic)
+        }
 
       }, function (err) {
         console.log(err)
