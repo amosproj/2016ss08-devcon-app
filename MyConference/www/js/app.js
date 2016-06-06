@@ -94,6 +94,18 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
         }
       })
 
+      //
+      .state('app.agenda', {
+        cache: false,
+        url: '/agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/agenda.html',
+            controller: 'AgendaCtrl'
+          }
+        }
+      })
+
 
       .state('app.login', {
         url: '/login',
