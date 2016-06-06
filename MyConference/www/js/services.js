@@ -230,5 +230,21 @@ services.factory('backendService', function ($rootScope) {
     return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
   };
 
+  backend.addFeedbackToCollectionItem = function(itemId, collection, rating, comment){
+    BaasBox.loadObject(collection, itemId).then(
+      function (res) {
+        collectionItem = res['data'];
+        feedbackEntry = {rating: rating, comment: comment};
+        if(collectionItem.hasOwnProperty("feedback")){
+          collection.feedback.push(feedbackEntry);
+        } else {
+          feedback = [ feedbackEntry ];
+        }
+        BaasBox.updateField(itemId, collection, "feedback", feedback)
+      }
+    );
+  }
+
+
   return backend;
 });
