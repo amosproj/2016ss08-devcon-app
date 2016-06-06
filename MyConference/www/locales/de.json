@@ -12,6 +12,7 @@
   "Date": "Datum",
   "Short description": "Kurzbeschreibung",
   "Sign Up": "Registrieren",
+  "Name": "Nachname",
   "Given name": "Vorname",
   "Given Name": "Vorname",
   "Password": "Passwort",
@@ -51,5 +52,9 @@
   "We are happy to see you at": "Wir freuen uns auf deinen Besuch bei",
   "Error while registration.": "Fehler bei der Registrierung.",
   "We are sad not seeing you at": "Schade, dass wir dich nicht begrüßen dürfen bei",
-  "Error while undoing registration.": "Fehler beim Löschen der Registrierung."
+  "Error while undoing registration.": "Fehler beim Löschen der Registrierung.",
+  "Participants list": "Teilnehmerliste",
+  "Send Email": "Email senden",
+  "Participants list for the event": "Teilnehmerliste für das Event",
+  "Download": "Download"
 }
