@@ -320,7 +320,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           );
         });
-    }
+    };
 
     /*
      function for adding a new agenda in agenda collection
@@ -341,12 +341,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         }
       );
-    }
+    };
     /*
      hide - show form after click on adding agenda 
      */
     $scope.addingAgendaForm = false;
-    $scope.showAddingAgenda = function() {
+    $scope.showAddingAgenda = function () {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
 
@@ -360,8 +360,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-  Controller for speaker / agenda page with more detail about the speaker, topic
-  can delete talk, edit talk information
+   Controller for speaker / agenda page with more detail about the speaker, topic
+   can delete talk, edit talk information
    */
 
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
@@ -369,16 +369,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
       backendService.getFileDetails(res['data'].fileId).then(function (file) {
-          $scope.filename = file['data'].fileName;
-          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
-        }, function (fileError) {
-          console.log("Error by getting file details")
-        })
+        $scope.filename = file['data'].fileName;
+        $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+      }, function (fileError) {
+        console.log("Error by getting file details")
+      })
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
-    })
+    });
 
-    $scope.uploadAgenda = function(agendaId) {
+    $scope.uploadAgenda = function (agendaId) {
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -390,9 +390,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       formDataSpeaker.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFileAgenda(formDataSpeaker, agendaId).then(function (res) {
         // if there was already a speaker file then delete it
-         if ($scope.agendaId) {
-         backendService.deleteFile(agendaId);
-         }
+        if ($scope.agendaId) {
+          backendService.deleteFile(agendaId);
+        }
         $ionicLoading.hide();
         $translate('Done!').then(
           function (res2) {
@@ -443,7 +443,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         if (res) {
           backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
             backendService.deleteFile(res2['data'].fileId);
-          })
+          });
           backendService.deleteAgenda($stateParams.agendaId);
           var alertPopup = $ionicPopup.alert({
             title: 'Done!',
@@ -452,7 +452,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           alertPopup.then(function (re) {
             $state.go('app.event', {eventId: xId}, {reload: true});
           });
-        }else{
+        } else {
         }
       });
     }
@@ -612,10 +612,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-  Controller for feedback page.
-  Loads agenda for talks specific feedback.
-  Then creates the rating objects for every category.
-  Last define the save function for storing the results in the backend.
+   Controller for feedback page.
+   Loads agenda for talks specific feedback.
+   Then creates the rating objects for every category.
+   Last define the save function for storing the results in the backend.
    */
   .controller('FeedbackCtrl', function ($scope, $stateParams, backendService) {
     /*
@@ -637,34 +637,41 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           $scope.ratingObjects[title].rating = rating;
         }
       };
-    }
+    };
 
-    $scope.ratingObjects = {}
+    $scope.ratingObjects = {};
 
-    $scope.generalCategories = ["Whole Event","Foods and Drinks","Location"];
+    $scope.generalCategories = ["Whole Event", "Foods and Drinks", "Location"];
     for (nr in $scope.generalCategories) {
       addNewRatingObject($scope.generalCategories[nr])
     }
 
     backendService.loadAgendaWithParams($stateParams.eventId).then(
       function (res) {
-        console.log(res);
         $scope.talks = res;
-        
-        console.log("TALKS: "+$scope.talks);
+
         for (talkNr in $scope.talks) {
           addNewRatingObject($scope.talks[talkNr].topic)
         }
-
       }, function (err) {
         console.log(err)
-
       });
 
     $scope.saveFeedback = function () {
-      for (ratingObjectTitle in $scope.ratingObjects) {
-        console.log(ratingObjectTitle + " " + $scope.ratingObjects[ratingObjectTitle].rating + " " + $scope.ratingObjects[ratingObjectTitle].comment)
+      for (talkNr in $scope.talks) {
+        ratingObject = $scope.ratingObjects[$scope.talks[talkNr].topic];
+        backendService.addFeedbackToTalk($scope.talks[talkNr].id, ratingObject.rating, ratingObject.comment)
       }
+      ratingArray = [];
+      for (nr in $scope.generalCategories) {
+        ratingObject = $scope.ratingObjects[$scope.generalCategories[nr]];
+        ratingArray.push({
+          category: ratingObject.title,
+          rating: ratingObject.rating,
+          comment: ratingObject.comment,
+        });
+      }
+      backendService.addFeedbackToEvent($stateParams.eventId, ratingArray)
     }
 
 
