@@ -191,7 +191,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
@@ -356,6 +356,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     function createCSV(i, action) {
       if (i < 0) {
+        $scope.arr = $filter('orderBy')($scope.arr, 'name');
         $translate('Name').then(function (name) {
           $translate('Given name').then(function(gName){
             csv = name+','+gName+',E-mail,Status\n';
@@ -381,29 +382,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
             }
             $scope.arr = [];
-            return;
           })
         })
-
-      }
-      var user = $scope.event.participants[i];
-      console.log("User is", user)
-      backendService.getUser(user.name).then(function (res) {
-        var obj = res['data']['visibleByRegisteredUsers'];
-        obj.email = res['data']['visibleByTheUser'].email;
-        obj.status = user.status;
-        $scope.arr.push(obj);
-        createCSV(i - 1, action);
-      })
-    }
-
-    $scope.goo = function () {
-      $translate('Participants list').then(function (list) {
-        $translate('Participants list for the event: ').then(function (listForEvent) {
-          console.log("LIST", list);
-          console.log("For eventakshag", listForEvent)
+      }else {
+        var user = $scope.event.participants[i];
+        console.log("User is", user, "i is " + i)
+        backendService.getUser(user.name).then(function (res) {
+          var obj = res['data']['visibleByRegisteredUsers'];
+          obj.email = res['data']['visibleByTheUser'].email;
+          obj.status = user.status;
+          $scope.arr.push(obj);
+          createCSV(i - 1, action);
         })
-      })
+      }
     }
 
     //Function for sending file to the users email address
