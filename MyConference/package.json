@@ -25,6 +25,7 @@
     "ionic-plugin-keyboard",
     "cordova-plugin-inappbrowser",
     "cordova-plugin-file-transfer",
-    "cordova-plugin-file"
+    "cordova-plugin-file",
+    "cordova-plugin-email-composer"
   ]
 }
