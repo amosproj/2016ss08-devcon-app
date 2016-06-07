@@ -110,7 +110,6 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.resetPassword = function (user) {
       BaasBox.resetPasswordForUser(user);
     };
-
     /*
      Function for updating user account
      requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
@@ -223,7 +222,6 @@ services.factory('backendService', function ($rootScope, $q) {
           console.log("error ", error);
         })
     };
-
     /*
      Function for adding a user to an event.
      Checks if user is already participant for avoiding double entries.
@@ -248,7 +246,6 @@ services.factory('backendService', function ($rootScope, $q) {
       });
       return deferred.promise;
     };
-
     /*
      Function for adding the current user to an event.
      Calls addUserToEvent().
@@ -257,7 +254,6 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.addCurrentUserToEvent = function (eventId) {
       return backend.addUserToEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
      Fucntion for removing a user from an event.
      Returns a promise.
@@ -282,8 +278,6 @@ services.factory('backendService', function ($rootScope, $q) {
       });
       return deferred.promise;
     };
-
-
     /*
      Function for removing the current user from an event.
      Returns a promise.
@@ -291,7 +285,6 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.removeCurrentUserFromEvent = function (eventId) {
       return backend.removeUserFromEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
      Function for checking if a user is participant of an event.
      Returns a promise.
@@ -307,7 +300,6 @@ services.factory('backendService', function ($rootScope, $q) {
       };
       return deferred.promise
     };
-
     /*
      Function for checking if the current user is user is participant of an event.
      Returns a promise.
@@ -315,21 +307,19 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.isCurrentUserRegisteredForEvent = function (eventId) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
-    Function for getting a user by his username
-    returns a promise
+     Function for getting a user by his username
+     returns a promise
      */
     backend.getUser = function (user) {
       return BaasBox.fetchUserProfile(user)
-        .done(function(res) {
+        .done(function (res) {
           console.log("res ", res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           console.log("error ", error);
         })
     };
-
     return backend;
   }
 );
