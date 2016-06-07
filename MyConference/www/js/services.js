@@ -373,6 +373,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Returns a promise.
      */
     addFeedbackToItem = function (itemId, collection, feedBackEntry) {
+      var deferred = $q.defer();
       BaasBox.loadObject(collection, itemId).then(
         function (res) {
           item = res['data'];
@@ -381,9 +382,17 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           } else {
             item.feedback = [feedBackEntry];
           }
-          return BaasBox.updateField(itemId, collection, "feedback", item.feedback)
-        }
-      );
+          BaasBox.updateField(itemId, collection, "feedback", item.feedback).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err)
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        });
+      return deferred.promise;
     };
 
     /*
