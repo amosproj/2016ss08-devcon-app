@@ -656,7 +656,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Then creates the rating objects for every category.
    Last define the save function for storing the results in the backend.
    */
-  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService) {
+  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
     /*
      Function for creating a new crating object
      Used for avoid redundance.
@@ -710,7 +710,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           comment: ratingObject.comment,
         });
       }
-      backendService.addFeedbackToEvent($stateParams.eventId, ratingArray)
+      backendService.addFeedbackToEvent($stateParams.eventId, ratingArray).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Feedback submitted. Thank you!' | translate}}"
+              }).then(function (res3) {
+                $ionicHistory.goBack();
+              });
+            }
+          );
+        }
+      )
     }
 
 
