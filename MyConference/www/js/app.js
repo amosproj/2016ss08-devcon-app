@@ -21,7 +21,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
 
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
@@ -94,6 +94,38 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
         }
       })
 
+      //
+      .state('app.agenda', {
+        cache: false,
+        url: '/agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/agenda.html',
+            controller: 'AgendaCtrl'
+          }
+        }
+      })
+
+      .state('app.edit-agenda', {
+        cache: false,
+        url: '/edit-agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-agenda.html',
+            controller: 'EditAgendaCtrl'
+          }
+        }
+      })
+      .state('app.edit-event', {
+        url: '/edit-event/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-event.html',
+            controller: 'EditEventCtrl'
+          }
+        }
+      })
+
 
       .state('app.login', {
         url: '/login',
@@ -152,15 +184,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           'menuContent': {
             templateUrl: 'templates/forgotPassword.html',
             controller: 'ForgotCtrl'
-          }
-        }
-      })
-      .state('app.edit-event', {
-        url: '/edit-event/:eventId',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/edit-event.html',
-            controller: 'EditEventCtrl'
           }
         }
       })

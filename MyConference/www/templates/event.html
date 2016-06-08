@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-nav-buttons side="right">
-    <a  href="#/app/edit-event/{{event.id}}" class="button icon ion-edit" menu-toggle="right"></a>
+    <a href="#/app/edit-event/{{event.id}}" class="button icon ion-edit" menu-toggle="right"></a>
   </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
@@ -33,7 +33,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <form name="addAgendaForm" ng-submit="addingAgenda(ag)" ng-show="addingAgendaForm" novalidate>
         <!-- input type time is not supported by firefox. However, in phone, it works well -->
         <div class="list">
-          <div class="item item-divider" align="center">New Agenda Information</div>
+          <div class="item item-divider" align="center">{{"New Agenda Information" | translate}}</div>
         </div>
         <label class="item item-input">
           <span class="input-label fixed">{{"Begin" | translate}}</span>
@@ -71,8 +71,8 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
               ng-click="showAddingAgenda()">{{"Hide" | translate}}</button>
 
       <!-- Agenda List listed by beginning time -->
-      <div class="card" ng-repeat="i in agendaList | orderBy: 'begin': false" href="#app/agenda/{{i.id}}">
-        <a href="#app/agenda/{{i.id}}">
+      <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
+        <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
           <div class = "item item-text-wrap">
             <b>From</b> {{i.begin | date: 'HH:mm' || "n/a"}} <b>to</b> {{i.end | date: 'HH:mm' || "n/a"}}<br>
             <b>Speaker</b>: {{i.speaker || "n/a"}}<br>
@@ -80,8 +80,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
           </div>
       </a>
       </div>
-
-
       <p>
         {{event.descr}}
       </p>

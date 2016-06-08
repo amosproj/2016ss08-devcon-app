@@ -14,10 +14,8 @@
  root directory along with this program.
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
-
-angular.module('starter.controllers', ['services'])
-
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService) {
+angular.module('starter.controllers', ['services', 'ngCordova'])
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate) {
 
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
@@ -41,9 +39,18 @@ angular.module('starter.controllers', ['services'])
     $scope.login = function () {
       $scope.modal.show();
     };
+    $scope.languageSwitched = false;
+    $scope.changeLanguage = function () {
+      if ($scope.languageSwitched) {
+        $translate.use("de");
+      } else {
+        $translate.use("en");
+      }
+      $scope.languageSwitched = !$scope.languageSwitched;
+      console.log($scope.languageSwitched);
+    };
 
     $scope.isLoggedIn = false;
-
     $scope.$on('user:loginState', function (event, data) {
       // you could inspect the data to see if what you care about changed, or just update your own scope
       $scope.isLoggedIn = backendService.loginStatus;
@@ -57,7 +64,7 @@ angular.module('starter.controllers', ['services'])
    If connection successfully establishes redirects to main view,
    if no shows an error alert and reloads controller
    */
-  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService) {
+  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService, $translate) {
     console.log("Start contorller");
     $ionicLoading.show({
       content: 'Loading',
@@ -72,16 +79,49 @@ angular.module('starter.controllers', ['services'])
         disableBack: true
       });
       $state.go('app.main')
-    }, function (error) {
-      $ionicLoading.hide();
-      var alertPopup = $ionicPopup.alert({
-        title: 'Connection error',
-        template: 'Check your internet connection and try again'
-      });
-      alertPopup.then(function (re) {
-        $state.reload();
-      })
+    }, function (err) {
+      $translate('Connection error').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Check your internet connection and try again' | translate}}"
+          });
+          credentials.password = "";
+        }
+      );
     })
+  })
+  /*
+   Controller for forgot password page
+   Calls resetPassword service, shows a popup alert about successful  reset of a password
+   and redirects to login view
+
+   */
+  .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+    $scope.resetPassword = function (user) {
+      backendService.resetPassword(user);
+      $translate('Reset Password').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'An email has been sent to you with instructions on resetting your password.' | translate}}"
+          }).then(function (res) {
+            $state.reload();
+          });
+        }
+      );
+    }
+  })
+
+  /*
+   Controller for transition handling
+   redirects to the defined as a parameter state
+   */
+  .controller('TransitionCtrl', function ($scope, $state, $ionicHistory, $stateParams) {
+    $ionicHistory.nextViewOptions({
+      disableBack: true
+    });
+    $state.go($stateParams.to, $stateParams.data)
   })
 
   /*
@@ -91,7 +131,6 @@ angular.module('starter.controllers', ['services'])
    */
   .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
     var today = new Date();
-
     /*
      This method is used for filter after prevoius events in the main view
      */
@@ -99,16 +138,23 @@ angular.module('starter.controllers', ['services'])
       var itemDate = new Date(item.date);
       return today < itemDate;
     };
+    /* 
+     This method is used for filter after today's events in the main view 
+     */
+    $scope.todaysEvents = function (item) {
+      var itemDate = new Date(item.date);
+      return itemDate.getDay() == today.getDay() &&
+        itemDate.getMonth() == today.getMonth() &&
+        itemDate.getFullYear() == today.getFullYear();
+    };
 
     /*
      This method is used for filter after next events in the main view
      */
     $scope.nextEvents = function (item) {
-      return !$scope.previousEvents(item);
+      return !$scope.todaysEvents(item) && !$scope.previousEvents(item);
     };
-
     backendService.fetchCurrentUser().then(function (res) {
-
     }, function (error) {
       $state.go('app.start')
     });
@@ -124,58 +170,153 @@ angular.module('starter.controllers', ['services'])
    Calls createEvent service, shows a popup alert about successful creation of an event
    and redirects to main view
    */
-  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService) {
+  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Event "' + ev.title + '" created.'
-      });
-      alertPopup.then(function (res) {
-        $state.go('app.main')
-      })
+
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'created' | translate}}" + "."
+          }).then(function (res) {
+            $state.go('app.main')
+          });
+        }
+      );
     }
   })
 
-
-
   /*
    Controller for showing event information
-   Gets event by its id form backend
+   Gets event by its id rom backend, gets agenda file name and download url if it exist
+   Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+    $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
+    $scope.upload = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
+      $scope.event = res['data'];
+      backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
+        function (res) {
+          $scope.isCurrentUserRegistered = res;
+        }
+      );
+      if ($scope.agenda) {
+        backendService.getFileDetails(res['data'].fileId).then(function (file) {
+          $scope.filename = file['data'].fileName;
+          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+        }, function (fileError) {
+          console.log("Error by getting file details")
+        })
+      }
     }, function (error) {
       console.log("Error by retrieving the event", error)
-    })
-    /*
-     Function that is called after clicking edit button on MyAccount view
-     changes state to edit account view
-     */
-    $scope.goToEdit_Event = function () {
-      $state.go('app.edit-event');
-    };
-  })
-
-  .controller('EditEventCtrl', function ($scope, $stateParams, backendService) {
-    backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
-    }, function (error) {
-      console.log("Error by retrieving the event", error)
-    })
-    $scope.updateEvent = function (event) {
-      backendService.updateField(event.id, "events", "title", event.title);
-      backendService.updateField(event.id, "events", "location", event.location);
-      backendService.updateField(event.id, "events", "date", event.date);
-      backendService.updateField(event.id, "events", "descr", event.descr);
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Event "' + event.title + '" updated.'
+    });
+    $(document).on("submit", "#uploadForm", function (e) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
       });
-      alertPopup.then(function (res) {
-        $state.go('app.main')
+      var formData = new FormData();
+      formData.append('file', $('input[type=file]')[0].files[0]);
+      backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
+        // if there was already an agenda file then delete it
+        if ($scope.agenda) {
+          backendService.deleteFile($stateParams.agenda);
+        }
+        $ionicLoading.hide();
+        $translate('Done!').then(
+          function (res2) {
+            $ionicPopup.alert({
+              title: res2,
+              template: "{{'File successfully uploaded' | translate}}"
+            }).then(function (res3) {
+              res = jQuery.parseJSON(res);
+              $state.go('app.transition', {
+                to: 'app.event',
+                data: {eventId: $stateParams.eventId, agenda: res['data'].id}
+              })
+            });
+          }
+        );
+      }, function (error) {
+        $ionicLoading.hide();
+        $translate('Error').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Error occurred by uploading a file' | translate}}"
+            });
+          }
+        );
       })
+    });
+    $scope.download = function (url) {
+      $ionicPlatform.ready(function () {
+        $cordovaInAppBrowser.open(url, '_system')
+          .then(function (event) {
+            // success
+          })
+          .catch(function (event) {
+            // error
+          });
+      });
+    };
+
+    //function for the Join-Event-Button
+    $scope.joinEvent = function () {
+      backendService.addCurrentUserToEvent($scope.event.id).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $scope.isCurrentUserRegistered = true;
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'We are happy to see you at' | translate}}" + " " + $scope.event.title + "!"
+              });
+            }
+          );
+        }, function (err) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Error while registration.' | translate}}"
+              });
+            }
+          );
+        });
+    };
+
+    //function for the Leave-Event-Button
+    $scope.leaveEvent = function () {
+      backendService.removeCurrentUserFromEvent($scope.event.id).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $scope.isCurrentUserRegistered = false;
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'We are sad not seeing you at' | translate}}" + " " + $scope.event.title + "!"
+              });
+            }
+          );
+        }, function (err) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Error while undoing registration.' | translate}}"
+              });
+            }
+          );
+        });
     }
 
     /*
@@ -233,6 +374,87 @@ angular.module('starter.controllers', ['services'])
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
     })
+    $scope.download = function (url) {
+      $ionicPlatform.ready(function () {
+        $cordovaInAppBrowser.open(url, '_system')
+          .then(function (event) {
+            // success
+          })
+          .catch(function (event) {
+            // error
+          });
+      });
+    };
+
+    //go to edit agenda page
+    $scope.goToEdit = function (agendaId) {
+      $state.go('app.edit-agenda', {agendaId: agendaId});
+    };
+
+  })
+
+  /*
+  function for editting agenda page
+   */
+
+  .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+    backendService.getAgendaById($stateParams.agendaId).then(function (res) {
+      $scope.agenda = res['data'];
+    })
+
+    /*
+    function to update a talk session / agenda
+     */
+    $scope.updateAgenda = function (ag) {
+      backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
+      backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
+      backendService.updateAgenda($stateParams.agendaId, "speaker", ag.speaker);
+      backendService.updateAgenda($stateParams.agendaId, "topic", ag.topic);
+      backendService.updateAgenda($stateParams.agendaId, "speakerInformation", ag.speakerInformation);
+      backendService.updateAgenda($stateParams.agendaId, "talkSummary", ag.talkSummary);
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Talk Session updated.' | translate}}"
+          }).then(function (res) {
+            $state.go('app.agenda', {agendaId: $stateParams.agendaId})
+          });
+        }
+      );
+    }
+
+    /*
+     function to delete a talk session
+     */
+    $scope.deleteAgenda = function (xId) {
+      $translate('Delete A Talk').then(
+        function (res3) {
+          var confirmPopup = $ionicPopup.confirm({
+            title: res3,
+            template: "{{'Are you sure you want to delete this talk?' | translate}}"
+          });
+          confirmPopup.then(function (res) {
+            if (res) {
+              backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
+                backendService.deleteFile(res2['data'].fileId);
+              })
+              backendService.deleteAgenda($stateParams.agendaId);
+              $translate('Done!').then(
+                function (res4) {
+                  var alertPopup = $ionicPopup.alert({
+                    title: res4,
+                    template: "{{'This Talk Has Been Deleted.' | translate}}"
+                  });
+                  alertPopup.then(function (re) {
+                    $state.go('app.event', {eventId: xId}, {reload: true});
+                  });
+                })
+            }else{
+            }
+          });
+        })
+    }
 
     $scope.uploadAgenda = function(agendaId) {
       $ionicLoading.show({
@@ -246,9 +468,9 @@ angular.module('starter.controllers', ['services'])
       formDataSpeaker.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFileAgenda(formDataSpeaker, agendaId).then(function (res) {
         // if there was already a speaker file then delete it
-         if ($scope.agendaId) {
-         backendService.deleteFile(agendaId);
-         }
+        if ($scope.agendaId) {
+          backendService.deleteFile(agendaId);
+        }
         $ionicLoading.hide();
         $translate('Done!').then(
           function (res2) {
@@ -277,40 +499,33 @@ angular.module('starter.controllers', ['services'])
       })
     };
 
-    $scope.download = function (url) {
-      $ionicPlatform.ready(function () {
-        $cordovaInAppBrowser.open(url, '_system')
-          .then(function (event) {
-            // success
-          })
-          .catch(function (event) {
-            // error
-          });
-      });
-    };
+  })
 
-    //delete talk function
-    $scope.deleteAgenda = function (xId) {
-      var confirmPopup = $ionicPopup.confirm({
-        title: 'Delete A Talk',
-        template: "{{'Are you sure you want to delete this talk?' | translate}}"
-      });
-      confirmPopup.then(function (res) {
-        if (res) {
-          backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
-            backendService.deleteFile(res2['data'].fileId);
-          })
-          backendService.deleteAgenda($stateParams.agendaId);
-          var alertPopup = $ionicPopup.alert({
-            title: 'Done!',
-            template: "{{'This Talk Has Been Deleted.' | translate}}"
+  /*
+   Controller for Updating an  event:
+   First get all event information by using getEventById(), then save all update and shows a popup alert
+   about successful updating of an event and redirects to main view.
+
+   */
+
+  .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.event = res['data']
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
+    $scope.updateEvent = function (ev) {
+      BaasBox.save(ev, "events")
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+          }).then(function (res) {
+            $state.go('app.start')
           });
-          alertPopup.then(function (re) {
-            $state.go('app.event', {eventId: xId}, {reload: true});
-          });
-        }else{
         }
-      });
+      );
     }
   })
 
@@ -320,55 +535,70 @@ angular.module('starter.controllers', ['services'])
    if no calls createAccount service with user form as a parameter
    "default" user means "not registered" user
    */
-  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService) {
+  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         backendService.logout();
       } else {
-        var alertPopup = $ionicPopup.alert({
-          title: 'Done!',
-          template: 'You are already logged in'
-        });
-        alertPopup.then(function (re) {
-          $state.go('app.main')
-        })
+        $translate('Error!').then(
+          function (res2) {
+            $ionicPopup.alert({
+              title: res2,
+              template: "{{'You are already logged in' | translate}}"
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        );
       }
     });
     $scope.createAccount = function (user) {
       backendService.createAccount(user);
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Welcome, ' + user.name
-      });
-      alertPopup.then(function (re) {
-        $state.go('app.main')
-      })
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Welcome' | translate}}" + ', ' + user.name
+          }).then(function (res) {
+            $state.go('app.main')
+          });
+        }
+      );
     }
   })
 
   /* 
    Controller for the Login Page. 
    First logouts the logged in default user, then calls the backend login and shows success/error popup. 
-   Goes to Main Page if success, stays on login form but deletes pasword if error. 
+   Goes to Main Page if success, stays on login form but deletes password if error. 
    */
-  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.logout();
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          $ionicPopup.alert({
-            title: 'Done!',
-            template: 'Login successful.'
-          }).then(function (re) {
-            $state.go('app.main');
-          });
+          $translate('Done!').then(
+            function (result) {
+              $ionicPopup.alert({
+                title: result,
+                template: "{{'Login successful.' | translate}}"
+              }).then(function (re) {
+                $state.go('app.main');
+              });
+            }
+          )
+
         },
         function (err) {
-          $ionicPopup.alert({
-            title: 'Error!',
-            template: 'Username and password did not match.'
-          });
-          credentials.password = "";
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Username and password did not match.' | translate}}"
+              });
+              credentials.password = "";
+            }
+          );
         }
       )
     };
@@ -378,15 +608,19 @@ angular.module('starter.controllers', ['services'])
    Controller for Logout 
    Logouts the user, shows a popup and then goes to main page. 
    */
-  .controller('LogoutCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('LogoutCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.logout().then(
       function (res) {
-        $ionicPopup.alert({
-          title: 'Logout',
-          template: 'You are logged out.'
-        }).then(function (re) {
-          $state.go('app.start');
-        })
+        $translate('Done!').then(
+          function (result) {
+            $ionicPopup.alert({
+              title: result,
+              template: "{{'You are logged out' | translate}}"
+            }).then(function (res) {
+              $state.go('app.start')
+            });
+          }
+        );
       });
   })
 
@@ -396,7 +630,7 @@ angular.module('starter.controllers', ['services'])
    If yes redirects to login view,
    if no gets username, name, given name and email information about logged user
    */
-  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         $state.go('app.login')
@@ -406,6 +640,7 @@ angular.module('starter.controllers', ['services'])
         $scope.user.email = res['data']['visibleByTheUser'].email;
       }
     });
+
     /*
      Function that is called after clicking edit button on MyAccount view
      changes state to edit account view
@@ -413,33 +648,37 @@ angular.module('starter.controllers', ['services'])
     $scope.goToEdit = function () {
       $state.go('app.edit-account');
     };
-
     //delete account function
     $scope.deleteAccount = function (user) {
       var susUser = user.username;
-      var confirmPopup = $ionicPopup.confirm({
-        title: 'Delete Account',
-        template: 'Are you sure you want to delete your account?'
-      });
-      confirmPopup.then(function (res) {
-        if (res) {
-          backendService.connect().then(function () {
-            backendService.deleteAccount(susUser).then(function () {
-              backendService.logout();
-              var alertPopup = $ionicPopup.alert({
-                title: 'Done!',
-                template: 'Account deleted.'
+      $translate('Delete Account').then(
+        function (res) {
+          $ionicPopup.confirm({
+            title: res,
+            template: "{{'Are you sure you want to delete your account?' | translate}}"
+          }).then(function (result) {
+            if (result) {
+              backendService.connect().then(function () {
+                backendService.deleteAccount(susUser).then(function () {
+                  backendService.logout();
+                  $translate('Done!').then(
+                    function (res2) {
+                      $ionicPopup.alert({
+                        title: res2,
+                        template: "{{'Account deleted.' | translate}}"
+                      }).then(function (res) {
+                        $state.go('app.main')
+                      });
+                    }
+                  );
+                })
               });
-              alertPopup.then(function (re) {
-                $state.go('app.main')
-              });
-            })
+              console.log('You are sure');
+            } else {
+              console.log('You are not sure');
+            }
           });
-          console.log('You are sure');
-        } else {
-          console.log('You are not sure');
-        }
-      });
+        });
     }
   })
 
@@ -449,7 +688,7 @@ angular.module('starter.controllers', ['services'])
    After clicking submit button in edit-account view calls update account function with user form as a parameter
    Then redirects to MyAccount view
    */
-  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup) {
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     backendService.fetchCurrentUser().then(function (res) {
       $scope.user = res['data']['visibleByRegisteredUsers'];
       $scope.user.username = res['data']['user'].name;
@@ -458,13 +697,15 @@ angular.module('starter.controllers', ['services'])
     $scope.updateAccount = function (user) {
       backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
       backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-      var alertPopup = $ionicPopup.alert({
-        title: 'Done!',
-        template: 'Account updated.'
-      });
-      alertPopup.then(function (re) {
-        $state.go('app.my-account')
-      });
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Account updated.' | translate}}"
+          }).then(function (res) {
+            $state.go('app.my-account')
+          });
+        }
+      );
     }
   });
-
