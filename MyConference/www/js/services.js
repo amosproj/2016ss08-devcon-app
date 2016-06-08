@@ -164,36 +164,36 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-  /*
-  Function for adding an agenda talk to an event
-   */
+    /*
+     Function for adding an agenda talk to an event
+     */
 
-  backend.addingAgenda = function (ag, evId) {
-    BaasBox.save(ag, "agenda")
-      .done(function (res) {
-        console.log("res ", res);
-        BaasBox.updateEventAgenda(res, evId);
-        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
-        BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
-      })
-      .fail(function (error) {
-        console.log("error ", error);
-      })
-  };
+    backend.addingAgenda = function (ag, evId) {
+      BaasBox.save(ag, "agenda")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.updateEventAgenda(res, evId);
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
 
-  /*
-   Function for deleting a talk.
-   */
-  backend.deleteAgenda = function (agendaId) {
-    //return
-    BaasBox.deleteObject(agendaId, "agenda")
-      .done(function (res) {
-        console.log(res);
-      })
-      .fail(function (err) {
-        console.log("Delete error ", err);
-      });
-  };
+    /*
+     Function for deleting a talk.
+     */
+    backend.deleteAgenda = function (agendaId) {
+      //return
+      BaasBox.deleteObject(agendaId, "agenda")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
 
 
     /*
@@ -225,15 +225,15 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     Function for updating an agenda
  */
 
-  backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
-    BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
-      .done(function (res) {
-        console.log("Agenda updated ", res);
-      })
-      .fail(function (error) {
-        console.log("Agenda update error ", error);
-      })
-  };
+    backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
+      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
+        .done(function (res) {
+          console.log("Agenda updated ", res);
+        })
+        .fail(function (error) {
+          console.log("Agenda update error ", error);
+        })
+    };
 
 
     /*
@@ -265,19 +265,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
    Returns a promise
    */
 
-  backend.uploadFileAgenda = function (uploadForm, agendaId) {
-    return BaasBox.uploadFile(uploadForm)
-      .done(function (res) {
-        console.log("res ", res);
-        res = jQuery.parseJSON(res);
-        BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, "default");
-        BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
-        backend.updateAgenda(agendaId, "fileId", res['data'].id)
-      })
-      .fail(function (error) {
-        console.log("UPLOAD error ", error);
-      })
-  };
+    backend.uploadFileAgenda = function (uploadForm, agendaId) {
+      return BaasBox.uploadFile(uploadForm)
+        .done(function (res) {
+          console.log("res ", res);
+          res = jQuery.parseJSON(res);
+          BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, "default");
+          BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+          backend.updateAgenda(agendaId, "fileId", res['data'].id)
+        })
+        .fail(function (error) {
+          console.log("UPLOAD error ", error);
+        })
+    };
 
     /*
      Function for getting a download url for the file
@@ -348,6 +348,65 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.addCurrentUserToEvent = function (eventId) {
       return backend.addUserToEvent(BaasBox.getCurrentUser(), eventId)
     };
+    /*
+     Function for getting an agenda by eventID
+     returns a collection
+     */
+    backend.loadAgendaWithParams = function (evId) {
+      return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+    };
+
+    /*
+     Function for adding rating to an talk.
+     Calls the abstract function addFeedbackToItem.
+     Returns a promise.
+     */
+    backend.addFeedbackToTalk = function (talkId, rating, comment) {
+      feedbackEntry = {rating: rating, comment: comment};
+      return addFeedbackToItem(talkId, "agenda", feedbackEntry);
+    };
+
+    /*
+     Function for adding rating to an event.
+     Excepts rating array of arbitrary length of the form:
+     [
+     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+     (...)
+     ]
+     Calls the abstract function addFeedbackToItem.
+     Returns a promise.
+     */
+    backend.addFeedbackToEvent = function (eventId, ratingArray) {
+      return addFeedbackToItem(eventId, "events", ratingArray);
+    };
+
+    /*
+     Abstract function for adding feedback to an item.
+     Returns a promise.
+     */
+    addFeedbackToItem = function (itemId, collection, feedBackEntry) {
+      var deferred = $q.defer();
+      BaasBox.loadObject(collection, itemId).then(
+        function (res) {
+          item = res['data'];
+          if (item.hasOwnProperty("feedback")) {
+            item.feedback.push(feedBackEntry);
+          } else {
+            item.feedback = [feedBackEntry];
+          }
+          BaasBox.updateField(itemId, collection, "feedback", item.feedback).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err)
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        });
+      return deferred.promise;
+    };
 
     /*
      Fucntion for removing a user from an event.
@@ -412,21 +471,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
 
-  /*
-   Function for getting an agenda by eventID
-   returns a collection
-   */
-  backend.loadAgendaWithParams = function (evId) {
-    return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
-  };
+    /*
+     Function for getting an agenda by eventID
+     returns a collection
+     */
+    backend.loadAgendaWithParams = function (evId) {
+      return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+    };
 
-  /*
-   Function for getting a speaker talk by agendId
-   returns a promise
-   */
-  backend.getAgendaById = function (id) {
-    return BaasBox.loadObject("agenda", id)
-  };
+    /*
+     Function for getting a speaker talk by agendId
+     returns a promise
+     */
+    backend.getAgendaById = function (id) {
+      return BaasBox.loadObject("agenda", id)
+    };
 
     return backend;
   }

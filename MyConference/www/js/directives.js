@@ -19,6 +19,19 @@
 angular.module('starter.directives', [])
 
 
+
+  .directive('feedbackGroup', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        ratingObject: "="
+      },
+      templateUrl: 'templates/directives/feedbackGroup.html',
+
+    };
+  })
+
+
 //directive to check password match
 
   .directive('validateMatch', function () {

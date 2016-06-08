@@ -193,8 +193,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Contains functions for uploading and downloading a file
    */
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
+
+    //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
+    // Is set later after loading the agenda
+    $scope.isFeedbackAllowed = false;
+
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
@@ -317,7 +323,39 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           );
         });
+    };
+
+    /*
+    Function that determines if now is between the first agenda talk and not more than 48h after the last.
+    Finds the first beginnig and the last ending time of the talks first.
+     */
+    isFeedbackAllowed = function () {
+      firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
+      lastEndTime = new Date("1969-12-31T23:00:00.000Z");
+
+      for(agendaNr in $scope.agendaList){
+        beginTime = new Date($scope.agendaList[agendaNr].begin);
+        endTime = new Date($scope.agendaList[agendaNr].end);
+        if(beginTime < firstBeginTime){
+          firstBeginTime = beginTime;
+        }
+        if(endTime > lastEndTime){
+          lastEndTime = endTime;
+        }
+      }
+
+      eventDateSplitted = $scope.event.date.split("-");
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], lastEndTime.getHours()+48, lastEndTime.getMinutes(), 0, 0)
+
+      now = new Date();
+      if(now >= beginDate && now <= endDatePlus48h){
+        return true;
+      } else {
+        return false;
+      }
     }
+
 
     /*
      function for adding a new agenda in agenda collection
@@ -338,18 +376,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         }
       );
-    }
+    };
     /*
      hide - show form after click on adding agenda 
      */
     $scope.addingAgendaForm = false;
-    $scope.showAddingAgenda = function() {
+    $scope.showAddingAgenda = function () {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
 
     //retrieve agenda by condition
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
+
+      $scope.isFeedbackAllowed = isFeedbackAllowed();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
@@ -357,8 +397,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-  Controller for speaker / agenda page with more detail about the speaker, topic
-  can delete talk, edit talk information
+   Controller for speaker / agenda page with more detail about the speaker, topic
+   can delete talk, edit talk information
    */
 
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
@@ -366,14 +406,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
       backendService.getFileDetails(res['data'].fileId).then(function (file) {
-          $scope.filename = file['data'].fileName;
-          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
-        }, function (fileError) {
-          console.log("Error by getting file details")
-        })
+        $scope.filename = file['data'].fileName;
+        $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+      }, function (fileError) {
+        console.log("Error by getting file details")
+      })
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
-    })
+    });
     $scope.download = function (url) {
       $ionicPlatform.ready(function () {
         $cordovaInAppBrowser.open(url, '_system')
@@ -456,7 +496,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         })
     }
 
-    $scope.uploadAgenda = function(agendaId) {
+    $scope.uploadAgenda = function (agendaId) {
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -685,6 +725,85 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         });
     }
+  })
+
+  /*
+   Controller for feedback page.
+   Loads agenda for talks specific feedback.
+   Then creates the rating objects for every category.
+   Last define the save function for storing the results in the backend.
+   */
+  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
+    /*
+     Function for creating a new crating object
+     Used for avoid redundance.
+     Gets name of the objecvt which defines where in the $scope.results array the rating has to be pushed.
+     Returns a rating object.
+     */
+    addNewRatingObject = function (title) {
+      initialRating = 3;
+
+      $scope.ratingObjects[title] = {
+        title: title,
+        comment: "",
+        iconOnColor: '#387ef5',
+        iconOffColor: '#387ef5',
+        rating: initialRating,
+        callback: function (rating) {
+          $scope.ratingObjects[title].rating = rating;
+        }
+      };
+    };
+
+    $scope.ratingObjects = {};
+
+    $scope.generalCategories = ["Whole Event", "Foods and Drinks", "Location"];
+    for (nr in $scope.generalCategories) {
+      addNewRatingObject($scope.generalCategories[nr])
+    }
+
+    backendService.loadAgendaWithParams($stateParams.eventId).then(
+      function (res) {
+        $scope.talks = res;
+
+        for (talkNr in $scope.talks) {
+          addNewRatingObject($scope.talks[talkNr].topic)
+        }
+      }, function (err) {
+        console.log(err)
+      });
+
+    $scope.saveFeedback = function () {
+      for (talkNr in $scope.talks) {
+        ratingObject = $scope.ratingObjects[$scope.talks[talkNr].topic];
+        backendService.addFeedbackToTalk($scope.talks[talkNr].id, ratingObject.rating, ratingObject.comment)
+      }
+      ratingArray = [];
+      for (nr in $scope.generalCategories) {
+        ratingObject = $scope.ratingObjects[$scope.generalCategories[nr]];
+        ratingArray.push({
+          category: ratingObject.title,
+          rating: ratingObject.rating,
+          comment: ratingObject.comment,
+        });
+      }
+      backendService.addFeedbackToEvent($stateParams.eventId, ratingArray).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Feedback submitted. Thank you!' | translate}}"
+              }).then(function (res3) {
+                $ionicHistory.goBack();
+              });
+            }
+          );
+        }
+      )
+    }
+
+
   })
 
   /*
