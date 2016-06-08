@@ -15,7 +15,7 @@
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
 var services = angular.module('services', []);
-services.factory('backendService', function ($rootScope, $q) {
+services.factory('backendService', function ($rootScope, $q, $filter) {
     // credentials for actions when user is not logged in
     var defaultUsername = "default";
     var defaultPassword = "123456";
@@ -145,7 +145,13 @@ services.factory('backendService', function ($rootScope, $q) {
      Then grants read permission to registered and not registered users
      */
     backend.createEvent = function (ev) {
-      ev.participants = [BaasBox.getCurrentUser().username];
+      ev.participants = [];
+      creator = {};
+      creator.name = BaasBox.getCurrentUser().username;
+      creator.status = "joined";
+      ev.participants.push(creator);
+      console.log(creator);
+      console.log(ev.participants);
       BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
@@ -156,6 +162,39 @@ services.factory('backendService', function ($rootScope, $q) {
           console.log("error ", error);
         })
     };
+
+    /*
+     Function for adding an agenda talk to an event
+     */
+
+    backend.addingAgenda = function (ag, evId) {
+      BaasBox.save(ag, "agenda")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.updateEventAgenda(res, evId);
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
+
+    /*
+     Function for deleting a talk.
+     */
+    backend.deleteAgenda = function (agendaId) {
+      //return
+      BaasBox.deleteObject(agendaId, "agenda")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
+
+
     /*
      Function for getting an event by id
      returns a promise
@@ -163,19 +202,39 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.getEventById = function (id) {
       return BaasBox.loadObject("events", id)
     };
-    /*
+
+
+
+
+  /*
+
      Function for updating an event
-     Requires two parameters: attribute name to update and corresponding value for this attribute
+     Require one parameter: (ev = Event Object)
      */
-    backend.updateEvent = function (eventId, fieldToUpdate, value) {
-      BaasBox.updateField(eventId, "events", fieldToUpdate, value)
+    backend.updateEvent = function (ev) {
+      BaasBox.save(ev, "events")
         .done(function (res) {
-          console.log("Event updated ", res);
+          console.log("Event updated ", res['data']);
         })
         .fail(function (error) {
           console.log("Event update error ", error);
         })
     };
+/*
+    Function for updating an agenda
+ */
+
+    backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
+      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
+        .done(function (res) {
+          console.log("Agenda updated ", res);
+        })
+        .fail(function (error) {
+          console.log("Agenda update error ", error);
+        })
+    };
+
+
     /*
      Function for uploading a file to the backend
      Gets a form with input file and ID of the event that it belongs to
@@ -196,6 +255,29 @@ services.factory('backendService', function ($rootScope, $q) {
           console.log("UPLOAD error ", error);
         })
     };
+
+  /*
+   Function for uploading a file to the backend
+   Gets a form with input file and ID of the agenda that it belongs to
+   First uploads a file, then grants access permission to all users,
+   after adds id of new uploaded file to the agenda that it belongs to
+   Returns a promise
+   */
+
+    backend.uploadFileAgenda = function (uploadForm, agendaId) {
+      return BaasBox.uploadFile(uploadForm)
+        .done(function (res) {
+          console.log("res ", res);
+          res = jQuery.parseJSON(res);
+          BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, "default");
+          BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+          backend.updateAgenda(agendaId, "fileId", res['data'].id)
+        })
+        .fail(function (error) {
+          console.log("UPLOAD error ", error);
+        })
+    };
+
     /*
      Function for getting a download url for the file
      returns a string with url
@@ -231,9 +313,18 @@ services.factory('backendService', function ($rootScope, $q) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        if (event.participants.indexOf(user.username) == -1) {
-          event.participants.push(user.username);
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        if (searchResult.length == 0) {
+          // user never registered, insert into list
+          participant = {};
+          participant.name = user.username;
+          participant.status = "joined";
+          event.participants.push(participant);
+        } else {
+          //user already in participants list, so just change status
+          searchResult[0].status = "joined";
         }
+
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -254,6 +345,67 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.addCurrentUserToEvent = function (eventId) {
       return backend.addUserToEvent(BaasBox.getCurrentUser(), eventId)
     };
+
+    /*
+     Function for getting an agenda by eventID
+     returns a collection
+     */
+    backend.loadAgendaWithParams = function (evId) {
+      return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+    };
+
+    /*
+     Function for adding rating to an talk.
+     Calls the abstract function addFeedbackToItem.
+     Returns a promise.
+     */
+    backend.addFeedbackToTalk = function (talkId, rating, comment) {
+      feedbackEntry = {rating: rating, comment: comment};
+      return addFeedbackToItem(talkId, "agenda", feedbackEntry);
+    };
+
+    /*
+     Function for adding rating to an event.
+     Excepts rating array of arbitrary length of the form:
+     [
+     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+     (...)
+     ]
+     Calls the abstract function addFeedbackToItem.
+     Returns a promise.
+     */
+    backend.addFeedbackToEvent = function (eventId, ratingArray) {
+      return addFeedbackToItem(eventId, "events", ratingArray);
+    };
+
+    /*
+     Abstract function for adding feedback to an item.
+     Returns a promise.
+     */
+    addFeedbackToItem = function (itemId, collection, feedBackEntry) {
+      var deferred = $q.defer();
+      BaasBox.loadObject(collection, itemId).then(
+        function (res) {
+          item = res['data'];
+          if (item.hasOwnProperty("feedback")) {
+            item.feedback.push(feedBackEntry);
+          } else {
+            item.feedback = [feedBackEntry];
+          }
+          BaasBox.updateField(itemId, collection, "feedback", item.feedback).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err)
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        });
+      return deferred.promise;
+    };
+
     /*
      Fucntion for removing a user from an event.
      Returns a promise.
@@ -262,10 +414,8 @@ services.factory('backendService', function ($rootScope, $q) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        index = event.participants.indexOf(user.username);
-        if (index != -1) {
-          event.participants.splice(index, 1);
-        }
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        searchResult[0].status = "left";
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -293,8 +443,15 @@ services.factory('backendService', function ($rootScope, $q) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        index = event.participants.indexOf(user.username);
-        deferred.resolve(index != -1);
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        console.log(searchResult);
+        if (searchResult.length == 0) {
+          //user not in participants list, so he's not registred
+          deferred.resolve(false);
+        } else {
+          //user is in participants list, but is he still registred?
+          deferred.resolve(searchResult[0].status == "joined")
+        }
       }), function (err) {
         deferred.reject(err)
       };
@@ -307,6 +464,7 @@ services.factory('backendService', function ($rootScope, $q) {
     backend.isCurrentUserRegisteredForEvent = function (eventId) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
+
     /*
      Function for getting a user by his username
      returns a promise
@@ -320,6 +478,15 @@ services.factory('backendService', function ($rootScope, $q) {
           console.log("error ", error);
         })
     };
+
+    /*
+     Function for getting a speaker talk by agendId
+     returns a promise
+     */
+    backend.getAgendaById = function (id) {
+      return BaasBox.loadObject("agenda", id)
+    };
+
     return backend;
   }
 );
