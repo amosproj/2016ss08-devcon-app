@@ -21,11 +21,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-<<<<<<< HEAD
-angular.module('starter', ['ionic', 'starter.controllers'])
-=======
-angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
->>>>>>> origin/master
+angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
 
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
@@ -40,6 +36,16 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
         // org.apache.cordova.statusbar required
         StatusBar.styleDefault();
       }
+    });
+  })
+
+  .config(function ($translateProvider) {
+    $translateProvider.useStaticFilesLoader({
+      prefix: 'locales/',
+      suffix: '.json'
+    });
+    $translateProvider.determinePreferredLanguage(function () {
+      return 'de';
     });
   })
 
@@ -78,23 +84,12 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
       })
 
       .state('app.event', {
-        url: '/event/:eventId',
+        cache: false,
+        url: '/event/:eventId/:agenda',
         views: {
           'menuContent': {
             templateUrl: 'templates/event.html',
             controller: 'EventCtrl'
-          }
-        }
-      })
-
-      //
-      .state('app.agenda', {
-        cache: false,
-        url: '/agenda/:agendaId',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/agenda.html',
-            controller: 'AgendaCtrl'
           }
         }
       })
@@ -151,13 +146,17 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
         }
       })
 
-<<<<<<< HEAD
-      .state('app.edit-event', {
-        url: '/edit-event/:eventId',
-=======
       .state('app.forgotPassword', {
         url: '/forgotPassword',
->>>>>>> origin/master
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/forgotPassword.html',
+            controller: 'ForgotCtrl'
+          }
+        }
+      })
+      .state('app.edit-event', {
+        url: '/edit-event/:eventId',
         views: {
           'menuContent': {
             templateUrl: 'templates/edit-event.html',
@@ -174,7 +173,18 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
             controller: 'EditAccountCtrl'
           }
         }
-      });
+      })
+
+    .state('app.transition', {
+      url: '/transition/:to/',
+      views: {
+        'menuContent': {
+          templateUrl: 'templates/transition.html',
+          controller: 'TransitionCtrl'
+        },
+      },
+      params: {data: null}
+    });
 
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');
