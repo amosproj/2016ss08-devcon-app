@@ -14,7 +14,7 @@
  root directory along with this program.
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
-angular.module('starter.controllers', ['services', 'ngCordova'])
+angular.module('starter.controllers', ['services', 'ngCordova', 'ionic-toast'])
   .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate) {
 
     // With the new view caching in Ionic, Controllers are only called
@@ -58,6 +58,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     });
   })
 
+
   /*
    Controller for starter view
    Shows loading while establishing connection to the backend
@@ -91,6 +92,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       );
     })
   })
+
   /*
    Controller for forgot password page
    Calls resetPassword service, shows a popup alert about successful  reset of a password
@@ -323,6 +325,40 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
+   Controller for Updating an  event:
+   First get all event information by using getEventById(), then save all update and shows a popup alert
+   about successful updating of an event and redirects to main view
+
+   */
+
+  .controller('EditEventCtrl', function ($scope, $state,  $stateParams, $ionicPopup, backendService, $translate) {
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.event = res['data']
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
+    $scope.updateEvent = function (ev){
+      ev.status = [];
+      creator = {};
+      creator.updated = "true";
+      ev.status.push(creator);
+      console.log(creator);
+      console.log(ev.status);
+      BaasBox.save(ev, "events");
+
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+          }).then(function (res) {
+            $state.go('app.start')
+          });
+        }
+      );
+    }
+  })
+  /*
    Controller for user registration
    First checks if user already logged in, if yes shows alert message and redirects to main view,
    if no calls createAccount service with user form as a parameter
@@ -370,17 +406,24 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          $translate('Done!').then(
-            function (result) {
-              $ionicPopup.alert({
-                title: result,
-                template: "{{'Login successful.' | translate}}"
-              }).then(function (re) {
-                $state.go('app.main');
-              });
-            }
-          )
-
+            $translate('Done!').then(
+              function (result) {
+                $ionicPopup.alert({
+                  title: result,
+                  template: "{{'Event Updated.' | translate}}"
+                })
+              }
+            )
+            $translate('Done!').then(
+              function (result) {
+                $ionicPopup.alert({
+                  title: result,
+                  template: "{{'Login successful.' | translate}}"
+                }).then(function (re) {
+                  $state.go('app.main');
+                });
+              }
+            )
         },
         function (err) {
           $translate('Error!').then(
