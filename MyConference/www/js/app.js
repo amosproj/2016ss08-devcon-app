@@ -21,7 +21,11 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
+<<<<<<< HEAD
 angular.module('starter', ['ionic', 'starter.controllers'])
+=======
+angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
+>>>>>>> origin/master
 
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
@@ -83,6 +87,18 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
+      //
+      .state('app.agenda', {
+        cache: false,
+        url: '/agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/agenda.html',
+            controller: 'AgendaCtrl'
+          }
+        }
+      })
+
 
       .state('app.login', {
         url: '/login',
@@ -135,8 +151,13 @@ angular.module('starter', ['ionic', 'starter.controllers'])
         }
       })
 
+<<<<<<< HEAD
       .state('app.edit-event', {
         url: '/edit-event/:eventId',
+=======
+      .state('app.forgotPassword', {
+        url: '/forgotPassword',
+>>>>>>> origin/master
         views: {
           'menuContent': {
             templateUrl: 'templates/edit-event.html',

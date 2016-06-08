@@ -6,4 +6,5 @@ MyConference/platforms/
 MyConference/plugins/
 .idea/
 MyConference/.idea/
-MyConference/www/lib/angular*
+MyConference/www/lib/*
+!MyConference/www/lib/baasbox.js
