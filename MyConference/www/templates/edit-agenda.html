@@ -1,0 +1,68 @@
+<!--
+This file is part of MyConference.
+
+MyConference is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should find a copy of the GNU Affero General Public License in the
+root directory along with this program.
+If not, see http://www.gnu.org/licenses/agpl-3.0.html.
+-->
+<ion-view>
+  <ion-nav-title>{{agenda.speaker}}</ion-nav-title>
+  <ion-content>
+    <form name="editForm" ng-submit="updateAgenda(ag)">
+      <label class="item item-input">
+        <span class="input-label fixed">{{"Begin" | translate}}</span>
+        <input type="time" ng-model="ag.begin" placeholder="{{agenda.begin | date: 'HH:mm'}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{"End" | translate}}</span>
+        <input type="time" ng-model="ag.end" placeholder="{{agenda.end | date: 'HH:mm'}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{"Speaker" | translate}}</span>
+        <input type="text" ng-model="ag.speaker" placeholder="{{agenda.speaker}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{"Speaker Information" | translate}}</span>
+        <textarea rows="3" ng-model="ag.speakerInformation" placeholder="{{agenda.speakerInformation}}"></textarea>
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{"Topic" | translate}}</span>
+        <input type="text" ng-model="ag.topic" placeholder="{{agenda.topic}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{"Talk Summary" | translate}}</span>
+        <textarea rows="3" ng-model="ag.talkSummary" placeholder="{{agenda.talkSummary}}"></textarea>
+      </label>
+      <div class="button-bar">
+        <button type="submit" class="button button-block button-balanced">{{"Submit" | translate}}</button>
+        <button type="reset" class="button button-block button-stable">{{"Clear Fields" | translate}}</button>
+      </div>
+    </form>
+
+    <form ng-show="upload" type = "hidden" id="formDataTalk" method="post">
+      <input type="file">
+      <input type="submit" ng-click="uploadAgenda(agenda.id)" class="button button-positive small_button" value="OK">
+    </form>
+    <button ng-click="upload = !upload" ng-show="upload" class="button button-block button-assertive">
+      {{"Cancel" | translate}}
+    </button>
+    <button ng-click="upload = !upload" ng-show="!upload && !agenda" class="button button-block button-positive">
+      {{"Add File" | translate}}
+    </button>
+    <button ng-click="upload = !upload" ng-show="!upload && agenda" class="button button-block button-positive">
+      {{"Change File" | translate}}
+    </button>
+    <buton ng-click="deleteAgenda(agenda.eventID)" class="button button-block button-assertive">{{"Delete This Talk" | translate}}</buton>
+
+  </ion-content>
+
+</ion-view>

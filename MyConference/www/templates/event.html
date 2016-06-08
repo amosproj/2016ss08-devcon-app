@@ -16,6 +16,9 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
+  <ion-nav-buttons side="right">
+    <a href="#/app/edit-event/{{event.id}}" class="button icon ion-edit" menu-toggle="right"></a>
+  </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
       <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{(event.date | date: 'dd MMM yyyy') ||
@@ -24,6 +27,59 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
       </ion-item>
+
+
+      <!-- Form to add agenda -->
+      <form name="addAgendaForm" ng-submit="addingAgenda(ag)" ng-show="addingAgendaForm" novalidate>
+        <!-- input type time is not supported by firefox. However, in phone, it works well -->
+        <div class="list">
+          <div class="item item-divider" align="center">{{"New Agenda Information" | translate}}</div>
+        </div>
+        <label class="item item-input">
+          <span class="input-label fixed">{{"Begin" | translate}}</span>
+          <input type="time" ng-model="ag.begin" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label fixed">{{"End" | translate}}</span>
+          <input type="time" ng-model="ag.end" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label fixed">{{"Speaker" | translate}}</span>
+          <input type="text" ng-model="ag.speaker" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label fixed">{{"Speaker Information" | translate}}</span>
+          <textarea rows="3" ng-model="ag.speakerInformation"></textarea>
+        </label>
+        <label class="item item-input">
+          <span class="input-label fixed">{{"Topic" | translate}}</span>
+          <input type="text" ng-model="ag.topic" required>
+        </label>
+        <label class="item item-input">
+          <span class="input-label fixed">{{"Talk Summary" | translate}}</span>
+          <textarea rows="3" ng-model="ag.talkSummary"></textarea>
+        </label>
+        <div class="button-bar">
+          <button type="submit" class="button button-block button-balanced" ng-disabled="addAgendaForm.$invalid">{{"Submit" | translate}}</button>
+          <button type="reset" class="button button-block button-stable">{{"Clear Fields" | translate}}</button>
+        </div>
+      </form>
+      <!-- button to show add new agenda -->
+      <button class="button button-block button-positive" ng-show="!addingAgendaForm && isLoggedIn"
+              ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}</button>
+      <button class="button button-block button-positive" ng-show="addingAgendaForm"
+              ng-click="showAddingAgenda()">{{"Hide" | translate}}</button>
+
+      <!-- Agenda List listed by beginning time -->
+      <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
+        <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
+          <div class = "item item-text-wrap">
+            <b>From</b> {{i.begin | date: 'HH:mm' || "n/a"}} <b>to</b> {{i.end | date: 'HH:mm' || "n/a"}}<br>
+            <b>Speaker</b>: {{i.speaker || "n/a"}}<br>
+            <b>Topic</b>: {{i.topic || "n/a"}}<br>
+          </div>
+      </a>
+      </div>
       <p>
         {{event.descr}}
       </p>
@@ -51,5 +107,10 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="leaveEvent()" ng-show="isCurrentUserRegistered" class="button button-block button-assertive">
       {{"Leave event" | translate}}
     </button>
+    <button ng-click="showAlert()" class="button button-block button-positive">
+      {{"Participants list" | translate}}
+    </button>
+    <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive" ng-show="isFeedbackAllowed">
+      {{"Feedback" | translate}}</button>
   </ion-content>
 </ion-view>
