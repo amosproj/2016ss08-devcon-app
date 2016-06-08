@@ -499,6 +499,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     };
 
+
+    
   })
 
   /*
@@ -527,6 +529,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     }
+
+
+
   })
 
   /*

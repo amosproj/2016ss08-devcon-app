@@ -204,7 +204,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("events", id)
     };
 
-    /*
+
+
+
+  /*
+
      Function for updating an event
      Require one parameter: (ev = Event Object)
      */

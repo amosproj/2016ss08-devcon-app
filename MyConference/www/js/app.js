@@ -116,6 +116,7 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
           }
         }
       })
+ 
       .state('app.edit-event', {
         url: '/edit-event/:eventId',
         views: {
@@ -125,6 +126,9 @@ angular.module('starter', ['ionic', 'starter.directives', 'starter.controllers',
           }
         }
       })
+
+
+
 
 
       .state('app.login', {
