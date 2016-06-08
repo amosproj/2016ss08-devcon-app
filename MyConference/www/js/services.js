@@ -204,14 +204,18 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("events", id)
     };
 
+
+
+
   /*
+
      Function for updating an event
-     Requires two parameters: attribute name to update and corresponding value for this attribute
+     Require one parameter: (ev = Event Object)
      */
-    backend.updateEvent = function (eventId, fieldToUpdate, value) {
-      BaasBox.updateField(eventId, "events", fieldToUpdate, value)
+    backend.updateEvent = function (ev) {
+      BaasBox.save(ev, "events")
         .done(function (res) {
-          console.log("Event updated ", res);
+          console.log("Event updated ", res['data']);
         })
         .fail(function (error) {
           console.log("Event update error ", error);

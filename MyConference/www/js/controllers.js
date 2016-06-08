@@ -499,6 +499,39 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     };
 
+
+    
+  })
+
+  /*
+   Controller for Updating an  event:
+   First get all event information by using getEventById(), then save all update and shows a popup alert
+   about successful updating of an event and redirects to main view.
+
+   */
+
+  .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.event = res['data']
+    }, function (error) {
+      console.log("Error by retrieving the event", error)
+    })
+    $scope.updateEvent = function (ev) {
+      BaasBox.save(ev, "events")
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+          }).then(function (res) {
+            $state.go('app.start')
+          });
+        }
+      );
+    }
+
+
+
   })
 
   /*
