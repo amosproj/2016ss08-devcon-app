@@ -113,8 +113,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
 
-
-
   /*
    Controller for transition handling
    redirects to the defined as a parameter state
@@ -376,6 +374,87 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
     })
+    $scope.download = function (url) {
+      $ionicPlatform.ready(function () {
+        $cordovaInAppBrowser.open(url, '_system')
+          .then(function (event) {
+            // success
+          })
+          .catch(function (event) {
+            // error
+          });
+      });
+    };
+
+    //go to edit agenda page
+    $scope.goToEdit = function (agendaId) {
+      $state.go('app.edit-agenda', {agendaId: agendaId});
+    };
+
+  })
+
+  /*
+  function for editting agenda page
+   */
+
+  .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+    backendService.getAgendaById($stateParams.agendaId).then(function (res) {
+      $scope.agenda = res['data'];
+    })
+
+    /*
+    function to update a talk session / agenda
+     */
+    $scope.updateAgenda = function (ag) {
+      backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
+      backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
+      backendService.updateAgenda($stateParams.agendaId, "speaker", ag.speaker);
+      backendService.updateAgenda($stateParams.agendaId, "topic", ag.topic);
+      backendService.updateAgenda($stateParams.agendaId, "speakerInformation", ag.speakerInformation);
+      backendService.updateAgenda($stateParams.agendaId, "talkSummary", ag.talkSummary);
+      $translate('Done!').then(
+        function (res) {
+          $ionicPopup.alert({
+            title: res,
+            template: "{{'Talk Session updated.' | translate}}"
+          }).then(function (res) {
+            $state.go('app.agenda', {agendaId: $stateParams.agendaId})
+          });
+        }
+      );
+    }
+
+    /*
+     function to delete a talk session
+     */
+    $scope.deleteAgenda = function (xId) {
+      $translate('Delete A Talk').then(
+        function (res3) {
+          var confirmPopup = $ionicPopup.confirm({
+            title: res3,
+            template: "{{'Are you sure you want to delete this talk?' | translate}}"
+          });
+          confirmPopup.then(function (res) {
+            if (res) {
+              backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
+                backendService.deleteFile(res2['data'].fileId);
+              })
+              backendService.deleteAgenda($stateParams.agendaId);
+              $translate('Done!').then(
+                function (res4) {
+                  var alertPopup = $ionicPopup.alert({
+                    title: res4,
+                    template: "{{'This Talk Has Been Deleted.' | translate}}"
+                  });
+                  alertPopup.then(function (re) {
+                    $state.go('app.event', {eventId: xId}, {reload: true});
+                  });
+                })
+            }else{
+            }
+          });
+        })
+    }
 
     $scope.uploadAgenda = function(agendaId) {
       $ionicLoading.show({
@@ -389,9 +468,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       formDataSpeaker.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFileAgenda(formDataSpeaker, agendaId).then(function (res) {
         // if there was already a speaker file then delete it
-         if ($scope.agendaId) {
-         backendService.deleteFile(agendaId);
-         }
+        if ($scope.agendaId) {
+          backendService.deleteFile(agendaId);
+        }
         $ionicLoading.hide();
         $translate('Done!').then(
           function (res2) {
@@ -420,41 +499,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     };
 
-    $scope.download = function (url) {
-      $ionicPlatform.ready(function () {
-        $cordovaInAppBrowser.open(url, '_system')
-          .then(function (event) {
-            // success
-          })
-          .catch(function (event) {
-            // error
-          });
-      });
-    };
-
-    //delete talk function
-    $scope.deleteAgenda = function (xId) {
-      var confirmPopup = $ionicPopup.confirm({
-        title: 'Delete A Talk',
-        template: "{{'Are you sure you want to delete this talk?' | translate}}"
-      });
-      confirmPopup.then(function (res) {
-        if (res) {
-          backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
-            backendService.deleteFile(res2['data'].fileId);
-          })
-          backendService.deleteAgenda($stateParams.agendaId);
-          var alertPopup = $ionicPopup.alert({
-            title: 'Done!',
-            template: "{{'This Talk Has Been Deleted.' | translate}}"
-          });
-          alertPopup.then(function (re) {
-            $state.go('app.event', {eventId: xId}, {reload: true});
-          });
-        }else{
-        }
-      });
-    }
   })
 
   /*
