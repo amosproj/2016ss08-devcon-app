@@ -200,6 +200,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
+    $scope.areFeedbackResultsVisible = false;
 
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
@@ -326,35 +327,65 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
 
     /*
-    Function that determines if now is between the first agenda talk and not more than 48h after the last.
-    Finds the first beginnig and the last ending time of the talks first.
-     */
-    isFeedbackAllowed = function () {
+    Function that returns the first begin time of all talks and the last end time of all talks.
+    Should be simplified once we store the start time of the event itself.
+    */
+    getBorderTimesOfTalks = function(){
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
 
-      for(agendaNr in $scope.agendaList){
+      for (agendaNr in $scope.agendaList) {
         beginTime = new Date($scope.agendaList[agendaNr].begin);
         endTime = new Date($scope.agendaList[agendaNr].end);
-        if(beginTime < firstBeginTime){
+        if (beginTime < firstBeginTime) {
           firstBeginTime = beginTime;
         }
-        if(endTime > lastEndTime){
+        if (endTime > lastEndTime) {
           lastEndTime = endTime;
         }
       }
+      return {firstBeginTime:firstBeginTime, lastEndTime:lastEndTime};
+    }
+
+    /*
+     Function that determines if now is between the first agenda talk and not more than 48h after the last.
+     Finds the first beginnig and the last ending time of the talks first.
+     */
+    isFeedbackAllowed = function () {
+      borderTimes = getBorderTimesOfTalks();
+      firstBeginTime = borderTimes.firstBeginTime;
+      lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = $scope.event.date.split("-");
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], lastEndTime.getHours()+48, lastEndTime.getMinutes(), 0, 0)
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
 
       now = new Date();
-      if(now >= beginDate && now <= endDatePlus48h){
+      if (now >= beginDate && now <= endDatePlus48h) {
         return true;
       } else {
         return false;
       }
-    }
+    };
+
+    /*
+     Function that determines if now is after the last talk (what means the results of the feedback can be seen).
+     */
+    areFeedbackResultsVisible = function () {
+      if($scope.agendaList.length==0){
+        return true;
+      }
+      borderTimes = getBorderTimesOfTalks();
+      lastEndTime = borderTimes.lastEndTime;
+      console.log("LET "+lastEndTime)
+
+      now = new Date();
+      if (now >= lastEndTime) {
+        return true;
+      } else {
+        return false;
+      }
+    };
 
 
     /*
@@ -390,6 +421,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.agendaList = res;
 
       $scope.isFeedbackAllowed = isFeedbackAllowed();
+      $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
@@ -434,16 +466,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-  function for editting agenda page
+   function for editting agenda page
    */
 
   .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
-    })
+    });
 
     /*
-    function to update a talk session / agenda
+     function to update a talk session / agenda
      */
     $scope.updateAgenda = function (ag) {
       backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
@@ -462,7 +494,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         }
       );
-    }
+    };
 
     /*
      function to delete a talk session
@@ -478,7 +510,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             if (res) {
               backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
                 backendService.deleteFile(res2['data'].fileId);
-              })
+              });
               backendService.deleteAgenda($stateParams.agendaId);
               $translate('Done!').then(
                 function (res4) {
@@ -490,11 +522,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     $state.go('app.event', {eventId: xId}, {reload: true});
                   });
                 })
-            }else{
+            } else {
             }
           });
         })
-    }
+    };
 
     $scope.uploadAgenda = function (agendaId) {
       $ionicLoading.show({
@@ -540,7 +572,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
 
 
-    
   })
 
   /*
@@ -555,9 +586,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.event = res['data']
     }, function (error) {
       console.log("Error by retrieving the event", error)
-    })
+    });
     $scope.updateEvent = function (ev) {
-      BaasBox.save(ev, "events")
+      BaasBox.save(ev, "events");
       $translate('Done!').then(
         function (res) {
           $ionicPopup.alert({
@@ -569,7 +600,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     }
-
 
 
   })
