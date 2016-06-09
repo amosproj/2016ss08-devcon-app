@@ -188,9 +188,14 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       BaasBox.save(que, "questions")
         .done(function (res) {
           console.log("res ", res);
-          BaasBox.updateEventQuestion(res, evId); //
+          BaasBox.updateQuestion(res, evId, "eventID"); //
+          BaasBox.updateQuestion(res, 0, "yes"); //
+          BaasBox.updateQuestion(res, 0, "no"); //
+          BaasBox.updateQuestion(res, 0, "dontKnow"); //
+          BaasBox.updateQuestion(res, false, "current"); //
           BaasBox.grantUserAccessToObject("questions", res.id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToObject("questions", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          //updateField: function(objectId, collection, fieldName, newValue)
         })
         .fail(function (error) {
           console.log("error ", error);

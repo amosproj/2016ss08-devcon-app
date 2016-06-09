@@ -394,9 +394,9 @@ var BaasBox = (function() {
        function to add eventID to agendas, which have been created in this event
        */
 
-      updateEventQuestion: function(object, evId) {
+      updateQuestion: function(object, evId, field) {
         var deferred = buildDeferred();
-        url = BaasBox.endPoint + '/document/questions/' + object.id + '/.' + 'eventID';
+        url = BaasBox.endPoint + '/document/questions/' + object.id + '/.' + field;
         var json = JSON.stringify({
           "data": evId
         });
