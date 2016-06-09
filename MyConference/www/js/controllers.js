@@ -49,7 +49,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.languageSwitched = !$scope.languageSwitched;
       console.log($scope.languageSwitched);
     };
-
     $scope.isLoggedIn = false;
     $scope.$on('user:loginState', function (event, data) {
       // you could inspect the data to see if what you care about changed, or just update your own scope
@@ -147,7 +146,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         itemDate.getMonth() == today.getMonth() &&
         itemDate.getFullYear() == today.getFullYear();
     };
-
     /*
      This method is used for filter after next events in the main view
      */
@@ -173,7 +171,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
-
       $translate('Done!').then(
         function (res) {
           $ionicPopup.alert({
@@ -192,9 +189,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
+
+    //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
+    // Is set later after loading the agenda
+    $scope.isFeedbackAllowed = false;
+
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
@@ -261,14 +263,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $ionicPlatform.ready(function () {
         $cordovaInAppBrowser.open(url, '_system')
           .then(function (event) {
-            // success
+            console.log("url successfully opened")
           })
           .catch(function (event) {
-            // error
+            console.log("error by opening url")
           });
       });
     };
-
     //function for the Join-Event-Button
     $scope.joinEvent = function () {
       backendService.addCurrentUserToEvent($scope.event.id).then(
@@ -293,7 +294,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
-
     //function for the Leave-Event-Button
     $scope.leaveEvent = function () {
       backendService.removeCurrentUserFromEvent($scope.event.id).then(
@@ -317,6 +317,151 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           );
         });
+    };
+
+    /*
+    Function that determines if now is between the first agenda talk and not more than 48h after the last.
+    Finds the first beginnig and the last ending time of the talks first.
+     */
+    isFeedbackAllowed = function () {
+      firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
+      lastEndTime = new Date("1969-12-31T23:00:00.000Z");
+
+      for(agendaNr in $scope.agendaList){
+        beginTime = new Date($scope.agendaList[agendaNr].begin);
+        endTime = new Date($scope.agendaList[agendaNr].end);
+        if(beginTime < firstBeginTime){
+          firstBeginTime = beginTime;
+        }
+        if(endTime > lastEndTime){
+          lastEndTime = endTime;
+        }
+      }
+
+      eventDateSplitted = $scope.event.date.split("-");
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], lastEndTime.getHours()+48, lastEndTime.getMinutes(), 0, 0)
+
+      now = new Date();
+      if(now >= beginDate && now <= endDatePlus48h){
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    // function to get an alert with 3 possible actions to choose
+    $scope.showAlert = function () {
+      $translate('Send Email').then(function (send) {
+        $translate('Download').then(function (down) {
+          $translate('Cancel').then(function (cancel) {
+            $ionicPopup.show({
+              scope: $scope,
+              buttons: [
+                {
+                  text: send,
+                  type: 'button-positive',
+                  onTap: function (e) {
+                    e.preventDefault();
+                    createCSV($scope.event.participants.length - 1, 'email')
+                  }
+                },
+                {
+                  text: down,
+                  type: 'button-positive',
+                  onTap: function (e) {
+                    e.preventDefault();
+                    createCSV($scope.event.participants.length - 1, 'download')
+                  }
+                },
+                {text: cancel}
+              ]
+            });
+          })
+        })
+      })
+    }
+    $scope.arr = [];
+    /*
+     Recursive function for creating CSV file with event participants data
+     gets integer for iterations and String object action as a parameter
+     if action is 'download' new created CSV file is downloaded to the users device
+     otherwise it is sent by email to the users email address
+     */
+    function createCSV(i, action) {
+      if (i < 0) {
+        $scope.arr = $filter('orderBy')($scope.arr, 'name');
+        $translate('Name').then(function (name) {
+          $translate('Given name').then(function (gName) {
+            csv = name + ',' + gName + ',E-mail,Status\n';
+            for (var i = 0; i < $scope.arr.length; i++) {
+              var line = '';
+              for (var ind in $scope.arr[i]) {
+                if (typeof $scope.arr[i][ind] !== 'object') {
+                  if (line != '') line += ','
+                  line += $scope.arr[i][ind];
+                }
+              }
+              csv += line + '\n';
+            }
+            $cordovaFile.writeFile(cordova.file.externalRootDirectory, $scope.event.title + "-participants-list.csv", csv, true)
+              .then(function (success) {
+                console.log("File is created", success)
+              }, function (error) {
+                console.log("Error by writing a file", error);
+              });
+            if (action === 'download') {
+              $scope.download(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+            } else {
+              sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+            }
+            $scope.arr = [];
+          })
+        })
+      } else {
+        var user = $scope.event.participants[i];
+        console.log("User is", user, "i is " + i)
+        backendService.getUser(user.name).then(function (res) {
+          var obj = res['data']['visibleByRegisteredUsers'];
+          obj.email = res['data']['visibleByTheUser'].email;
+          obj.status = user.status;
+          $scope.arr.push(obj);
+          createCSV(i - 1, action);
+        })
+      }
+    }
+
+    //Function for sending file to the users email address
+    function sendEmail(file) {
+      $ionicPlatform.ready(function () {
+        backendService.fetchCurrentUser().then(function (res) {
+          $translate('Participants list').then(function (list) {
+            $translate('Participants list for the event').then(function (listForEvent) {
+              $cordovaEmailComposer.isAvailable().then(function (available) {
+                var email = {
+                  to: res['data']['visibleByTheUser'].email,
+                  attachments: [file],
+                  subject: $scope.event.title + ' ' + list,
+                  body: listForEvent + ': ' + $scope.event.title,
+                  isHtml: true
+                };
+                $cordovaEmailComposer.open(email).then(null, function () {
+                  // email is sent or cancelled
+                });
+              }, function (notAvailable) {
+                $translate('Error!').then(
+                  function (res2) {
+                    $ionicPopup.alert({
+                      title: res2,
+                      template: "{{'You dont have an installed mail app on your device' | translate}}"
+                    });
+                  }
+                );
+              });
+            })
+          })
+        }, false);
+      })
     }
 
     /*
@@ -338,18 +483,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         }
       );
-    }
+    };
     /*
      hide - show form after click on adding agenda 
      */
     $scope.addingAgendaForm = false;
-    $scope.showAddingAgenda = function() {
+    $scope.showAddingAgenda = function () {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
 
     //retrieve agenda by condition
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
+
+      $scope.isFeedbackAllowed = isFeedbackAllowed();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
@@ -357,8 +504,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-  Controller for speaker / agenda page with more detail about the speaker, topic
-  can delete talk, edit talk information
+   Controller for speaker / agenda page with more detail about the speaker, topic
+   can delete talk, edit talk information
    */
 
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
@@ -366,14 +513,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
       backendService.getFileDetails(res['data'].fileId).then(function (file) {
-          $scope.filename = file['data'].fileName;
-          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
-        }, function (fileError) {
-          console.log("Error by getting file details")
-        })
+        $scope.filename = file['data'].fileName;
+        $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+      }, function (fileError) {
+        console.log("Error by getting file details")
+      })
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
-    })
+    });
     $scope.download = function (url) {
       $ionicPlatform.ready(function () {
         $cordovaInAppBrowser.open(url, '_system')
@@ -456,7 +603,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         })
     }
 
-    $scope.uploadAgenda = function(agendaId) {
+    $scope.uploadAgenda = function (agendaId) {
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -500,7 +647,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
 
 
-    
+
   })
 
   /*
@@ -529,9 +676,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     }
-
-
-
   })
 
   /*
@@ -592,7 +736,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               });
             }
           )
-
         },
         function (err) {
           $translate('Error!').then(
@@ -645,7 +788,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.user.email = res['data']['visibleByTheUser'].email;
       }
     });
-
     /*
      Function that is called after clicking edit button on MyAccount view
      changes state to edit account view
@@ -685,6 +827,85 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         });
     }
+  })
+
+  /*
+   Controller for feedback page.
+   Loads agenda for talks specific feedback.
+   Then creates the rating objects for every category.
+   Last define the save function for storing the results in the backend.
+   */
+  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
+    /*
+     Function for creating a new crating object
+     Used for avoid redundance.
+     Gets name of the objecvt which defines where in the $scope.results array the rating has to be pushed.
+     Returns a rating object.
+     */
+    addNewRatingObject = function (title) {
+      initialRating = 3;
+
+      $scope.ratingObjects[title] = {
+        title: title,
+        comment: "",
+        iconOnColor: '#387ef5',
+        iconOffColor: '#387ef5',
+        rating: initialRating,
+        callback: function (rating) {
+          $scope.ratingObjects[title].rating = rating;
+        }
+      };
+    };
+
+    $scope.ratingObjects = {};
+
+    $scope.generalCategories = ["Whole Event", "Foods and Drinks", "Location"];
+    for (nr in $scope.generalCategories) {
+      addNewRatingObject($scope.generalCategories[nr])
+    }
+
+    backendService.loadAgendaWithParams($stateParams.eventId).then(
+      function (res) {
+        $scope.talks = res;
+
+        for (talkNr in $scope.talks) {
+          addNewRatingObject($scope.talks[talkNr].topic)
+        }
+      }, function (err) {
+        console.log(err)
+      });
+
+    $scope.saveFeedback = function () {
+      for (talkNr in $scope.talks) {
+        ratingObject = $scope.ratingObjects[$scope.talks[talkNr].topic];
+        backendService.addFeedbackToTalk($scope.talks[talkNr].id, ratingObject.rating, ratingObject.comment)
+      }
+      ratingArray = [];
+      for (nr in $scope.generalCategories) {
+        ratingObject = $scope.ratingObjects[$scope.generalCategories[nr]];
+        ratingArray.push({
+          category: ratingObject.title,
+          rating: ratingObject.rating,
+          comment: ratingObject.comment,
+        });
+      }
+      backendService.addFeedbackToEvent($stateParams.eventId, ratingArray).then(
+        function (res) {
+          $translate('Done!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'Feedback submitted. Thank you!' | translate}}"
+              }).then(function (res3) {
+                $ionicHistory.goBack();
+              });
+            }
+          );
+        }
+      )
+    }
+
+
   })
 
   /*
