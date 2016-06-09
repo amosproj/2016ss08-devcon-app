@@ -807,6 +807,91 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
+
+   */
+  .controller('FeedbackResultsCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
+    /*
+     Function calculating the average of an array of values.
+     */
+    average = function (array) {
+      if (array.length == 0) {
+        return 0;
+      }
+      total = 0;
+      angular.forEach(array, function (value) {
+        total += value;
+      });
+      return total / array.length;
+    };
+
+    /*
+     Function for creating a new crating object
+     Used for avoid redundance.
+     Gets name of the objecvt which defines where in the $scope.results array the rating has to be pushed.
+     Returns a rating object.
+     */
+    addNewRatingObject = function (title) {
+      $scope.ratingObjects[title] = {
+        iconOnColor: '#387ef5',
+        iconOffColor: '#387ef5',
+        readOnly: true,
+        title: title,
+        ratings: [],
+        comments: [],
+        callback: function (rating) {
+        }
+      };
+    };
+
+    $scope.ratingObjects = {};
+
+    backendService.getEventById($stateParams.eventId).then(
+      function (res) {
+        event = res['data'];
+
+        $scope.generalCategories = [];
+        angular.forEach(event.feedback, function (rating) {
+          angular.forEach(rating, function (categoryRating) {
+            if ($scope.generalCategories.indexOf(categoryRating.category) == -1) {
+              $scope.generalCategories.push(categoryRating.category);
+              addNewRatingObject(categoryRating.category);
+            }
+            $scope.ratingObjects[categoryRating.category].ratings.push(categoryRating.rating);
+            if (categoryRating.comment.length > 0) {
+              $scope.ratingObjects[categoryRating.category].comments.push(categoryRating.comment);
+            }
+          })
+        });
+
+        angular.forEach($scope.ratingObjects, function (ratingObject) {
+          ratingObject.ratingAvg = Math.round(average(ratingObject.ratings) * 100) / 100;
+          ratingObject.rating = Math.round(ratingObject.ratingAvg)
+        });
+
+        backendService.loadAgendaWithParams($stateParams.eventId).then(
+          function (res) {
+            $scope.talks = res;
+            angular.forEach($scope.talks, function (talk) {
+              addNewRatingObject(talk.topic);
+
+              angular.forEach(talk.feedback, function (feedbackEntry) {
+                $scope.ratingObjects[talk.topic].ratings.push(feedbackEntry.rating);
+                if (feedbackEntry.comment.length > 0) {
+                  $scope.ratingObjects[talk.topic].comments.push(feedbackEntry.comment);
+                }
+              });
+              $scope.ratingObjects[talk.topic].ratingAvg = Math.round(average($scope.ratingObjects[talk.topic].ratings) * 100) / 100;
+              $scope.ratingObjects[talk.topic].rating = Math.round($scope.ratingObjects[talk.topic].ratingAvg);
+            });
+          }, function (err) {
+            console.log(err)
+          }
+        )
+
+      });
+  })
+
+  /*
    Controller for editing user information
    First gets user current personal information stored on backend
    After clicking submit button in edit-account view calls update account function with user form as a parameter
