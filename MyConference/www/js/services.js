@@ -181,10 +181,26 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+     Function for adding a question to an event
+     */
+
+    backend.addingQuestion = function (que, evId) {
+      BaasBox.save(que, "questions")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.updateEventQuestion(res, evId); //
+          BaasBox.grantUserAccessToObject("questions", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("questions", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
+
+    /*
      Function for deleting a talk.
      */
     backend.deleteAgenda = function (agendaId) {
-      //return
       BaasBox.deleteObject(agendaId, "agenda")
         .done(function (res) {
           console.log(res);
@@ -194,6 +210,18 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         });
     };
 
+    /*
+     Function for deleting a quesiton
+     */
+    backend.deleteQuestion = function (questionId) {
+      BaasBox.deleteObject(questionId, "questions")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
 
     /*
      Function for getting an event by id
@@ -347,11 +375,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-     Function for getting an agenda by eventID
+     Function for getting a list of agenda by eventID
      returns a collection
      */
     backend.loadAgendaWithParams = function (evId) {
-      return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+      return BaasBox.loadCollectionWithEventId("agenda", evId, {where: "eventID=?"});
+    };
+
+    /*
+     Function for getting a list of questions by eventID
+     returns a collection
+     */
+    backend.loadQuestionWithParams = function (evId) {
+      return BaasBox.loadCollectionWithEventId("questions", evId, {where: "eventID=?"});
     };
 
     /*

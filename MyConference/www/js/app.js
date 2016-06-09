@@ -94,6 +94,17 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       })
 
+      .state('app.question-list', {
+        cache: false,
+        url: '/question-list/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/question-list.html',
+            controller: 'QuestionListCtrl'
+          }
+        }
+      })
+
       .state('app.feedback', {
         cache: false,
         url: '/event/:eventId/feedback',
@@ -126,7 +137,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
- 
+
       .state('app.edit-event', {
         url: '/edit-event/:eventId',
         views: {
@@ -136,10 +147,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
-
-
-
-
 
       .state('app.login', {
         url: '/login',

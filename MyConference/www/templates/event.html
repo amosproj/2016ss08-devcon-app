@@ -64,12 +64,12 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
           <button type="reset" class="button button-block button-stable">{{"Clear Fields" | translate}}</button>
         </div>
       </form>
+      <button class="button button-block button-positive" ng-click="goToQuestion(event.id)" ng-show="organizerCheck">{{"Question Pool" | translate}}</button>
       <!-- button to show add new agenda -->
       <button class="button button-block button-positive" ng-show="!addingAgendaForm && isLoggedIn"
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}</button>
       <button class="button button-block button-positive" ng-show="addingAgendaForm"
               ng-click="showAddingAgenda()">{{"Hide" | translate}}</button>
-
       <!-- Agenda List listed by beginning time -->
       <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
         <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
