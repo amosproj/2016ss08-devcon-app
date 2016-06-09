@@ -21,30 +21,14 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-divider" ng-show="generalCategories.length>0">
         {{"General feedback" | translate }}
       </ion-item>
-      <div ng-repeat="category in generalCategories">
-        <ion-item>
-          {{ ratingObjects[category].title | translate }}: Ø {{ratingObjects[category].ratingAvg}}
-        </ion-item>
-        <ionic-ratings ratingsobj='ratingObjects[category]'></ionic-ratings>
-        <ion-item ng-repeat="comment in ratingObjects[category].comments">
-          {{ comment }}
-        </ion-item>
-        <ion-item></ion-item>
-      </div>
+      <feedback-result-group ng-repeat="category in generalCategories" rating-object='ratingObjects[category]'>
+      </feedback-result-group>
 
       <ion-item class="item item-divider" ng-show="talks.length>0">
         {{"Talk specific feedback" | translate }}
       </ion-item>
-      <div ng-repeat="talk in talks">
-        <ion-item>
-          {{ ratingObjects[talk.topic].title | translate }}: Ø {{ratingObjects[talk.topic].ratingAvg}}
-        </ion-item>
-        <ionic-ratings ratingsobj='ratingObjects[talk.topic]'></ionic-ratings>
-        <ion-item ng-repeat="comment in ratingObjects[talk.topic].comments">
-          {{ comment }}
-        </ion-item>
-        <ion-item></ion-item>
-      </div>
+      <feedback-result-group ng-repeat="talk in talks" rating-object="ratingObjects[talk.topic]">
+      </feedback-result-group>
 
     </ion-list>
   </ion-content>

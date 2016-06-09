@@ -377,10 +377,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
       borderTimes = getBorderTimesOfTalks();
       lastEndTime = borderTimes.lastEndTime;
-      console.log("LET "+lastEndTime)
 
+      eventDateSplitted = $scope.event.date.split("-");
+      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      if (now >= lastEndTime) {
+      
+      if (now >= endDate) {
         return true;
       } else {
         return false;
