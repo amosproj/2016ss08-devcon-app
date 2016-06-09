@@ -4,3 +4,6 @@
 .ionic_ratings .icon {
   font-size: 55px;
 }
+.ionic_ratings .read_only {
+  pointer-events:none !important;
+}
