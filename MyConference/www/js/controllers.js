@@ -547,11 +547,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
-      /*
-       $scope.user = res['data']['visibleByRegisteredUsers'];
-       $scope.user.username = res['data']['user'].name;
-       $scope.user.email = res['data']['visibleByTheUser'].email;
-       */
     })
     /*
     function to update a talk session / agenda
