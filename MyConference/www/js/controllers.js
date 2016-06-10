@@ -573,11 +573,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         })
     }
 
-    //retrieve Question by condition (event ID)
-    backendService.loadQuestionWithParams($stateParams.eventId).then(function (res) {
-      $scope.questionList = res;
-    })
-
   })
 
   /*
