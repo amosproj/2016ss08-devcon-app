@@ -211,8 +211,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for updating an event
      Require one parameter: (ev = Event Object)
      */
-    backend.updateEvent = function (ev) {
-      BaasBox.save(ev, "events")
+      backend.updateEvent = function (eventId, fieldToUpdate, value) {
+        BaasBox.updateField(eventId, "events", fieldToUpdate, value)
         .done(function (res) {
           console.log("Event updated ", res['data']);
         })
