@@ -934,4 +934,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     }
+  })
+
+  .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams) {
+    $scope.available = true;
+    $scope.add = false;
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.questions = res['data'].questions;
+      if($scope.questions.length == 0) $scope.available = false;
+    })
+
+    //function to add a new question
+
   });
