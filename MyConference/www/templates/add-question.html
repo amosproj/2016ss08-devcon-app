@@ -30,21 +30,5 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         <button type="reset" class="button button-block button-stable">{{"Clear Fields" | translate}}</button>
       </div>
     </form>
-
-    <!-- Question List -->
-    <div class="list">
-      <div class="item item-divider"  align="center">{{"Question List" | translate}}</div>
-    </div>
-    <div class="list card" ng-repeat="i in event.questions" >
-      <div class = "item item-text-wrap">
-        <div class="item item-button-right">
-          {{i.question || "n/a"}}
-          <button class="button button-assertive" ng-click="deleteQuestion($index)">
-            <i class="icon ion-trash-a"></i>
-          </button>
-
-        </div>
-      </div>
-    </div>
   </ion-content>
 </ion-view>

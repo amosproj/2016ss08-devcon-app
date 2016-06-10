@@ -319,18 +319,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     };
 
-    //function for organizer / admin role checking
-      backendService.fetchCurrentUser().then(function (res) {
-        var obj = res['data']['user'];
-        if (obj.roles[0].name == "administrator" && obj.name !== "default"){
-          $scope.organizerCheck = true;
-        }
-      })
-    //go to question list
-    $scope.goToQuestion = function (eventId) {
-      $state.go('app.question-list', {eventId: eventId});
-    };
-
     /*
     Function that determines if now is between the first agenda talk and not more than 48h after the last.
     Finds the first beginnig and the last ending time of the talks first.
@@ -514,11 +502,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
 
   })
-  .controller('QuestionListCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+  .controller('AddQuestionCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
     })
-
     /*
      function for adding a new question in questions collection
      question ID will be added to the event, in which the question is created
@@ -533,45 +520,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
           alertPopup.then(function (res) {
             $state.go('app.transition', {
-              to: 'app.question-list',
+              to: 'app.add-question',
               data: {eventId: $stateParams.eventId}
             })
           });
         }
       );
     };
-
-    /*
-     function to delete a question
-     */
-    $scope.deleteQuestion = function (arrPos) {
-      $translate('Delete A Question').then(
-        function (res3) {
-          var confirmPopup = $ionicPopup.confirm({
-            title: res3,
-            template: "{{'Are you sure you want to delete this question?' | translate}}"
-          });
-          confirmPopup.then(function (res) {
-            if (res) {
-              backendService.deleteQuestion($stateParams.eventId, arrPos);
-              $translate('Done!').then(
-                function (res4) {
-                  var alertPopup = $ionicPopup.alert({
-                    title: res4,
-                    template: "{{'Delete successfully' | translate}}"
-                  });
-                  alertPopup.then(function (re) {
-                    $state.go('app.transition', {
-                      to: 'app.question-list',
-                      data: {eventId: $stateParams.eventId}
-                    })
-                  })
-                })
-            }else{
-            }
-          });
-        })
-    }
 
   })
 

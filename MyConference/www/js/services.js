@@ -195,7 +195,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         }
         else{
           questionId = event.questions[event.questions.length - 1].id + 1;
-          //searchResult[0].status = "joined";
         }
         question.id = questionId;
         question.yes = 0;
@@ -221,33 +220,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-     Function for deleting a quesiton
-     */
-    backend.deleteQuestion = function (eventId, arrPos) {
-        backend.getEventById(eventId).then(function (res) {
-        event = res['data'];
-        event.questions.splice(arrPos, 1);
-    BaasBox.updateField(eventId, "events", "questions", event.questions);
- })
-
-        .done(function (res) {
-          console.log(res);
-        })
-        .fail(function (err) {
-          console.log("Delete error ", err);
-        });
-    };
-
-    /*
      Function for getting an event by id
      returns a promise
      */
     backend.getEventById = function (id) {
       return BaasBox.loadObject("events", id)
     };
-
-
-
 
   /*
 

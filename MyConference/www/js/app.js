@@ -94,13 +94,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       })
 
-      .state('app.question-list', {
+      .state('app.add-question', {
         cache: false,
-        url: '/question-list/:eventId',
+        url: '/add-question/:eventId',
         views: {
           'menuContent': {
-            templateUrl: 'templates/question-list.html',
-            controller: 'QuestionListCtrl'
+            templateUrl: 'templates/add-question.html',
+            controller: 'AddQuestionCtrl'
           }
         }
       })
