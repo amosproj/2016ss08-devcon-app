@@ -94,17 +94,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       })
 
-      .state('app.add-question', {
-        cache: false,
-        url: '/add-question/:eventId',
-        views: {
-          'menuContent': {
-            templateUrl: 'templates/add-question.html',
-            controller: 'AddQuestionCtrl'
-          }
-        }
-      })
-
       .state('app.feedback', {
         cache: false,
         url: '/event/:eventId/feedback',
@@ -147,6 +136,10 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
+
+
+
+
 
       .state('app.login', {
         url: '/login',
@@ -228,6 +221,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           },
         },
         params: {data: null}
+      })
+
+      .state('app.choose-question', {
+        url: '/choose-question/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/choose-question.html',
+            controller: 'ChooseQuestionCtrl'
+          }
+        }
       });
 
     // if none of the above states are matched, use this as the fallback

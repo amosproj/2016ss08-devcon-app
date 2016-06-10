@@ -192,7 +192,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
@@ -320,8 +319,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
 
     /*
-    Function that determines if now is between the first agenda talk and not more than 48h after the last.
-    Finds the first beginnig and the last ending time of the talks first.
+     Function that determines if now is between the first agenda talk and not more than 48h after the last.
+     Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
@@ -502,33 +501,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
 
   })
-  .controller('AddQuestionCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
-    backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data'];
-    })
-    /*
-     function for adding a new question in questions collection
-     question ID will be added to the event, in which the question is created
-     */
-    $scope.addingQuestion = function (que) {
-      backendService.addingQuestion(que, $stateParams.eventId);
-      $translate('Done!').then(
-        function (res2) {
-          var alertPopup = $ionicPopup.alert({
-            title: res2,
-            template: "{{'New Question is added' | translate}}"
-          });
-          alertPopup.then(function (res) {
-            $state.go('app.transition', {
-              to: 'app.add-question',
-              data: {eventId: $stateParams.eventId}
-            })
-          });
-        }
-      );
-    };
-
-  })
 
   /*
    Controller for speaker / agenda page with more detail about the speaker, topic
@@ -568,7 +540,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-  function for editting agenda page
+   function for editting agenda page
    */
 
   .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
@@ -577,7 +549,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
 
     /*
-    function to update a talk session / agenda
+     function to update a talk session / agenda
      */
     $scope.updateAgenda = function (ag) {
       backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
@@ -961,4 +933,41 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     }
+  })
+
+  .controller('ChooseQuestionCtrl', function ($scope, $ionicPopup, $state, backendService, $filter, $stateParams, $translate) {
+    $scope.available = true;
+    $scope.add = false;
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+      $scope.questions = res['data'].questions;
+      if($scope.questions.length == 0) $scope.available = false;
+    })
+/*
+ //function to add a new question
+ backendService.getEventById($stateParams.eventId).then(function (res) {
+ $scope.event = res['data'];
+ })
+ */
+    /*
+     function for adding a new question in questions collection
+     question ID will be added to the event, in which the question is created
+     */
+    $scope.addingQuestion = function (que) {
+      backendService.addingQuestion(que, $stateParams.eventId);
+      $translate('Done!').then(
+        function (res2) {
+          var alertPopup = $ionicPopup.alert({
+            title: res2,
+            template: "{{'New Question is added' | translate}}"
+          });
+          alertPopup.then(function (res) {
+            $state.go('app.transition', {
+              to: 'app.choose-question',
+              data: {eventId: $stateParams.eventId}
+            })
+          });
+        }
+      );
+    };
+
   });
