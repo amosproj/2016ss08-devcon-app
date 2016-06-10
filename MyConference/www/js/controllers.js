@@ -555,7 +555,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.updateAgenda($stateParams.eventId, "location", ev.location);
       backendService.updateAgenda($stateParams.eventId, "date", ev.date);
       backendService.updateAgenda($stateParams.eventId, "descr", ev.descr);
-      BaasBox.save(ev, "events")
       $translate('Done!').then(
         function (res) {
           $ionicPopup.alert({
