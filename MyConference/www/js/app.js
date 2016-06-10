@@ -126,7 +126,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
- 
+
       .state('app.edit-event', {
         url: '/edit-event/:eventId',
         views: {
@@ -221,6 +221,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           },
         },
         params: {data: null}
+      })
+
+      .state('app.choose-question', {
+        url: '/choose-question/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/choose-question.html',
+            controller: 'ChooseQuestionCtrl'
+          }
+        }
       });
 
     // if none of the above states are matched, use this as the fallback
