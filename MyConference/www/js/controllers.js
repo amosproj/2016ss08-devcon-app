@@ -192,13 +192,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-
+    $scope.showButton = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
 
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
+      if(typeof backendService.currentUser !== 'undefined'
+        && (backendService.currentUser.roles.indexOf('administrator') != -1 || backendService.currentUser.username == res['data']._author))
+        $scope.showButton = true;
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
         function (res) {
           $scope.isCurrentUserRegistered = res;
@@ -939,6 +942,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams, $ionicLoading) {
     $scope.available = true;
     $scope.add = false;
+    $scope.questions = [];
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.questions = res['data'].questions;
       if($scope.questions.length == 0) $scope.available = false;
@@ -954,8 +958,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         currentQuestion = $filter('filter')($scope.questions, {current: true})
         questionToChoose = $filter('filter')($scope.questions, {id: qId})
         questionToChoose[0].current = true;
+        if(currentQuestion.length > 0)
         currentQuestion[0].current = false;
-        console.log("updated questions", $scope.questions)
         callback();
       }
 
