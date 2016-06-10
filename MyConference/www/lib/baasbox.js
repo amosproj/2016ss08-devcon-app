@@ -367,7 +367,31 @@ var BaasBox = (function() {
           })
         return deferred.promise();
       },
-      
+      /*
+       function to update Event
+       */
+
+      updateEvent: function(object, evId) {
+        var deferred = buildDeferred();
+        url = BaasBox.endPoint + '/document/event/' + object.id + '/.' + 'eventId'; //
+        var json = JSON.stringify({
+          "data": evId
+        });
+        var req = $.ajax({
+          url: url,
+          type: 'PUT',
+          contentType: 'application/json',
+          dataType: 'json',
+          data: json
+        })
+          .done(function(res) {
+            deferred.resolve(res['data']);
+          })
+          .fail(function(error) {
+            deferred.reject(error);
+          })
+        return deferred.promise();
+      },
       /*
        function to add eventID to agendas, which have been created in this event
        */
