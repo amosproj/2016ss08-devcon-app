@@ -551,10 +551,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.event = res['data']
     })
     $scope.updateEvent = function (ev) {
-      backendService.updateAgenda($stateParams.eventId, "title", ev.title);
-      backendService.updateAgenda($stateParams.eventId, "location", ev.location);
-      backendService.updateAgenda($stateParams.eventId, "date", ev.date);
-      backendService.updateAgenda($stateParams.eventId, "descr", ev.descr);
+      backendService.updateEvent($stateParams.eventId, "title", ev.title);
+      backendService.updateEvent($stateParams.eventId, "location", ev.location);
+      backendService.updateEvent($stateParams.eventId, "date", ev.date);
+      backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
       $translate('Done!').then(
         function (res) {
           $ionicPopup.alert({
