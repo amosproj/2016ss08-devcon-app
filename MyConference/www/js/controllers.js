@@ -561,7 +561,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             title: res,
             template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
           }).then(function (res) {
-            $state.go('app.start')
+            $state.go('app.main')
           });
         }
       );
