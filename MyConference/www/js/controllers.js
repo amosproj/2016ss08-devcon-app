@@ -320,30 +320,30 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
 
     /*
-    Function that determines if now is between the first agenda talk and not more than 48h after the last.
-    Finds the first beginnig and the last ending time of the talks first.
+     Function that determines if now is between the first agenda talk and not more than 48h after the last.
+     Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
 
-      for(agendaNr in $scope.agendaList){
+      for (agendaNr in $scope.agendaList) {
         beginTime = new Date($scope.agendaList[agendaNr].begin);
         endTime = new Date($scope.agendaList[agendaNr].end);
-        if(beginTime < firstBeginTime){
+        if (beginTime < firstBeginTime) {
           firstBeginTime = beginTime;
         }
-        if(endTime > lastEndTime){
+        if (endTime > lastEndTime) {
           lastEndTime = endTime;
         }
       }
 
       eventDateSplitted = $scope.event.date.split("-");
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], lastEndTime.getHours()+48, lastEndTime.getMinutes(), 0, 0)
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0)
 
       now = new Date();
-      if(now >= beginDate && now <= endDatePlus48h){
+      if (now >= beginDate && now <= endDatePlus48h) {
         return true;
       } else {
         return false;
@@ -541,8 +541,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
   /*
    Controller for Updating an  event:
-   First get all event information by using getEventById(), then save all update and shows a popup alert
-   about successful updating of an event and redirects to main view.
+   First get all event information by using getEventById(), then update all event fields by calling
+   UpdateEvent() and shows a popup alert about successful updating of an event and redirects to main view.
 
    */
 
@@ -570,7 +570,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
 
   /*
-  function for editting agenda page
+   function for editting agenda page
    */
 
   .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
@@ -579,7 +579,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
 
     /*
-    function to update a talk session / agenda
+     function to update a talk session / agenda
      */
     $scope.updateAgenda = function (ag) {
       backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
@@ -626,7 +626,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     $state.go('app.event', {eventId: xId}, {reload: true});
                   });
                 })
-            }else{
+            } else {
             }
           });
         })
@@ -674,7 +674,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     };
-
 
 
   })
