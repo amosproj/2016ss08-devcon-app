@@ -936,13 +936,28 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
 
-  .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams) {
+  .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams, $ionicLoading) {
     $scope.available = true;
     $scope.add = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.questions = res['data'].questions;
       if($scope.questions.length == 0) $scope.available = false;
     })
+
+    $scope.choose = function (qId) {
+      chooseQuestion(qId, function () {
+        $ionicLoading.show({ template: 'Question: "'+questionToChoose[0].question+'" is chosen as a current one', noBackdrop: true, duration: 1150 })
+        backendService.updateEvent($stateParams.eventId, "questions", $scope.questions)
+      })
+      }
+      function chooseQuestion(qId, callback) {
+        currentQuestion = $filter('filter')($scope.questions, {current: true})
+        questionToChoose = $filter('filter')($scope.questions, {id: qId})
+        questionToChoose[0].current = true;
+        currentQuestion[0].current = false;
+        console.log("updated questions", $scope.questions)
+        callback();
+      }
 
     //function to add a new question
 
