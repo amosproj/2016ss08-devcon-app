@@ -27,8 +27,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
       </ion-item>
-
-
       <!-- Form to add agenda -->
       <form name="addAgendaForm" ng-submit="addingAgenda(ag)" ng-show="addingAgendaForm" novalidate>
         <!-- input type time is not supported by firefox. However, in phone, it works well -->

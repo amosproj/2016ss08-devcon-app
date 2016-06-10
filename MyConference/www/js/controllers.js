@@ -195,7 +195,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
-
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
@@ -644,16 +643,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     };
-
-
-
   })
 
   /*
    Controller for Updating an  event:
    First get all event information by using getEventById(), then save all update and shows a popup alert
    about successful updating of an event and redirects to main view.
-
    */
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
@@ -943,15 +938,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if($scope.questions.length == 0) $scope.available = false;
     })
 /*
- //function to add a new question
- backendService.getEventById($stateParams.eventId).then(function (res) {
- $scope.event = res['data'];
- })
+function to add question to array questions in event object
  */
-    /*
-     function for adding a new question in questions collection
-     question ID will be added to the event, in which the question is created
-     */
     $scope.addingQuestion = function (que) {
       backendService.addingQuestion(que, $stateParams.eventId);
       $translate('Done!').then(

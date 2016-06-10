@@ -224,6 +224,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       })
 
       .state('app.choose-question', {
+        cache: false,
         url: '/choose-question/:eventId',
         views: {
           'menuContent': {

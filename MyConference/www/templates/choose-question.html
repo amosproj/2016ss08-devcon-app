@@ -26,7 +26,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button class="button button-block button-positive" ng-show="!add" ng-click="add = !add">{{"Add New Question" | translate}}</button>
     <!-- imput field to add a new question , which is shown when you click "add new question" button-->
     <form name="addQuestion" ng-show="add" ng-submit="addingQuestion(que)" novalidate>
-      <!-- input type time is not supported by firefox. However, in phone, it works well -->
       <div class="item item-divider item-positive text-center">
         {{"Add New Question" | translate}}
       </div>

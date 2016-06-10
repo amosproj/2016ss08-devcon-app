@@ -146,6 +146,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.createEvent = function (ev) {
       ev.participants = [];
+      ev.questions = [];
       creator = {};
       creator.name = BaasBox.getCurrentUser().username;
       creator.status = "joined";
