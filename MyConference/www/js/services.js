@@ -20,6 +20,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     var defaultUsername = "default";
     var defaultPassword = "123456";
     var backend = {};
+    backend.currentUser;
     backend.loginStatus = false;
     /*
      Function for establishing connection to the backend
@@ -80,6 +81,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (user) {
           if (username != defaultUsername) {
             backend.loginStatus = true;
+            backend.currentUser = user;
             $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
