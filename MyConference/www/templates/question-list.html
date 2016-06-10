@@ -15,7 +15,7 @@ root directory along with this program.
 If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
-  <ion-nav-title>{{event.title}}'s Question List</ion-nav-title>
+  <ion-nav-title>{{event.title}} {{"'s Question List" | translate}}</ion-nav-title>
   <ion-content>
     <form name="addQuestionForm" ng-submit="addingQuestion(que)" novalidate>
       <!-- input type time is not supported by firefox. However, in phone, it works well -->
@@ -23,7 +23,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         <div class="item item-divider" align="center">{{"Add New Question" | translate}}</div>
       </div>
       <label class="item item-input">
-        <!-- translate -->
         <textarea rows="3" ng-model="que.question" placeholder="{{'Type your new question here' | translate}}" required></textarea>
       </label>
       <div class="button-bar">
@@ -36,13 +35,14 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <div class="list">
       <div class="item item-divider"  align="center">{{"Question List" | translate}}</div>
     </div>
-    <div class="list card" ng-repeat="i in questionList" >
+    <div class="list card" ng-repeat="i in event.questions" >
       <div class = "item item-text-wrap">
         <div class="item item-button-right">
           {{i.question || "n/a"}}
-          <button class="button button-assertive" ng-click="deleteQuestion(i.id)">
+          <button class="button button-assertive" ng-click="deleteQuestion($index)">
             <i class="icon ion-trash-a"></i>
           </button>
+
         </div>
       </div>
     </div>

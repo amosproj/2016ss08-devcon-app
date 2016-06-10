@@ -523,8 +523,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      function for adding a new question in questions collection
      question ID will be added to the event, in which the question is created
      */
-    $scope.addingQuestion = function (ag) {
-      backendService.addingQuestion(ag, $stateParams.eventId);
+    $scope.addingQuestion = function (que) {
+      backendService.addingQuestion(que, $stateParams.eventId);
       $translate('Done!').then(
         function (res2) {
           var alertPopup = $ionicPopup.alert({
@@ -544,7 +544,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     /*
      function to delete a question
      */
-    $scope.deleteQuestion = function (questionId) {
+    $scope.deleteQuestion = function (arrPos) {
       $translate('Delete A Question').then(
         function (res3) {
           var confirmPopup = $ionicPopup.confirm({
@@ -553,7 +553,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
           confirmPopup.then(function (res) {
             if (res) {
-              backendService.deleteQuestion(questionId);
+              backendService.deleteQuestion($stateParams.eventId, arrPos);
               $translate('Done!').then(
                 function (res4) {
                   var alertPopup = $ionicPopup.alert({

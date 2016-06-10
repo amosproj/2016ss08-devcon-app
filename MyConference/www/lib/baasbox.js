@@ -390,32 +390,6 @@ var BaasBox = (function() {
         return deferred.promise();
       },
 
-      /*
-       function to add eventID to agendas, which have been created in this event
-       */
-
-      updateQuestion: function(object, evId, field) {
-        var deferred = buildDeferred();
-        url = BaasBox.endPoint + '/document/questions/' + object.id + '/.' + field;
-        var json = JSON.stringify({
-          "data": evId
-        });
-        var req = $.ajax({
-          url: url,
-          type: 'PUT',
-          contentType: 'application/json',
-          dataType: 'json',
-          data: json
-        })
-          .done(function(res) {
-            deferred.resolve(res['data']);
-          })
-          .fail(function(error) {
-            deferred.reject(error);
-          })
-        return deferred.promise();
-      },
-
       deleteObject: function(objectId, collection) {
         return $.ajax({
           url: BaasBox.endPoint + '/document/' + collection + '/' + objectId,

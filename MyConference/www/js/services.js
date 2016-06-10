@@ -146,6 +146,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.createEvent = function (ev) {
       ev.participants = [];
+      ev.questions = []; //add question empty array
       creator = {};
       creator.name = BaasBox.getCurrentUser().username;
       creator.status = "joined";
@@ -184,22 +185,26 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for adding a question to an event
      */
 
-    backend.addingQuestion = function (que, evId) {
-      BaasBox.save(que, "questions")
-        .done(function (res) {
-          console.log("res ", res);
-          BaasBox.updateQuestion(res, evId, "eventID"); //
-          BaasBox.updateQuestion(res, 0, "yes"); //
-          BaasBox.updateQuestion(res, 0, "no"); //
-          BaasBox.updateQuestion(res, 0, "dontKnow"); //
-          BaasBox.updateQuestion(res, false, "current"); //
-          BaasBox.grantUserAccessToObject("questions", res.id, BaasBox.READ_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("questions", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
-          //updateField: function(objectId, collection, fieldName, newValue)
-        })
-        .fail(function (error) {
-          console.log("error ", error);
-        })
+    backend.addingQuestion = function (que, eventId) {
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        question = {};
+        question = que;
+        if(event.questions.length == 0){
+          questionId = 0;
+        }
+        else{
+          questionId = event.questions[event.questions.length - 1].id + 1;
+          //searchResult[0].status = "joined";
+        }
+        question.id = questionId;
+        question.yes = 0;
+        question.no = 0;
+        question.dontKnow = 0;
+        question.current = false;
+        event.questions.push(question);
+        BaasBox.updateField(eventId, "events", "questions", event.questions);
+      })
     };
 
     /*
@@ -218,8 +223,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     /*
      Function for deleting a quesiton
      */
-    backend.deleteQuestion = function (questionId) {
-      BaasBox.deleteObject(questionId, "questions")
+    backend.deleteQuestion = function (eventId, arrPos) {
+        backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        event.questions.splice(arrPos, 1);
+    BaasBox.updateField(eventId, "events", "questions", event.questions);
+ })
+
         .done(function (res) {
           console.log(res);
         })
@@ -258,7 +268,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
  */
 
     backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
-      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
+      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value)
         .done(function (res) {
           console.log("Agenda updated ", res);
         })
@@ -385,14 +395,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.loadAgendaWithParams = function (evId) {
       return BaasBox.loadCollectionWithEventId("agenda", evId, {where: "eventID=?"});
-    };
-
-    /*
-     Function for getting a list of questions by eventID
-     returns a collection
-     */
-    backend.loadQuestionWithParams = function (evId) {
-      return BaasBox.loadCollectionWithEventId("questions", evId, {where: "eventID=?"});
     };
 
     /*
