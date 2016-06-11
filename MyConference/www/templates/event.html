@@ -110,7 +110,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="showAlert()" class="button button-block button-positive">
       {{"Participants list" | translate}}
     </button>
-    <a href="#app/choose-question/{{event.id}}" ng-show="showButton" class="button button-block button-positive">Questions management</a>
+    <a href="#app/choose-question/{{event.id}}" ng-show="showButton" class="button button-block button-positive">{{"Choose current question" | translate}}</a>
     <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive" ng-show="isFeedbackAllowed">
       {{"Feedback" | translate}}</button>
   </ion-content>

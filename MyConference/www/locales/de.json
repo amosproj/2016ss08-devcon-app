@@ -79,5 +79,8 @@
   "Topic": "Thema",
   "Talk Summary": "Zusammenfassung",
   "Change File": "File ändern",
-  "Add File": "File hinzufügen"
+  "Add File": "File hinzufügen",
+  "Choose current question": "Aktuelle Frage wählen",
+  "Add new question": "Neuen Frage hinzufügen",
+  "is chosen as a current question": "wird als aktuelle Frage gewählt"
 }

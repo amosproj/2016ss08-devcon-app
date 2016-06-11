@@ -915,7 +915,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    contains functions to get a list of questions in one event, to choose a question
    as well as to add a new question for the event
    */
-  .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams, $ionicLoading) {
+  .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams, $ionicLoading, $translate) {
     $scope.available = true;
     $scope.add = false;
     $scope.questions = [];
@@ -925,10 +925,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
     $scope.choose = function (qId) {
       chooseQuestion(qId, function () {
-        $ionicLoading.show({
-          template: 'Question: "' + questionToChoose[0].question + '" is chosen as a current one',
-          noBackdrop: true,
-          duration: 1150
+        $translate('is chosen as a current question').then(function (de) {
+          $ionicLoading.show({
+            template: '"' + questionToChoose[0].question + '" ' + de,
+            noBackdrop: true,
+            duration: 1150
+          })
         })
         backendService.updateEvent($stateParams.eventId, "questions", $scope.questions)
       })
