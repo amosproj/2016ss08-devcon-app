@@ -196,10 +196,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
-
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
-      if(typeof backendService.currentUser !== 'undefined'
+      if (typeof backendService.currentUser !== 'undefined'
         && (backendService.currentUser.roles.indexOf('administrator') != -1 || backendService.currentUser.username == res['data']._author))
         $scope.showButton = true;
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
@@ -321,38 +320,33 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
-
     /*
-    Function that determines if now is between the first agenda talk and not more than 48h after the last.
-    Finds the first beginnig and the last ending time of the talks first.
+     Function that determines if now is between the first agenda talk and not more than 48h after the last.
+     Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
-
-      for(agendaNr in $scope.agendaList){
+      for (agendaNr in $scope.agendaList) {
         beginTime = new Date($scope.agendaList[agendaNr].begin);
         endTime = new Date($scope.agendaList[agendaNr].end);
-        if(beginTime < firstBeginTime){
+        if (beginTime < firstBeginTime) {
           firstBeginTime = beginTime;
         }
-        if(endTime > lastEndTime){
+        if (endTime > lastEndTime) {
           lastEndTime = endTime;
         }
       }
-
       eventDateSplitted = $scope.event.date.split("-");
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1]-1, eventDateSplitted[2], lastEndTime.getHours()+48, lastEndTime.getMinutes(), 0, 0)
-
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0)
       now = new Date();
-      if(now >= beginDate && now <= endDatePlus48h){
+      if (now >= beginDate && now <= endDatePlus48h) {
         return true;
       } else {
         return false;
       }
     }
-
     // function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
       $translate('Send Email').then(function (send) {
@@ -474,7 +468,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.addingAgenda = function (ag) {
       backendService.addingAgenda(ag, $stateParams.eventId);
-
       $translate('Done!').then(
         function (res2) {
           var alertPopup = $ionicPopup.alert({
@@ -494,23 +487,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.showAddingAgenda = function () {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
-
     //retrieve agenda by condition
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
-
       $scope.isFeedbackAllowed = isFeedbackAllowed();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
-
   })
 
   /*
    Controller for speaker / agenda page with more detail about the speaker, topic
    can delete talk, edit talk information
    */
-
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
     $scope.upload = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
@@ -535,25 +524,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
       });
     };
-
     //go to edit agenda page
     $scope.goToEdit = function (agendaId) {
       $state.go('app.edit-agenda', {agendaId: agendaId});
     };
-
   })
 
   /*
-  function for editting agenda page
+   function for editting agenda page
    */
-
   .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
     })
-
     /*
-    function to update a talk session / agenda
+     function to update a talk session / agenda
      */
     $scope.updateAgenda = function (ag) {
       backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
@@ -573,7 +558,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     }
-
     /*
      function to delete a talk session
      */
@@ -600,12 +584,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     $state.go('app.event', {eventId: xId}, {reload: true});
                   });
                 })
-            }else{
+            } else {
             }
           });
         })
     }
-
     $scope.uploadAgenda = function (agendaId) {
       $ionicLoading.show({
         content: 'Loading',
@@ -648,9 +631,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     };
-
-
-
   })
 
   /*
@@ -659,7 +639,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    about successful updating of an event and redirects to main view.
 
    */
-
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
@@ -847,7 +826,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     addNewRatingObject = function (title) {
       initialRating = 3;
-
       $scope.ratingObjects[title] = {
         title: title,
         comment: "",
@@ -859,25 +837,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       };
     };
-
     $scope.ratingObjects = {};
-
     $scope.generalCategories = ["Whole Event", "Foods and Drinks", "Location"];
     for (nr in $scope.generalCategories) {
       addNewRatingObject($scope.generalCategories[nr])
     }
-
     backendService.loadAgendaWithParams($stateParams.eventId).then(
       function (res) {
         $scope.talks = res;
-
         for (talkNr in $scope.talks) {
           addNewRatingObject($scope.talks[talkNr].topic)
         }
       }, function (err) {
         console.log(err)
       });
-
     $scope.saveFeedback = function () {
       for (talkNr in $scope.talks) {
         ratingObject = $scope.ratingObjects[$scope.talks[talkNr].topic];
@@ -907,8 +880,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       )
     }
-
-
   })
 
   /*
@@ -939,30 +910,37 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
 
+  /*
+   Controller for choosing a question from the list of questions
+   contains functions to get a list of questions in one event, to choose a question
+   as well as to add a new question for the event
+   */
   .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams, $ionicLoading) {
     $scope.available = true;
     $scope.add = false;
     $scope.questions = [];
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.questions = res['data'].questions;
-      if($scope.questions.length == 0) $scope.available = false;
+      if ($scope.questions.length == 0) $scope.available = false;
     })
-
     $scope.choose = function (qId) {
       chooseQuestion(qId, function () {
-        $ionicLoading.show({ template: 'Question: "'+questionToChoose[0].question+'" is chosen as a current one', noBackdrop: true, duration: 1150 })
+        $ionicLoading.show({
+          template: 'Question: "' + questionToChoose[0].question + '" is chosen as a current one',
+          noBackdrop: true,
+          duration: 1150
+        })
         backendService.updateEvent($stateParams.eventId, "questions", $scope.questions)
       })
-      }
-      function chooseQuestion(qId, callback) {
-        currentQuestion = $filter('filter')($scope.questions, {current: true})
-        questionToChoose = $filter('filter')($scope.questions, {id: qId})
-        questionToChoose[0].current = true;
-        if(currentQuestion.length > 0)
+    }
+    function chooseQuestion(qId, callback) {
+      currentQuestion = $filter('filter')($scope.questions, {current: true})
+      questionToChoose = $filter('filter')($scope.questions, {id: qId})
+      questionToChoose[0].current = true;
+      if (currentQuestion.length > 0)
         currentQuestion[0].current = false;
-        callback();
-      }
+      callback();
+    }
 
     //function to add a new question
-
   });
