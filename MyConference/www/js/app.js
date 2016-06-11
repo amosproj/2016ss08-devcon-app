@@ -197,6 +197,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         params: {data: null}
       })
       .state('app.choose-question', {
+        cache: false,
         url: '/choose-question/:eventId',
         views: {
           'menuContent': {

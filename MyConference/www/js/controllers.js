@@ -637,7 +637,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Controller for Updating an  event:
    First get all event information by using getEventById(), then save all update and shows a popup alert
    about successful updating of an event and redirects to main view.
-
    */
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
@@ -909,13 +908,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       );
     }
   })
-
   /*
    Controller for choosing a question from the list of questions
    contains functions to get a list of questions in one event, to choose a question
    as well as to add a new question for the event
    */
-  .controller('ChooseQuestionCtrl', function ($scope, backendService, $filter, $stateParams, $ionicLoading, $translate) {
+  .controller('ChooseQuestionCtrl', function ($scope, $state, $ionicPopup, backendService, $filter, $stateParams, $ionicLoading, $translate) {
     $scope.available = true;
     $scope.add = false;
     $scope.questions = [];
@@ -943,6 +941,24 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         currentQuestion[0].current = false;
       callback();
     }
-
-    //function to add a new question
+    /*
+     function to add question to array questions in event object
+     */
+    $scope.addingQuestion = function (que) {
+      backendService.addingQuestion(que, $stateParams.eventId);
+      $translate('Done!').then(
+        function (res2) {
+          var alertPopup = $ionicPopup.alert({
+            title: res2,
+            template: "{{'New Question is added' | translate}}"
+          });
+          alertPopup.then(function (res) {
+            $state.go('app.transition', {
+              to: 'app.choose-question',
+              data: {eventId: $stateParams.eventId}
+            })
+          });
+        }
+      );
+    };
   });
