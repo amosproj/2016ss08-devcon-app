@@ -20,6 +20,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     var defaultUsername = "default";
     var defaultPassword = "123456";
     var backend = {};
+    backend.currentUser;
     backend.loginStatus = false;
     /*
      Function for establishing connection to the backend
@@ -80,6 +81,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (user) {
           if (username != defaultUsername) {
             backend.loginStatus = true;
+            backend.currentUser = user;
             $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
@@ -230,14 +232,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
   };
 
     /*
-
      Function for updating an event
-     Require one parameter: (ev = Event Object)
+     Requires two parameters: attribute name to update and corresponding value for this attribute
      */
-    backend.updateEvent = function (ev) {
-      BaasBox.save(ev, "events")
+    backend.updateEvent = function (eventId, fieldToUpdate, value) {
+      BaasBox.updateField(eventId, "events", fieldToUpdate, value)
         .done(function (res) {
-          console.log("Event updated ", res['data']);
+          console.log("Event updated ", res);
         })
         .fail(function (error) {
           console.log("Event update error ", error);
@@ -246,7 +247,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     /*
      Function for updating an agenda
      */
-
     backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
       BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
         .done(function (res) {

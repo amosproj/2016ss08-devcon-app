@@ -83,5 +83,8 @@
   "Delete successfully": "Löschen erfolgreich",
   "New Question is added": "Neue Frage wird hinzugefügt",
   "Type your new question here": "Frage eingeben",
-  "Add New Question": "Neue Frage hinzufügen"
+  "Add New Question": "Neue Frage hinzufügen",
+  "Choose current question": "Aktuelle Frage wählen",
+  "Add new question": "Neuen Frage hinzufügen",
+  "is chosen as a current question": "wird als aktuelle Frage gewählt"
 }
