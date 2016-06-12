@@ -371,7 +371,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     createCSV($scope.event.participants.length - 1, 'download')
                   }
                 },
-                {text: cancel}
+                {text: cancel,
+                type: 'button-assertive'}
               ]
             });
           })
