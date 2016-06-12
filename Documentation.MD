@@ -21,10 +21,10 @@ You use translate in interpolation. This works in HTML as well as in Javascript 
 ```javascript
 textVariable = "{{'You are already logged in' | translate}}"
 ```
-##### Function
+##### Service
 In the ionicPopus, the title cannot be translated by interpolation. Here you have to use the function translate and handle the returned promise:
 ```javascript
-$translate('Success').then(
+$translate('Done!').then(
     function (res) {
       $ionicPopup.alert({
         title: res,
@@ -35,6 +35,13 @@ $translate('Success').then(
     }
   );
 ```
+It is not possible in the service to use the english value as default without translation-pair in the english locale file. So every String that has to be
+translated by the service has to be in every locale file. Because of this, and because of a consistent UI, one of the three following titles should be used
+for pop-ups, if possible:
+* "Done!"
+* "Error!"
+* "Confirmation needed"
+
 
 **Attention:** Make sure you rename the used 'res'-attribute of an promise outside the translate promise to use it inside:
 ```javascript
