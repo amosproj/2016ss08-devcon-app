@@ -206,30 +206,30 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("events", id)
     };
 
-  /*
-   Function for adding a question to an event
-   */
+    /*
+     Function for adding a question to an event
+     */
 
-  backend.addingQuestion = function (que, eventId) {
-    backend.getEventById(eventId).then(function (res) {
-      event = res['data'];
-      question = {};
-      question = que;
-      if(event.questions.length == 0){
-        questionId = 0;
-      }
-      else{
-        questionId = event.questions[event.questions.length - 1].id + 1;
-      }
-      question.id = questionId;
-      question.yes = 0;
-      question.no = 0;
-      question.dontKnow = 0;
-      question.current = false;
-      event.questions.push(question);
-      BaasBox.updateField(eventId, "events", "questions", event.questions);
-    })
-  };
+    backend.addingQuestion = function (que, eventId) {
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        question = {};
+        question = que;
+        if(event.questions.length == 0){
+          questionId = 0;
+        }
+        else{
+          questionId = event.questions[event.questions.length - 1].id + 1;
+        }
+        question.id = questionId;
+        question.yes = 0;
+        question.no = 0;
+        question.dontKnow = 0;
+        question.current = false;
+        event.questions.push(question);
+        BaasBox.updateField(eventId, "events", "questions", event.questions);
+      })
+    };
 
     /*
      Function for updating an event
