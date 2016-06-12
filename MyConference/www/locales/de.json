@@ -12,6 +12,7 @@
   "Date": "Datum",
   "Short description": "Kurzbeschreibung",
   "Sign Up": "Registrieren",
+  "Name": "Nachname",
   "Given name": "Vorname",
   "Given Name": "Vorname",
   "Password": "Passwort",
@@ -57,6 +58,10 @@
   "Feedback submitted. Thank you!": "Feedback eingetragen. Vielen Dank!",
   "We are sad not seeing you at": "Schade, dass wir dich nicht begrüßen dürfen bei",
   "Error while undoing registration.": "Fehler beim Löschen der Registrierung.",
+  "Participants list": "Teilnehmerliste",
+  "Send Email": "Email senden",
+  "Participants list for the event": "Teilnehmerliste für das Event",
+  "Download": "Download",
   "Delete This Talk": "Löschen Diesen Talk",
   "New Talk Session is added": "Neuer Talk wird hinzugefügt",
   "Talk Session updated.": "Talk wird aktualisiert",
@@ -75,5 +80,12 @@
   "Talk Summary": "Zusammenfassung",
   "Change File": "File ändern",
   "Add File": "File hinzufügen",
-  "Confirmation needed": "Bitte bestätigen"
+  "Confirmation needed": "Bitte bestätigen",
+  "Delete successfully": "Löschen erfolgreich",
+  "New Question is added": "Neue Frage wird hinzugefügt",
+  "Type your new question here": "Frage eingeben",
+  "Add New Question": "Neue Frage hinzufügen",
+  "Choose current question": "Aktuelle Frage wählen",
+  "Add new question": "Neuen Frage hinzufügen",
+  "is chosen as a current question": "wird als aktuelle Frage gewählt"
 }
