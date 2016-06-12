@@ -475,7 +475,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             template: "{{'New Talk Session is added' | translate}}"
           });
           alertPopup.then(function (res) {
-            $state.reload()
+            $state.go('app.transition', {
+              to: 'app.event',
+              data: {eventId: $stateParams.eventId}
+            })
           });
         }
       );
@@ -619,7 +622,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     /*
      function to delete a talk session
      */
-    $scope.deleteAgenda = function (xId) {
+    $scope.deleteAgenda = function (eventId) {
       $translate('Confirmation needed').then(
         function (res3) {
           var confirmPopup = $ionicPopup.confirm({
@@ -639,8 +642,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     template: "{{'This Talk Has Been Deleted.' | translate}}"
                   });
                   alertPopup.then(function (re) {
-                    $state.go('app.event', {eventId: xId}, {reload: true});
+                    $state.go('app.transition', {
+                      to: 'app.event',
+                      data: {eventId: eventId}
+                    })
                   });
+
                 })
             } else {
             }
