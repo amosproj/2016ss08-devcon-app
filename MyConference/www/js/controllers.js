@@ -80,7 +80,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $state.go('app.main')
     }, function (err) {
-      $translate('Connection error').then(
+      $translate("Error!").then(
         function (res) {
           $ionicPopup.alert({
             title: res,
@@ -100,7 +100,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('ForgotCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
     $scope.resetPassword = function (user) {
       backendService.resetPassword(user);
-      $translate('Reset Password').then(
+      $translate("Done!").then(
         function (res) {
           $ionicPopup.alert({
             title: res,
@@ -253,7 +253,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       }, function (error) {
         $ionicLoading.hide();
-        $translate('Error').then(
+        $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
               title: res,
@@ -468,7 +468,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      function to delete a talk session
      */
     $scope.deleteAgenda = function (xId) {
-      $translate('Delete A Talk').then(
+      $translate('Confirmation needed').then(
         function (res3) {
           var confirmPopup = $ionicPopup.confirm({
             title: res3,
@@ -528,7 +528,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       }, function (error) {
         $ionicLoading.hide();
-        $translate('Error').then(
+        $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
               title: res,
@@ -540,7 +540,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
 
 
-    
+
   })
 
   /*
@@ -696,7 +696,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //delete account function
     $scope.deleteAccount = function (user) {
       var susUser = user.username;
-      $translate('Delete Account').then(
+      $translate('Confirmation needed').then(
         function (res) {
           $ionicPopup.confirm({
             title: res,
