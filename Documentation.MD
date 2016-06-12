@@ -21,10 +21,10 @@ You use translate in interpolation. This works in HTML as well as in Javascript 
 ```javascript
 textVariable = "{{'You are already logged in' | translate}}"
 ```
-##### Function
+##### Service
 In the ionicPopus, the title cannot be translated by interpolation. Here you have to use the function translate and handle the returned promise:
 ```javascript
-$translate('Success').then(
+$translate('Done!').then(
     function (res) {
       $ionicPopup.alert({
         title: res,
