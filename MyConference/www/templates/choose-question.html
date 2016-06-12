@@ -1,0 +1,40 @@
+<!--
+This file is part of MyConference.
+
+MyConference is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should find a copy of the GNU Affero General Public License in the
+root directory along with this program.
+If not, see http://www.gnu.org/licenses/agpl-3.0.html.
+-->
+
+<ion-view>
+  <ion-nav-title>{{"Choose current question" | translate}}</ion-nav-title>
+    <br><br>
+  <ion-list>
+    <ion-item ng-repeat="q in questions" ng-class="{green : q.current}" ng-click="choose(q.id)">{{q.question}}</ion-item>
+  </ion-list>
+    <p ng-show="!available">There are no questions yet</p>
+    <button class="button button-block button-positive" ng-show="!add" ng-click="add = !add">{{"Add new question" | translate}}</button>
+     <!-- imput field to add a new question , which is shown when you click "add new question" button-->
+  <form name="addQuestion" ng-show="add" ng-submit="addingQuestion(que)" novalidate>
+    <div class="item item-divider item-positive text-center">
+      {{"Add New Question" | translate}}
+    </div>
+    <label class="item item-input">
+      <textarea rows="3" ng-model="que.question" placeholder="{{'Type your new question here' | translate}}" required></textarea>
+    </label>
+    <div class="button-bar">
+      <button type="submit" class="button button-block button-balanced" ng-disabled="addQuestion.$invalid">{{"Submit" | translate}}</button>
+      <button type="reset" class="button button-block button-stable">{{"Clear Fields" | translate}}</button>
+    </div>
+  </form>
+    </ion-content>
+</ion-view>

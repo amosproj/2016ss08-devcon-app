@@ -16,13 +16,11 @@
  */
 
 // Ionic Starter App
-
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.translate', 'ngCordova'])
-
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings'])
   .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -30,7 +28,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
       if (window.cordova && window.cordova.plugins.Keyboard) {
         cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
         cordova.plugins.Keyboard.disableScroll(true);
-
       }
       if (window.StatusBar) {
         // org.apache.cordova.statusbar required
@@ -38,7 +35,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
       }
     });
   })
-
   .config(function ($translateProvider) {
     $translateProvider.useStaticFilesLoader({
       prefix: 'locales/',
@@ -48,11 +44,8 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
       return 'de';
     });
   })
-
   .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
-
-
       .state('app', {
         cache: false,
         url: '/app',
@@ -60,7 +53,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
         templateUrl: 'templates/menu.html',
         controller: 'AppCtrl'
       })
-
       .state('app.start', {
         cache: false,
         url: '/start',
@@ -71,7 +63,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.main', {
         cache: false,
         url: '/main',
@@ -82,7 +73,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.event', {
         cache: false,
         url: '/event/:eventId/:agenda',
@@ -93,8 +83,45 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
-
+      .state('app.feedback', {
+        cache: false,
+        url: '/event/:eventId/feedback',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/feedback.html',
+            controller: 'FeedbackCtrl'
+          }
+        }
+      })
+      .state('app.agenda', {
+        cache: false,
+        url: '/agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/agenda.html',
+            controller: 'AgendaCtrl'
+          }
+        }
+      })
+      .state('app.edit-agenda', {
+        cache: false,
+        url: '/edit-agenda/:agendaId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-agenda.html',
+            controller: 'EditAgendaCtrl'
+          }
+        }
+      })
+      .state('app.edit-event', {
+        url: '/edit-event/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-event.html',
+            controller: 'EditEventCtrl'
+          }
+        }
+      })
       .state('app.login', {
         url: '/login',
         views: {
@@ -104,7 +131,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.logout', {
         cache: false,
         url: '/logout',
@@ -114,7 +140,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.new_event', {
         url: '/new_event',
         views: {
@@ -124,7 +149,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.register', {
         url: '/register',
         views: {
@@ -134,7 +158,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.my-account', {
         cache: false,
         url: '/my-account',
@@ -145,7 +168,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-      
       .state('app.forgotPassword', {
         url: '/forgotPassword',
         views: {
@@ -155,7 +177,6 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
       .state('app.edit-account', {
         url: '/edit-account',
         views: {
@@ -165,18 +186,27 @@ angular.module('starter', ['ionic', 'starter.controllers', 'pascalprecht.transla
           }
         }
       })
-
-    .state('app.transition', {
-      url: '/transition/:to/',
-      views: {
-        'menuContent': {
-          templateUrl: 'templates/transition.html',
-          controller: 'TransitionCtrl'
+      .state('app.transition', {
+        cache: false,
+        url: '/transition/:to/',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/transition.html',
+            controller: 'TransitionCtrl'
+          },
         },
-      },
-      params: {data: null}
-    });
-
+        params: {data: null}
+      })
+      .state('app.choose-question', {
+        cache: false,
+        url: '/choose-question/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/choose-question.html',
+            controller: 'ChooseQuestionCtrl'
+          }
+        }
+      });
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');
   });

@@ -20,6 +20,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     var defaultUsername = "default";
     var defaultPassword = "123456";
     var backend = {};
+    backend.currentUser;
     backend.loginStatus = false;
     /*
      Function for establishing connection to the backend
@@ -63,7 +64,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
-          backend.login(user.username, user.pass);
+          backend.login(user.email, user.pass);
           backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
           backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
         })
@@ -80,6 +81,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (user) {
           if (username != defaultUsername) {
             backend.loginStatus = true;
+            backend.currentUser = user;
             $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
@@ -110,7 +112,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.resetPassword = function (user) {
       BaasBox.resetPasswordForUser(user);
     };
-
     /*
      Function for updating user account
      requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
@@ -147,6 +148,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.createEvent = function (ev) {
       ev.participants = [];
+      ev.questions = [];
       creator = {};
       creator.name = BaasBox.getCurrentUser().username;
       creator.status = "joined";
@@ -203,6 +205,32 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.getEventById = function (id) {
       return BaasBox.loadObject("events", id)
     };
+
+    /*
+     Function for adding a question to an event
+     */
+
+    backend.addingQuestion = function (que, eventId) {
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        question = {};
+        question = que;
+        if(event.questions.length == 0){
+          questionId = 0;
+        }
+        else{
+          questionId = event.questions[event.questions.length - 1].id + 1;
+        }
+        question.id = questionId;
+        question.yes = 0;
+        question.no = 0;
+        question.dontKnow = 0;
+        question.current = false;
+        event.questions.push(question);
+        BaasBox.updateField(eventId, "events", "questions", event.questions);
+      })
+    };
+
     /*
      Function for updating an event
      Requires two parameters: attribute name to update and corresponding value for this attribute
@@ -216,9 +244,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("Event update error ", error);
         })
     };
-
-    ///////update agenda
-
+    /*
+     Function for updating an agenda
+     */
     backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
       BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
         .done(function (res) {
@@ -251,7 +279,14 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-    ///////need to be improved
+    /*
+     Function for uploading a file to the backend
+     Gets a form with input file and ID of the agenda that it belongs to
+     First uploads a file, then grants access permission to all users,
+     after adds id of new uploaded file to the agenda that it belongs to
+     Returns a promise
+     */
+
     backend.uploadFileAgenda = function (uploadForm, agendaId) {
       return BaasBox.uploadFile(uploadForm)
         .done(function (res) {
@@ -292,92 +327,106 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
-
     /*
-     Function for verifying the status of current user (joined or not)
-     and the status of the Event (uptaded or not) Calls verifCurrentUserStatus().
+     Function for adding a user to an event.
+     Checks if user is already participant for avoiding double entries.
      Returns a promise.
      */
-    backend.userStatus = function (user, eventId) {
+    backend.addUserToEvent = function (user, eventId) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
-        var length = event.length,
-          element = null;
-        for (var i = 0; i < length; i++) {
-          element = event[i];
-        searchResult0 = $filter('filter')(event.participants, {"name": user.username});
-        searchResult1 = $filter('filter')(event.participants, {"status": "joined"});
-        searchResult2 = $filter('filter')(event.status, {"updated": "true"});
-        if (searchResult0.length == 1 && searchResult1.length == 1 && searchResult2.length == 1) {
-          // user already joined, event updated show the event title
-            console.log(event[i].title, res);
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        if (searchResult.length == 0) {
+          // user never registered, insert into list
+          participant = {};
+          participant.name = user.username;
+          participant.status = "joined";
+          event.participants.push(participant);
         } else {
-          //show error
-          console.log("error", err);
+          //user already in participants list, so just change status
+          searchResult[0].status = "joined";
         }
-      }
+
+        BaasBox.updateField(eventId, "events", "participants", event.participants).then(
+          function (res) {
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err)
+          }
+        )
       }, function (err) {
         deferred.reject(err)
       });
       return deferred.promise;
     };
-
-
-
-  /*
-   Function for adding a user to an event.
-   Checks if user is already participant for avoiding double entries.
-   Returns a promise.
-   */
-  backend.addUserToEvent = function (user, eventId) {
-    var deferred = $q.defer();
-    backend.getEventById(eventId).then(function (res) {
-      event = res['data'];
-      searchResult = $filter('filter')(event.participants, {"name": user.username});
-      if (searchResult.length == 0) {
-        // user never registered, insert into list
-        participant = {};
-        participant.name = user.username;
-        participant.status = "joined";
-        event.participants.push(participant);
-      } else {
-        //user already in participants list, so just change status
-        searchResult[0].status = "joined";
-      }
-
-      BaasBox.updateField(eventId, "events", "participants", event.participants).then(
-        function (res) {
-          deferred.resolve(res);
-        }, function (err) {
-          deferred.reject(err)
-        }
-      )
-    }, function (err) {
-      deferred.reject(err)
-    });
-    return deferred.promise;
-  };
-
-
-
-
-
-  /*
-   Function for adding the current user to an event.
-   Calls addUserToEvent().
-   Returns a promise.
-   */
+    /*
+     Function for adding the current user to an event.
+     Calls addUserToEvent().
+     Returns a promise.
+     */
     backend.addCurrentUserToEvent = function (eventId) {
       return backend.addUserToEvent(BaasBox.getCurrentUser(), eventId)
     };
+
     /*
-     Function for verifying the status of current user (joined or not)
-     and the status of the Event (uptaded or not) Calls verifCurrentUserStatus().
+     Function for getting an agenda by eventID
+     returns a collection
+     */
+    backend.loadAgendaWithParams = function (evId) {
+      return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+    };
+
+    /*
+     Function for adding rating to an talk.
+     Calls the abstract function addFeedbackToItem.
      Returns a promise.
      */
-    backend.verifCurrentUserStatus = function (eventId) {
-      return backend.userStatus(BaasBox.getCurrentUser(), eventId)
+    backend.addFeedbackToTalk = function (talkId, rating, comment) {
+      feedbackEntry = {rating: rating, comment: comment};
+      return addFeedbackToItem(talkId, "agenda", feedbackEntry);
+    };
+
+    /*
+     Function for adding rating to an event.
+     Excepts rating array of arbitrary length of the form:
+     [
+     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+     (...)
+     ]
+     Calls the abstract function addFeedbackToItem.
+     Returns a promise.
+     */
+    backend.addFeedbackToEvent = function (eventId, ratingArray) {
+      return addFeedbackToItem(eventId, "events", ratingArray);
+    };
+
+    /*
+     Abstract function for adding feedback to an item.
+     Returns a promise.
+     */
+    addFeedbackToItem = function (itemId, collection, feedBackEntry) {
+      var deferred = $q.defer();
+      BaasBox.loadObject(collection, itemId).then(
+        function (res) {
+          item = res['data'];
+          if (item.hasOwnProperty("feedback")) {
+            item.feedback.push(feedBackEntry);
+          } else {
+            item.feedback = [feedBackEntry];
+          }
+          BaasBox.updateField(itemId, collection, "feedback", item.feedback).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err)
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        });
+      return deferred.promise;
     };
 
     /*
@@ -402,8 +451,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       });
       return deferred.promise;
     };
-
-
     /*
      Function for removing the current user from an event.
      Returns a promise.
@@ -411,7 +458,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.removeCurrentUserFromEvent = function (eventId) {
       return backend.removeUserFromEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
      Function for checking if a user is participant of an event.
      Returns a promise.
@@ -434,7 +480,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       };
       return deferred.promise
     };
-
     /*
      Function for checking if the current user is user is participant of an event.
      Returns a promise.
@@ -443,15 +488,18 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
 
-
-    ///////////
-
     /*
-     Function for getting an agenda by eventID
-     returns a collection
+     Function for getting a user by his username
+     returns a promise
      */
-    backend.loadAgendaWithParams = function (evId) {
-      return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
+    backend.getUser = function (user) {
+      return BaasBox.fetchUserProfile(user)
+        .done(function (res) {
+          console.log("res ", res['data']);
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
     };
 
     /*
