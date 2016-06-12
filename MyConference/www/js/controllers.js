@@ -602,8 +602,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      function to update a talk session / agenda
      */
     $scope.updateAgenda = function (ag) {
-      backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
-      backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
+      backendService.getAgendaById($stateParams.agendaId).then(function (res) {
+        $scope.agenda = res['data'];
+        if(ag.end !== null ){
+          backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
+        }else{
+          backendService.updateAgenda($stateParams.agendaId, "end", agenda.end);
+        }
+      })
+      backendService.getAgendaById($stateParams.agendaId).then(function (res) {
+        $scope.agenda = res['data'];
+        if (ag.begin !== null) {
+          backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
+        } else {
+          backendService.updateAgenda($stateParams.agendaId, "begin", agenda.begin);
+        }
+      })
       backendService.updateAgenda($stateParams.agendaId, "speaker", ag.speaker);
       backendService.updateAgenda($stateParams.agendaId, "topic", ag.topic);
       backendService.updateAgenda($stateParams.agendaId, "speakerInformation", ag.speakerInformation);
