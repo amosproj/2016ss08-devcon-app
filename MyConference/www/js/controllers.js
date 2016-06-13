@@ -544,6 +544,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.event = res['data']
     })
     $scope.updateEvent = function (ev) {
+      ev.stat = [];
+      creator = {};
+      creator.updated = "true";
+      ev.stat.push(creator);
+      console.log(creator);
+      console.log(ev.stat);
+      backendService.save(ev, "events");
       backendService.updateEvent($stateParams.eventId, "title", ev.title);
       backendService.updateEvent($stateParams.eventId, "location", ev.location);
       backendService.updateEvent($stateParams.eventId, "date", ev.date);
@@ -560,35 +567,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       );
     }
   })
-  /*
-   Controller for Updating an  event:
-   First get all event information by using getEventById(), then update all event fields by calling
-   UpdateEvent() and shows a popup alert about successful updating of an event and redirects to main view.
-
-   */
-
-  .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
-    backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
-    })
-    $scope.updateEvent = function (ev) {
-      backendService.updateEvent($stateParams.eventId, "title", ev.title);
-      backendService.updateEvent($stateParams.eventId, "location", ev.location);
-      backendService.updateEvent($stateParams.eventId, "date", ev.date);
-      backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
-      $translate('Done!').then(
-        function (res) {
-          $ionicPopup.alert({
-            title: res,
-            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
-    }
-  })
-
 
 
   /*

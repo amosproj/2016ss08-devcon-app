@@ -112,6 +112,14 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.resetPassword = function (user) {
       BaasBox.resetPasswordForUser(user);
     };
+
+    /*
+     Function for saving object
+     returns a promise
+     */
+    backend.save = function (object, collection) {
+      return BaasBox.save(object, collection);
+    };
     /*
      Function for updating user account
      requires 2 parameters: field to update and object with data that should be updated. See Baasbox API documentation
@@ -220,10 +228,10 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         event = res['data'];
         question = {};
         question = que;
-        if(event.questions.length == 0){
+        if (event.questions.length == 0) {
           questionId = 0;
         }
-        else{
+        else {
           questionId = event.questions[event.questions.length - 1].id + 1;
         }
         question.id = questionId;
