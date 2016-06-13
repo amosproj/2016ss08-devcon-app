@@ -777,8 +777,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   var name = participants[j].name;
                   var status = participants[j].status;
                   var updated = stat[0].updated;
+                  var sta = "joined";
+                  var upd = "true";
 
 
+                  if (updated == upd && name == me && status == sta) {
+                    x = true;
+                    console.log('----------------->Done! : yes');
+
+                  } else {
+                    console.log('----------------->Else : false');
+                    x = false
+                  }
+                  console.log(x);
                 }
               }
               $translate('Done!').then(
