@@ -941,6 +941,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         currentQuestion[0].current = false;
       callback();
     }
+
     /*
      function to add question to array questions in event object
      */
@@ -961,4 +962,26 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     };
+  })
+  /*
+   Controller for live voting
+   Gets active question out of event.
+   On submit, the field is incremented and updated. Then, every second the event is loaded again for displaying changes.
+   On leaving the event the interval call is cancelled.
+   */
+  .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval) {
+    $scope.beforeSubmit = false;
+    $scope.afterSubmit = false;
+    backendService.getEventById($stateParams.eventId).then(
+      function (res) {
+        thisEvent = res['data'];
+        angular.forEach(thisEvent.questions, function (questionEntry) {
+          if (questionEntry.current == true) {
+            $scope.questionObject = questionEntry;
+            console.log($scope.questionObject);
+            $scope.beforeSubmit = true;
+          }
+        })
+      });
+
   });
