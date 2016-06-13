@@ -13,6 +13,6 @@
   flex-direction: column;
 }
 
-.popup-buttons.button{
+.popup-buttons .button{
   margin-bottom: 5px;
 }
