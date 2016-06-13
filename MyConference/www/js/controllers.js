@@ -763,8 +763,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           backendService.getEvents().then(function (res) {
               $scope.event = res['data'];
               var me = credentials.username;
+              console.log('current user is :', me);
               var length = res.length;
-
+              console.log('--------------------we have:', length, 'events');
               var x = false;
 
               for (var i = 0; i < length; i++) {
@@ -772,6 +773,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 var title = res[i].title;
                 var stat = res[i].stat;
                 var l = participants.length;
+
+                console.log('------------------>Event number :', i);
+                console.log('---There is', l, 'participants in this event : ', title, '---');
+
 
                 for (var j = 0; j < l; j++) {
                   var name = participants[j].name;
