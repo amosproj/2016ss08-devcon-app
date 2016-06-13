@@ -782,6 +782,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   var name = participants[j].name;
                   var status = participants[j].status;
                   var updated = stat[0].updated;
+                  console.log('-name   :', name);
+                  console.log('-status :', status);
+                  console.log('-updated:', updated);
                   var sta = "joined";
                   var upd = "true";
 
