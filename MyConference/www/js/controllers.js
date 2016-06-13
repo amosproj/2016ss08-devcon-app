@@ -984,4 +984,29 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         })
       });
 
+    $scope.submit = function (result) {
+      $scope.questionObject[result] += 1;
+      console.log(thisEvent.questions);
+      backendService.updateEvent(thisEvent.id, "questions", thisEvent.questions).then(
+        function (res) {
+          $scope.beforeSubmit = false;
+          $scope.afterSubmit = true;
+
+          interval = $interval(function () {
+            backendService.getEventById($stateParams.eventId).then(
+              function (res) {
+                thisEvent = res['data'];
+                angular.forEach(thisEvent.questions, function (questionEntry) {
+                  if (questionEntry.current == true) {
+                    $scope.questionObject = questionEntry;
+                  }
+                })
+              });
+          }, 1000);
+
+        })
+      $scope.$on('$ionicView.beforeLeave', function(){
+        $interval.cancel(interval);
+      });
+    }
   });
