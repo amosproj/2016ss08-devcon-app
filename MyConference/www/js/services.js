@@ -20,6 +20,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     var defaultUsername = "default";
     var defaultPassword = "123456";
     var backend = {};
+    backend.currentUser;
     backend.loginStatus = false;
     /*
      Function for establishing connection to the backend
@@ -80,6 +81,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (user) {
           if (username != defaultUsername) {
             backend.loginStatus = true;
+            backend.currentUser = user;
             $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
@@ -146,6 +148,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.createEvent = function (ev) {
       ev.participants = [];
+      ev.questions = [];
       creator = {};
       creator.name = BaasBox.getCurrentUser().username;
       creator.status = "joined";
@@ -203,27 +206,47 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("events", id)
     };
 
-
-
-
-  /*
-
-     Function for updating an event
-     Require one parameter: (ev = Event Object)
+    /*
+     Function for adding a question to an event
      */
-    backend.updateEvent = function (ev) {
-      BaasBox.save(ev, "events")
+
+    backend.addingQuestion = function (que, eventId) {
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        question = {};
+        question = que;
+        if(event.questions.length == 0){
+          questionId = 0;
+        }
+        else{
+          questionId = event.questions[event.questions.length - 1].id + 1;
+        }
+        question.id = questionId;
+        question.yes = 0;
+        question.no = 0;
+        question.dontKnow = 0;
+        question.current = false;
+        event.questions.push(question);
+        BaasBox.updateField(eventId, "events", "questions", event.questions);
+      })
+    };
+
+    /*
+     Function for updating an event
+     Requires two parameters: attribute name to update and corresponding value for this attribute
+     */
+    backend.updateEvent = function (eventId, fieldToUpdate, value) {
+      BaasBox.updateField(eventId, "events", fieldToUpdate, value)
         .done(function (res) {
-          console.log("Event updated ", res['data']);
+          console.log("Event updated ", res);
         })
         .fail(function (error) {
           console.log("Event update error ", error);
         })
     };
-/*
-    Function for updating an agenda
- */
-
+    /*
+     Function for updating an agenda
+     */
     backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
       BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
         .done(function (res) {
@@ -256,13 +279,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-  /*
-   Function for uploading a file to the backend
-   Gets a form with input file and ID of the agenda that it belongs to
-   First uploads a file, then grants access permission to all users,
-   after adds id of new uploaded file to the agenda that it belongs to
-   Returns a promise
-   */
+    /*
+     Function for uploading a file to the backend
+     Gets a form with input file and ID of the agenda that it belongs to
+     First uploads a file, then grants access permission to all users,
+     after adds id of new uploaded file to the agenda that it belongs to
+     Returns a promise
+     */
 
     backend.uploadFileAgenda = function (uploadForm, agendaId) {
       return BaasBox.uploadFile(uploadForm)

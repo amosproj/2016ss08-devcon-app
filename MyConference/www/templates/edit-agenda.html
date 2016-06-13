@@ -20,11 +20,11 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <form name="editForm" ng-submit="updateAgenda(ag)">
       <label class="item item-input">
         <span class="input-label fixed">{{"Begin" | translate}}</span>
-        <input type="time" ng-model="ag.begin" placeholder="{{agenda.begin | date: 'HH:mm'}}">
+        <input type="time" ng-model="ag.begin" value="{{agenda.begin | date: 'HH:mm'}}">
       </label>
       <label class="item item-input">
         <span class="input-label fixed">{{"End" | translate}}</span>
-        <input type="time" ng-model="ag.end" placeholder="{{agenda.end | date: 'HH:mm'}}">
+        <input type="time" ng-model="ag.end" value="{{agenda.end | date: 'HH:mm'}}">
       </label>
       <label class="item item-input">
         <span class="input-label fixed">{{"Speaker" | translate}}</span>
