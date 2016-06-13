@@ -550,6 +550,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       ev.stat.push(creator);
       console.log(creator);
       console.log(ev.stat);
+      backendService.save(ev, "events");
       backendService.updateEvent($stateParams.eventId, "title", ev.title);
       backendService.updateEvent($stateParams.eventId, "location", ev.location);
       backendService.updateEvent($stateParams.eventId, "date", ev.date);
