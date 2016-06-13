@@ -154,6 +154,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       creator.status = "joined";
       ev.participants.push(creator);
       console.log(creator);
+      ev.stat = [];
+      creator1 = {};
+      creator1.updated = "false";
+      ev.stat.push(creator1);
+      console.log(creator1);
       console.log(ev.participants);
       BaasBox.save(ev, "events")
         .done(function (res) {
