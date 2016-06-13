@@ -544,6 +544,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.event = res['data']
     })
     $scope.updateEvent = function (ev) {
+      ev.stat = [];
+      creator = {};
+      creator.updated = "true";
+      ev.stat.push(creator);
+      console.log(creator);
+      console.log(ev.stat);
       backendService.updateEvent($stateParams.eventId, "title", ev.title);
       backendService.updateEvent($stateParams.eventId, "location", ev.location);
       backendService.updateEvent($stateParams.eventId, "date", ev.date);
