@@ -604,9 +604,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.updateAgenda = function (ag) {
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
-        if(ag.end !== null ){
+        if (ag.end !== null) {
           backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
-        }else{
+        } else {
           backendService.updateAgenda($stateParams.agendaId, "end", agenda.end);
         }
       })
@@ -760,29 +760,32 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          $translate('Done!').then(
-            function (result) {
-              $ionicPopup.alert({
-                title: result,
-                template: "{{'Login successful.' | translate}}"
-              }).then(function (re) {
-                $state.go('app.main');
-              });
+          backendService.getEvents().then(function (res) {
+              $scope.event = res['data'];
+              $translate('Done!').then(
+                function (result) {
+                  $ionicPopup.alert({
+                    title: result,
+                    template: "{{'Login successful.' | translate}}"
+                  }).then(function (re) {
+                    $state.go('app.main');
+                  });
+                }
+              )
+            },
+            function (err) {
+              $translate('Error!').then(
+                function (res) {
+                  $ionicPopup.alert({
+                    title: res,
+                    template: "{{'Username and password did not match.' | translate}}"
+                  });
+                  credentials.password = "";
+                }
+              );
             }
           )
-        },
-        function (err) {
-          $translate('Error!').then(
-            function (res) {
-              $ionicPopup.alert({
-                title: res,
-                template: "{{'Username and password did not match.' | translate}}"
-              });
-              credentials.password = "";
-            }
-          );
-        }
-      )
+        })
     };
   })
 
@@ -994,6 +997,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         currentQuestion[0].current = false;
       callback();
     }
+
     /*
      function to add question to array questions in event object
      */
