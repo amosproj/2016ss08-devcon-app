@@ -764,6 +764,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               $scope.event = res['data'];
               var me = credentials.username;
               var length = res.length;
+
+            var x = false;
+
+            for (var i = 0; i < length; i++) {
+              var participants = res[i].participants;
+              var title = res[i].title;
+              var stat = res[i].stat;
+              var l = participants.length;
+
+            }
               $translate('Done!').then(
                 function (result) {
                   $ionicPopup.alert({
