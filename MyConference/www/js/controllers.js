@@ -784,6 +784,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   if (updated == upd && name == me && status == sta) {
                     x = true;
                     console.log('----------------->Done! : yes');
+                    var alertPopup = $ionicPopup.alert({
+                      title: 'Done!',
+                      template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'is updated' | translate}}" + "."
+                    });
 
                   } else {
                     console.log('----------------->Else : false');
