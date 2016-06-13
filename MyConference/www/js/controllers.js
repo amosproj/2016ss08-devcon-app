@@ -765,15 +765,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               var me = credentials.username;
               var length = res.length;
 
-            var x = false;
+              var x = false;
 
-            for (var i = 0; i < length; i++) {
-              var participants = res[i].participants;
-              var title = res[i].title;
-              var stat = res[i].stat;
-              var l = participants.length;
+              for (var i = 0; i < length; i++) {
+                var participants = res[i].participants;
+                var title = res[i].title;
+                var stat = res[i].stat;
+                var l = participants.length;
 
-            }
+                for (var j = 0; j < l; j++) {
+                  var name = participants[j].name;
+                  var status = participants[j].status;
+                  var updated = stat[0].updated;
+
+
+                }
+              }
               $translate('Done!').then(
                 function (result) {
                   $ionicPopup.alert({
