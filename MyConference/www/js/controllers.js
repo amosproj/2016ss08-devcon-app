@@ -762,6 +762,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         function (res) {
           backendService.getEvents().then(function (res) {
               $scope.event = res['data'];
+              var me = credentials.username;
+              var length = res.length;
               $translate('Done!').then(
                 function (result) {
                   $ionicPopup.alert({
