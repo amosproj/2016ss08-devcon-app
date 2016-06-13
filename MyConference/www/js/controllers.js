@@ -969,20 +969,26 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    On submit, the field is incremented and updated. Then, every second the event is loaded again for displaying changes.
    On leaving the event the interval call is cancelled.
    */
-  .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval) {
+  .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval, $filter) {
     $scope.beforeSubmit = false;
     $scope.afterSubmit = false;
-    backendService.getEventById($stateParams.eventId).then(
-      function (res) {
-        thisEvent = res['data'];
-        angular.forEach(thisEvent.questions, function (questionEntry) {
-          if (questionEntry.current == true) {
-            $scope.questionObject = questionEntry;
-            console.log($scope.questionObject);
-            $scope.beforeSubmit = true;
+
+    interval = $interval(function () {
+      backendService.getEventById($stateParams.eventId).then(
+        function (res) {
+          thisEvent = res['data'];
+          currentQuestions = $filter('filter')(thisEvent.questions, {current: true})
+          console.log(currentQuestions.length)
+          if (currentQuestions.length == 0) {
+            $scope.questionObject = {};
+            $scope.beforeSubmit = false;
+            $scope.afterSubmit = false;
+          } else {
+            $scope.questionObject = currentQuestions[0];
+            $scope.beforeSubmit = !$scope.afterSubmit;
           }
-        })
-      });
+        });
+    }, 1000);
 
     $scope.submit = function (result) {
       $scope.questionObject[result] += 1;
@@ -991,21 +997,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         function (res) {
           $scope.beforeSubmit = false;
           $scope.afterSubmit = true;
-
-          interval = $interval(function () {
-            backendService.getEventById($stateParams.eventId).then(
-              function (res) {
-                thisEvent = res['data'];
-                angular.forEach(thisEvent.questions, function (questionEntry) {
-                  if (questionEntry.current == true) {
-                    $scope.questionObject = questionEntry;
-                  }
-                })
-              });
-          }, 1000);
-
         })
-      $scope.$on('$ionicView.beforeLeave', function(){
+      $scope.$on('$ionicView.beforeLeave', function () {
         $interval.cancel(interval);
       });
     }
