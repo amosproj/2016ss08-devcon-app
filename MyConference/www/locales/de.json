@@ -86,5 +86,9 @@
   "Add New Question": "Neue Frage hinzufügen",
   "Choose current question": "Aktuelle Frage wählen",
   "Add new question": "Neuen Frage hinzufügen",
-  "is chosen as a current question": "wird als aktuelle Frage gewählt"
+  "is chosen as a current question": "wird als aktuelle Frage gewählt",
+  "Yes": "Ja",
+  "No": "Nein",
+  "Don't know": "Weiß nicht",
+  "Vote": "Abstimmen"
 }
