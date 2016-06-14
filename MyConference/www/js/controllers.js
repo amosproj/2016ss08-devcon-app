@@ -1066,24 +1066,36 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if ($scope.questions.length == 0) $scope.available = false;
     })
     $scope.choose = function (qId) {
-      chooseQuestion(qId, function () {
-        $translate('is chosen as a current question').then(function (de) {
-          $ionicLoading.show({
-            template: '"' + questionToChoose[0].question + '" ' + de,
-            noBackdrop: true,
-            duration: 1150
+      chooseQuestion(qId, function (deselected) {
+        if(deselected) {
+          $translate('is deselected').then(function (de) {
+            $ionicLoading.show({
+              template: '"' + questionToChoose[0].question + '" ' + de,
+              noBackdrop: true,
+              duration: 1150
+            })
           })
-        })
+        }else{
+          $translate('is chosen as a current question').then(function (de) {
+            $ionicLoading.show({
+              template: '"' + questionToChoose[0].question + '" ' + de,
+              noBackdrop: true,
+              duration: 1150
+            })
+          })
+        }
         backendService.updateEvent($stateParams.eventId, "questions", $scope.questions)
       })
     }
     function chooseQuestion(qId, callback) {
+      deselected = false;
       currentQuestion = $filter('filter')($scope.questions, {current: true})
       questionToChoose = $filter('filter')($scope.questions, {id: qId})
+      if(questionToChoose[0] == currentQuestion[0]) deselected = true;
       questionToChoose[0].current = true;
       if (currentQuestion.length > 0)
         currentQuestion[0].current = false;
-      callback();
+      callback(deselected);
     }
 
     /*
