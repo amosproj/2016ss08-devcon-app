@@ -351,6 +351,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = $scope.event.date.split("-");
+      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
@@ -371,6 +372,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = $scope.event.date.split("-");
+      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
 
