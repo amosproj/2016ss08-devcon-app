@@ -972,6 +972,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval, $filter) {
     $scope.beforeSubmit = false;
     $scope.afterSubmit = false;
+    $scope.firstLoadComplete = false;
 
     interval = $interval(function () {
       backendService.getEventById($stateParams.eventId).then(
@@ -986,6 +987,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             $scope.questionObject = currentQuestions[0];
             $scope.beforeSubmit = !$scope.afterSubmit;
           }
+          $scope.firstLoadComplete = true;
         });
     }, 1000);
 

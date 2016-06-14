@@ -91,5 +91,6 @@
   "No": "Nein",
   "Don't know": "Weiß nicht",
   "Vote": "Abstimmen",
-  "No question available": "Keine aktuelle Frage"
+  "No questions available at the moment": "Gerade keine Abstimmung verfügbar",
+  "Loading...": "Lädt..."
 }

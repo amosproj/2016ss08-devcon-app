@@ -21,7 +21,8 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-list>
         <ion-item>
           <b ng-show="questionObject.question != undefined">{{questionObject.question}}</b>
-          <b ng-show="questionObject.question == undefined">{{'No question available' | translate}}</b>
+          <b ng-show="questionObject.question == undefined && !firstLoadComplete">{{'Loading...' | translate}}</b>
+          <b ng-show="questionObject.question == undefined && firstLoadComplete">{{'No questions available at the moment' | translate}}</b>
         </ion-item>
         <div ng-show="beforeSubmit">
           <ion-radio ng-model="result" ng-value="'yes'">
