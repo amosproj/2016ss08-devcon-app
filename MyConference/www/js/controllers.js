@@ -978,7 +978,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         function (res) {
           thisEvent = res['data'];
           currentQuestions = $filter('filter')(thisEvent.questions, {current: true})
-          console.log(currentQuestions.length)
           if (currentQuestions.length == 0) {
             $scope.questionObject = {};
             $scope.beforeSubmit = false;
@@ -990,16 +989,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     }, 1000);
 
+    $scope.$on('$ionicView.beforeLeave', function () {
+      $interval.cancel(interval);
+    });
+
     $scope.submit = function (result) {
       $scope.questionObject[result] += 1;
-      console.log(thisEvent.questions);
       backendService.updateEvent(thisEvent.id, "questions", thisEvent.questions).then(
         function (res) {
           $scope.beforeSubmit = false;
           $scope.afterSubmit = true;
         })
-      $scope.$on('$ionicView.beforeLeave', function () {
-        $interval.cancel(interval);
-      });
     }
   });
