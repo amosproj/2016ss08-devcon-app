@@ -93,6 +93,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
+      .state('app.feedback-results', {
+        cache: false,
+        url: '/event/:eventId/feedback-results',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/feedback-results.html',
+            controller: 'FeedbackResultsCtrl'
+          }
+        }
+      })
       .state('app.agenda', {
         cache: false,
         url: '/agenda/:agendaId',

@@ -13,6 +13,10 @@
   flex-direction: column;
 }
 
-.popup-buttons .button{
+.popup-buttons .button {
   margin-bottom: 5px;
+}
+
+.ionic_ratings .read_only {
+  pointer-events:none !important;
 }

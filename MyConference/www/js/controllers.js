@@ -196,6 +196,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
+    $scope.areFeedbackResultsVisible = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       if (typeof backendService.currentUser !== 'undefined'
@@ -321,10 +322,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     };
     /*
-     Function that determines if now is between the first agenda talk and not more than 48h after the last.
-     Finds the first beginnig and the last ending time of the talks first.
-     */
-    isFeedbackAllowed = function () {
+    Function that returns the first begin time of all talks and the last end time of all talks.
+    Should be simplified once we store the start time of the event itself.
+    */
+    getBorderTimesOfTalks = function(){
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
       for (agendaNr in $scope.agendaList) {
@@ -337,9 +338,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           lastEndTime = endTime;
         }
       }
+      return {firstBeginTime:firstBeginTime, lastEndTime:lastEndTime};
+    }
+
+    /*
+     Function that determines if now is between the first agenda talk and not more than 48h after the last.
+     Finds the first beginnig and the last ending time of the talks first.
+     */
+    isFeedbackAllowed = function () {
+      borderTimes = getBorderTimesOfTalks();
+      firstBeginTime = borderTimes.firstBeginTime;
+      lastEndTime = borderTimes.lastEndTime;
+
       eventDateSplitted = $scope.event.date.split("-");
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0)
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
         return true;
@@ -347,6 +360,27 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         return false;
       }
     }
+    /*
+     Function that determines if now is after the last talk (what means the results of the feedback can be seen).
+     */
+    areFeedbackResultsVisible = function () {
+      if($scope.agendaList.length==0){
+        return true;
+      }
+      borderTimes = getBorderTimesOfTalks();
+      lastEndTime = borderTimes.lastEndTime;
+
+      eventDateSplitted = $scope.event.date.split("-");
+      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+      now = new Date();
+
+      if (now >= endDate) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
     // function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
       $translate('Send Email').then(function (send) {
@@ -495,6 +529,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
       $scope.isFeedbackAllowed = isFeedbackAllowed();
+      $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
@@ -565,7 +600,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Controller for Updating an  event:
    First get all event information by using getEventById(), then update all event fields by calling
    UpdateEvent() and shows a popup alert about successful updating of an event and redirects to main view.
-
    */
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
@@ -589,9 +623,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       );
     }
   })
-
-
-
   /*
    function for editting agenda page
    */
@@ -648,7 +679,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             if (res) {
               backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
                 backendService.deleteFile(res2['data'].fileId);
-              })
+              });
               backendService.deleteAgenda($stateParams.agendaId);
               $translate('Done!').then(
                 function (res4) {
@@ -711,7 +742,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     };
-
   })
   /*
    Controller for user registration
@@ -933,6 +963,91 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       )
     }
+  })
+
+  /*
+
+   */
+  .controller('FeedbackResultsCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
+    /*
+     Function calculating the average of an array of values.
+     */
+    average = function (array) {
+      if (array.length == 0) {
+        return 0;
+      }
+      total = 0;
+      angular.forEach(array, function (value) {
+        total += value;
+      });
+      return total / array.length;
+    };
+
+    /*
+     Function for creating a new crating object
+     Used for avoid redundance.
+     Gets name of the objecvt which defines where in the $scope.results array the rating has to be pushed.
+     Returns a rating object.
+     */
+    addNewRatingObject = function (title) {
+      $scope.ratingObjects[title] = {
+        iconOnColor: '#387ef5',
+        iconOffColor: '#387ef5',
+        readOnly: true,
+        title: title,
+        ratings: [],
+        comments: [],
+        callback: function (rating) {
+        }
+      };
+    };
+
+    $scope.ratingObjects = {};
+
+    backendService.getEventById($stateParams.eventId).then(
+      function (res) {
+        event = res['data'];
+
+        $scope.generalCategories = [];
+        angular.forEach(event.feedback, function (rating) {
+          angular.forEach(rating, function (categoryRating) {
+            if ($scope.generalCategories.indexOf(categoryRating.category) == -1) {
+              $scope.generalCategories.push(categoryRating.category);
+              addNewRatingObject(categoryRating.category);
+            }
+            $scope.ratingObjects[categoryRating.category].ratings.push(categoryRating.rating);
+            if (categoryRating.comment.length > 0) {
+              $scope.ratingObjects[categoryRating.category].comments.push(categoryRating.comment);
+            }
+          })
+        });
+
+        angular.forEach($scope.ratingObjects, function (ratingObject) {
+          ratingObject.ratingAvg = Math.round(average(ratingObject.ratings) * 100) / 100;
+          ratingObject.rating = Math.round(ratingObject.ratingAvg)
+        });
+
+        backendService.loadAgendaWithParams($stateParams.eventId).then(
+          function (res) {
+            $scope.talks = res;
+            angular.forEach($scope.talks, function (talk) {
+              addNewRatingObject(talk.topic);
+
+              angular.forEach(talk.feedback, function (feedbackEntry) {
+                $scope.ratingObjects[talk.topic].ratings.push(feedbackEntry.rating);
+                if (feedbackEntry.comment.length > 0) {
+                  $scope.ratingObjects[talk.topic].comments.push(feedbackEntry.comment);
+                }
+              });
+              $scope.ratingObjects[talk.topic].ratingAvg = Math.round(average($scope.ratingObjects[talk.topic].ratings) * 100) / 100;
+              $scope.ratingObjects[talk.topic].rating = Math.round($scope.ratingObjects[talk.topic].ratingAvg);
+            });
+          }, function (err) {
+            console.log(err)
+          }
+        )
+
+      });
   })
 
   /*
