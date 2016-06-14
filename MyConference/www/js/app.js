@@ -206,6 +206,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
             controller: 'ChooseQuestionCtrl'
           }
         }
+      })
+      .state('app.live-voting', {
+        cache: false,
+        url: '/event/:eventId/live-voting',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/live-voting.html',
+            controller: 'LiveVotingCtrl'
+          }
+        }
       });
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');

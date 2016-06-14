@@ -234,9 +234,10 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     /*
      Function for updating an event
      Requires two parameters: attribute name to update and corresponding value for this attribute
+     Returns a promise.
      */
     backend.updateEvent = function (eventId, fieldToUpdate, value) {
-      BaasBox.updateField(eventId, "events", fieldToUpdate, value)
+      return BaasBox.updateField(eventId, "events", fieldToUpdate, value)
         .done(function (res) {
           console.log("Event updated ", res);
         })
@@ -510,6 +511,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("agenda", id)
     };
 
-    return backend;
-  }
+      return backend;
+    }
 );
