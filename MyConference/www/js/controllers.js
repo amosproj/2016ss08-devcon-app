@@ -541,31 +541,43 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
+      $scope.event = res['data'];
+      var l = $scope.event.participants.length;
+
+      for (var j = 0; j < l; j++) {
+        var user = $scope.event.participants[j];
+        var name = user.name;
+        var t = user.time;
+        console.log('participant name : ',name);
+        console.log('participant time', t);
+      }
+
+      $scope.updateEvent = function (ev) {
+        ev.stat = [];
+        creator = {};
+        creator.updated = "true";
+        creator.time = t + 1;
+        ev.stat.push(creator);
+        console.log(t);
+        console.log(ev.stat);
+        backendService.save(ev, "events");
+
+        backendService.updateEvent($stateParams.eventId, "title", ev.title);
+        backendService.updateEvent($stateParams.eventId, "location", ev.location);
+        backendService.updateEvent($stateParams.eventId, "date", ev.date);
+        backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+            }).then(function (res) {
+              $state.go('app.start')
+            });
+          }
+        );
+      }
     })
-    $scope.updateEvent = function (ev) {
-      ev.stat = [];
-      creator = {};
-      creator.updated = "true";
-      ev.stat.push(creator);
-      console.log(creator);
-      console.log(ev.stat);
-      backendService.save(ev, "events");
-      backendService.updateEvent($stateParams.eventId, "title", ev.title);
-      backendService.updateEvent($stateParams.eventId, "location", ev.location);
-      backendService.updateEvent($stateParams.eventId, "date", ev.date);
-      backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
-      $translate('Done!').then(
-        function (res) {
-          $ionicPopup.alert({
-            title: res,
-            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
-    }
   })
 
 
@@ -747,27 +759,33 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               var x = false;
 
               for (var i = 0; i < length; i++) {
+                var ev = res[i];
                 var participants = res[i].participants;
                 var title = res[i].title;
+                var id = res[i].id;
+
                 var stat = res[i].stat;
                 var l = participants.length;
 
                 console.log('------------------>Event number :', i);
                 console.log('---There is', l, 'participants in this event : ', title, '---');
 
-
                 for (var j = 0; j < l; j++) {
                   var name = participants[j].name;
                   var status = participants[j].status;
+                  var tpart = participants[j].time;
                   var updated = stat[0].updated;
-                  console.log('-name   :', name);
-                  console.log('-status :', status);
-                  console.log('-updated:', updated);
+                  var tstat = stat[0].time;
+                  console.log('------Participant name   :', name);
+                  console.log('------Participant status :', status);
+                  console.log('------Participant time   :', tpart);
+                  console.log('-updated     :', updated);
+                  console.log('-update time :', tstat);
                   var sta = "joined";
                   var upd = "true";
 
 
-                  if (updated == upd && name == me && status == sta) {
+                  if (updated == upd && name == me && status == sta && tstat != tpart) {
                     x = true;
                     console.log('----------------->Done! : yes');
                     var alertPopup = $ionicPopup.alert({
@@ -775,6 +793,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                       template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'is updated' | translate}}" + "."
                     });
 
+                      ev.participants = [];
+                      creator = {};
+                      creator.name = me;
+                      creator.status = sta;
+                      creator.time = tstat;
+                      ev.participants.push(creator);
+                      backendService.save(ev, "events")
                   } else {
                     console.log('----------------->Else : false');
                     x = false
