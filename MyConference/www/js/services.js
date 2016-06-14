@@ -156,18 +156,18 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.createEvent = function (ev) {
       ev.participants = [];
-      ev.questions = [];
       creator = {};
       creator.name = BaasBox.getCurrentUser().username;
       creator.status = "joined";
+      creator.time = 0;
       ev.participants.push(creator);
-      console.log(creator);
+      console.log(ev.participants);
       ev.stat = [];
       creator1 = {};
       creator1.updated = "false";
+      creator1.time = 0;
       ev.stat.push(creator1);
-      console.log(creator1);
-      console.log(ev.participants);
+      console.log(ev.stat);
       BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
@@ -178,6 +178,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
+
 
     /*
      Function for adding an agenda talk to an event
@@ -355,6 +356,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           participant = {};
           participant.name = user.username;
           participant.status = "joined";
+          participant.time = 0;
           event.participants.push(participant);
         } else {
           //user already in participants list, so just change status
