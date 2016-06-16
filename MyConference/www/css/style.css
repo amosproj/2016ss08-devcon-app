@@ -4,19 +4,3 @@
 .ionic_ratings .icon {
   font-size: 55px;
 }
-
-.green{
-  background-color: #b8f23c;
-}
-
-.popup-buttons{
-  flex-direction: column;
-}
-
-.popup-buttons .button {
-  margin-bottom: 5px;
-}
-
-.ionic_ratings .read_only {
-  pointer-events:none !important;
-}

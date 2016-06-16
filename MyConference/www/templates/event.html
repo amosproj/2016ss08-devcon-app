@@ -27,6 +27,8 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
       </ion-item>
+
+
       <!-- Form to add agenda -->
       <form name="addAgendaForm" ng-submit="addingAgenda(ag)" ng-show="addingAgendaForm" novalidate>
         <!-- input type time is not supported by firefox. However, in phone, it works well -->
@@ -67,6 +69,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}</button>
       <button class="button button-block button-positive" ng-show="addingAgendaForm"
               ng-click="showAddingAgenda()">{{"Hide" | translate}}</button>
+
       <!-- Agenda List listed by beginning time -->
       <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
         <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
@@ -107,13 +110,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="showAlert()" class="button button-block button-positive">
       {{"Participants list" | translate}}
     </button>
-    <a href="#app/choose-question/{{event.id}}" ng-show="showButton" class="button button-block button-positive">{{"Choose current question" | translate}}</a>
     <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive" ng-show="isFeedbackAllowed">
       {{"Feedback" | translate}}</button>
-    <button ui-sref="app.live-voting({eventId: event.id})" class="button button-block button-positive" ng-show="event.questions.length>0">
-      {{"Live Voting" | translate}}
-    </button>
-    <button ui-sref="app.feedback-results({eventId: event.id})" class="button button-block button-balanced" ng-show="areFeedbackResultsVisible">
-      {{"Show feedback results" | translate}}</button>
   </ion-content>
 </ion-view>
