@@ -31,6 +31,17 @@ angular.module('starter.directives', [])
     };
   })
 
+  .directive('feedbackResultGroup', function() {
+    return {
+      restrict: 'E',
+      scope: {
+        ratingObject: "="
+      },
+      templateUrl: 'templates/directives/feedbackResultGroup.html',
+
+    };
+  })
+
 
 //directive to check password match
 
