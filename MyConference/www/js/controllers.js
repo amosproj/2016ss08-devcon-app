@@ -585,6 +585,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.updateEvent($stateParams.eventId, "title", ev.title);
       backendService.updateEvent($stateParams.eventId, "location", ev.location);
       backendService.updateEvent($stateParams.eventId, "date", ev.date);
+      backendService.updateEvent($stateParams.eventId, "begin", ev.begin);
       backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
       $translate('Done!').then(
         function (res) {
