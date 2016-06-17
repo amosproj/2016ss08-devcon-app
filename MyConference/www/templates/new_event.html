@@ -18,22 +18,27 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view view-title="{{ 'Create event' | translate }}">
   <ion-content>
 
-      <form ng-submit="createEvent(ev)">
-        <label class="item item-input">
-          <input type="text" placeholder="{{ 'Title' | translate }}" ng-model="ev.title" required>
-          </label>
-        <label class="item item-input">
-          <input type="text" ng-model="ev.location" placeholder="{{ 'Location' | translate }}">
-        </label>
-        <label class="item item-input">{{ 'Date' | translate }}:
-          <input type="date" ng-model="ev.date">
-        </label>
-        <label class="item item-input">
-          <textarea rows="5" placeholder="{{ 'Short description' | translate }}" ng-model="ev.descr"></textarea>
-        </label>
-        <button type="submit" class="button button-block button-positive" translate>Create event</button>
+    <form ng-submit="createEvent(ev)">
+      <label class="item item-input">
+        <input type="text" placeholder="{{ 'Title' | translate }}" ng-model="ev.title" required>
+      </label>
+      <label class="item item-input">
+        <input type="text" ng-model="ev.location" placeholder="{{ 'Location' | translate }}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Date' | translate }}:</span>
+        <input type="date" ng-model="ev.date">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{"Begin" | translate}}</span>
+        <input type="time" ng-model="ev.begin">
+      </label>
+      <label class="item item-input">
+        <textarea rows="5" placeholder="{{ 'Short description' | translate }}" ng-model="ev.descr"></textarea>
+      </label>
+      <button type="submit" class="button button-block button-positive" translate>Create event</button>
 
-      </form>
+    </form>
 
 
   </ion-content>
