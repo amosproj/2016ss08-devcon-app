@@ -598,7 +598,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           function (res) {
             $ionicPopup.alert({
               title: res,
-              template: "{{ Error is occurred, please try again later | translate }}"
+              template: "{{ 'Error is occurred, please try again later' | translate }}"
             }).then(function (res) {
               $state.go('app.main')
             });
