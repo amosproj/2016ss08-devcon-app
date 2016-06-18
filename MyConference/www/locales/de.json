@@ -62,7 +62,7 @@
   "Participants list": "Teilnehmerliste",
   "Send Email": "Email senden",
   "Participants list for the event": "Teilnehmerliste für das Event",
-  "Download": "Download",
+  "Download": "Herunterladen",
   "Delete This Talk": "Löschen Diesen Talk",
   "New Talk Session is added": "Neuer Talk wird hinzugefügt",
   "Talk Session updated.": "Talk wird aktualisiert",
@@ -88,5 +88,14 @@
   "Add New Question": "Neue Frage hinzufügen",
   "Choose current question": "Aktuelle Frage wählen",
   "Add new question": "Neuen Frage hinzufügen",
-  "is chosen as a current question": "wird als aktuelle Frage gewählt"
+  "is chosen as a current question": "wird als aktuelle Frage gewählt",
+  "Yes": "Ja",
+  "No": "Nein",
+  "Don't know": "Weiß nicht",
+  "Vote": "Abstimmen",
+  "No questions available at the moment": "Gerade keine Abstimmung verfügbar",
+  "Loading...": "Lädt...",
+  "Show feedback results": "Feedback-Ergebnisse anzeigen",
+  "Feedback results": "Ergebnisse Feedback",
+  "is deselected": "wird abgewählt"
 }

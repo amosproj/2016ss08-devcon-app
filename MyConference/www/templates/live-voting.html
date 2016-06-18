@@ -1,0 +1,59 @@
+<!--
+This file is part of MyConference.
+
+MyConference is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License version 3
+as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should find a copy of the GNU Affero General Public License in the
+root directory along with this program.
+If not, see http://www.gnu.org/licenses/agpl-3.0.html.
+-->
+<ion-view>
+  <ion-nav-title>{{"Live Voting" | translate}} {{event.title}}</ion-nav-title>
+  <ion-content>
+    <form ng-submit="submit(result)">
+      <ion-list>
+        <ion-item>
+          <b ng-show="questionObject.question != undefined">{{questionObject.question}}</b>
+          <b ng-show="questionObject.question == undefined && !firstLoadComplete">{{'Loading...' | translate}}</b>
+          <b ng-show="questionObject.question == undefined && firstLoadComplete">{{'No questions available at the moment' | translate}}</b>
+        </ion-item>
+        <div ng-show="beforeSubmit">
+          <ion-radio ng-model="result" ng-value="'yes'">
+            {{"Yes" | translate}}
+          </ion-radio>
+          <ion-radio ng-model="result" ng-value="'no'">
+            {{"No" | translate}}
+          </ion-radio>
+          <ion-radio ng-model="result" ng-value="'dontKnow'">
+            {{"Don't know" | translate}}
+          </ion-radio>
+        </div>
+        <div ng-show="afterSubmit">
+          <ion-item ng-model="result" ng-value="'yes'">
+            {{"Yes" | translate}}
+            <span class="badge badge-positive">{{questionObject.yes}}</span>
+          </ion-item>
+          <ion-item ng-model="result" ng-value="'no'">
+            {{"No" | translate}}
+            <span class="badge badge-positive">{{questionObject.no}}</span>
+          </ion-item>
+          <ion-item ng-model="result" ng-value="'dontKnow'">
+            {{"Don't know" | translate}}
+            <span class="badge badge-positive">{{questionObject.dontKnow}}</span>
+          </ion-item>
+        </div>
+      </ion-list>
+      <button type="submit" class="button button-block button-positive" ng-disabled="result==undefined"
+              ng-show="beforeSubmit">
+        {{"Vote" | translate}}
+      </button>
+    </form>
+  </ion-content>
+</ion-view>

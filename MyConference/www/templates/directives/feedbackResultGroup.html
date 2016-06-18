@@ -1,0 +1,8 @@
+<ion-item>
+  {{ ratingObject.title | translate }}: Ø {{ratingObject.ratingAvg}}
+</ion-item>
+<ionic-ratings ratingsobj='ratingObject'></ionic-ratings>
+<ion-item ng-repeat="comment in ratingObject.comments">
+  {{ comment }}
+</ion-item>
+<ion-item></ion-item>
