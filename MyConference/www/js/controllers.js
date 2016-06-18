@@ -196,6 +196,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
+    $scope.areFeedbackResultsVisible = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       if (typeof backendService.currentUser !== 'undefined'
@@ -321,10 +322,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     };
     /*
-     Function that determines if now is between the first agenda talk and not more than 48h after the last.
-     Finds the first beginnig and the last ending time of the talks first.
-     */
-    isFeedbackAllowed = function () {
+    Function that returns the first begin time of all talks and the last end time of all talks.
+    Should be simplified once we store the start time of the event itself.
+    */
+    getBorderTimesOfTalks = function(){
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
       for (agendaNr in $scope.agendaList) {
@@ -337,9 +338,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           lastEndTime = endTime;
         }
       }
+      return {firstBeginTime:firstBeginTime, lastEndTime:lastEndTime};
+    }
+
+    /*
+     Function that determines if now is between the first agenda talk and not more than 48h after the last.
+     Finds the first beginnig and the last ending time of the talks first.
+     */
+    isFeedbackAllowed = function () {
+      borderTimes = getBorderTimesOfTalks();
+      firstBeginTime = borderTimes.firstBeginTime;
+      lastEndTime = borderTimes.lastEndTime;
+
       eventDateSplitted = $scope.event.date.split("-");
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0)
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0)
+      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
         return true;
@@ -347,6 +361,28 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         return false;
       }
     }
+    /*
+     Function that determines if now is after the last talk (what means the results of the feedback can be seen).
+     */
+    areFeedbackResultsVisible = function () {
+      if($scope.agendaList.length==0){
+        return true;
+      }
+      borderTimes = getBorderTimesOfTalks();
+      lastEndTime = borderTimes.lastEndTime;
+
+      eventDateSplitted = $scope.event.date.split("-");
+      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+      now = new Date();
+
+      if (now >= endDate) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
     // function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
       $translate('Send Email').then(function (send) {
@@ -371,7 +407,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     createCSV($scope.event.participants.length - 1, 'download')
                   }
                 },
-                {text: cancel}
+                {text: cancel,
+                type: 'button-assertive'}
               ]
             });
           })
@@ -494,6 +531,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
       $scope.isFeedbackAllowed = isFeedbackAllowed();
+      $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
@@ -541,31 +579,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data'];
-      var l = $scope.event.participants.length;
-
-      for (var j = 0; j < l; j++) {
-        var user = $scope.event.participants[j];
-        var name = user.name;
-        var t = user.time;
-        console.log('participant name : ',name);
-        console.log('participant time', t);
-      }
+      $scope.event = res['data']
+      var id = $scope.event.id;
 
       $scope.updateEvent = function (ev) {
-        ev.stat = [];
-        creator = {};
-        creator.updated = "true";
-        creator.time = t + 1;
-        ev.stat.push(creator);
-        console.log(t);
-        console.log(ev.stat);
-        backendService.save(ev, "events");
-
         backendService.updateEvent($stateParams.eventId, "title", ev.title);
         backendService.updateEvent($stateParams.eventId, "location", ev.location);
         backendService.updateEvent($stateParams.eventId, "date", ev.date);
         backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
+        /* updated all Participant in this Event set {updated = true} */
+        backendService.SetStatusTrue(id);
+        console.log('user status {updated : true}');
         $translate('Done!').then(
           function (res) {
             $ionicPopup.alert({
@@ -579,8 +603,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     })
   })
-
-
   /*
    function for editting agenda page
    */
@@ -594,9 +616,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.updateAgenda = function (ag) {
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
-        if (ag.end !== null) {
+        if(ag.end !== null ){
           backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
-        } else {
+        }else{
           backendService.updateAgenda($stateParams.agendaId, "end", agenda.end);
         }
       })
@@ -637,7 +659,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             if (res) {
               backendService.getAgendaById($stateParams.agendaId).then(function (res2) {
                 backendService.deleteFile(res2['data'].fileId);
-              })
+              });
               backendService.deleteAgenda($stateParams.agendaId);
               $translate('Done!').then(
                 function (res4) {
@@ -700,7 +722,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     };
-
   })
   /*
    Controller for user registration
@@ -759,49 +780,39 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               var x = false;
 
               for (var i = 0; i < length; i++) {
-                var ev = res[i];
                 var participants = res[i].participants;
-                var title = res[i].title;
-                var id = res[i].id;
-
-                var stat = res[i].stat;
+                const title = res[i].title;
+                const id = res[i].id;
                 var l = participants.length;
 
                 console.log('------------------>Event number :', i);
                 console.log('---There is', l, 'participants in this event : ', title, '---');
-
+                console.log('---------------------------------------------------------');
                 for (var j = 0; j < l; j++) {
                   var name = participants[j].name;
                   var status = participants[j].status;
-                  var tpart = participants[j].time;
-                  var updated = stat[0].updated;
-                  var tstat = stat[0].time;
-                  console.log('------Participant name   :', name);
-                  console.log('------Participant status :', status);
-                  console.log('------Participant time   :', tpart);
-                  console.log('-updated     :', updated);
-                  console.log('-update time :', tstat);
+                  var updated = participants[j].updated;
+                  console.log('-participant name   :', name);
+                  console.log('-participant status :', status);
+                  console.log('-participant updated :', updated);
+
                   var sta = "joined";
                   var upd = "true";
 
-
-                  if (updated == upd && name == me && status == sta && tstat != tpart) {
+                  if (updated == upd && name == me && status == sta) {
                     x = true;
-                    console.log('----------------->Done! : yes');
-                    var alertPopup = $ionicPopup.alert({
-                      title: 'Done!',
-                      template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'is updated' | translate}}" + "."
-                    });
-
-                      ev.participants = [];
-                      creator = {};
-                      creator.name = me;
-                      creator.status = sta;
-                      creator.time = tstat;
-                      ev.participants.push(creator);
-                      backendService.save(ev, "events")
+                    /* updated the Current user in the Participant list of the Events set {updated = false} */
+                    backendService.SetStatusFalse(id);
+                    console.log('user status {updated : false}');
+                    $translate('Done!').then(
+                      function (result) {
+                        $ionicPopup.alert({
+                          title: result,
+                          template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'updated' | translate}}" + "."
+                        })
+                      }
+                    )
                   } else {
-                    console.log('----------------->Else : false');
                     x = false
                   }
                   console.log(x);
@@ -817,23 +828,23 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   });
                 }
               )
-            },
-            function (err) {
-              $translate('Error!').then(
-                function (res) {
-                  $ionicPopup.alert({
-                    title: res,
-                    template: "{{'Username and password did not match.' | translate}}"
-                  });
-                  credentials.password = "";
-                }
-              );
             }
           )
-        })
+        },
+        function (err) {
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Username and password did not match.' | translate}}"
+              });
+              credentials.password = "";
+            }
+          );
+        }
+      )
     };
   })
-
   /* 
    Controller for Logout 
    Logouts the user, shows a popup and then goes to main page. 
@@ -983,6 +994,91 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
+
+   */
+  .controller('FeedbackResultsCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
+    /*
+     Function calculating the average of an array of values.
+     */
+    average = function (array) {
+      if (array.length == 0) {
+        return 0;
+      }
+      total = 0;
+      angular.forEach(array, function (value) {
+        total += value;
+      });
+      return total / array.length;
+    };
+
+    /*
+     Function for creating a new crating object
+     Used for avoid redundance.
+     Gets name of the objecvt which defines where in the $scope.results array the rating has to be pushed.
+     Returns a rating object.
+     */
+    addNewRatingObject = function (title) {
+      $scope.ratingObjects[title] = {
+        iconOnColor: '#387ef5',
+        iconOffColor: '#387ef5',
+        readOnly: true,
+        title: title,
+        ratings: [],
+        comments: [],
+        callback: function (rating) {
+        }
+      };
+    };
+
+    $scope.ratingObjects = {};
+
+    backendService.getEventById($stateParams.eventId).then(
+      function (res) {
+        event = res['data'];
+
+        $scope.generalCategories = [];
+        angular.forEach(event.feedback, function (rating) {
+          angular.forEach(rating, function (categoryRating) {
+            if ($scope.generalCategories.indexOf(categoryRating.category) == -1) {
+              $scope.generalCategories.push(categoryRating.category);
+              addNewRatingObject(categoryRating.category);
+            }
+            $scope.ratingObjects[categoryRating.category].ratings.push(categoryRating.rating);
+            if (categoryRating.comment.length > 0) {
+              $scope.ratingObjects[categoryRating.category].comments.push(categoryRating.comment);
+            }
+          })
+        });
+
+        angular.forEach($scope.ratingObjects, function (ratingObject) {
+          ratingObject.ratingAvg = Math.round(average(ratingObject.ratings) * 100) / 100;
+          ratingObject.rating = Math.round(ratingObject.ratingAvg)
+        });
+
+        backendService.loadAgendaWithParams($stateParams.eventId).then(
+          function (res) {
+            $scope.talks = res;
+            angular.forEach($scope.talks, function (talk) {
+              addNewRatingObject(talk.topic);
+
+              angular.forEach(talk.feedback, function (feedbackEntry) {
+                $scope.ratingObjects[talk.topic].ratings.push(feedbackEntry.rating);
+                if (feedbackEntry.comment.length > 0) {
+                  $scope.ratingObjects[talk.topic].comments.push(feedbackEntry.comment);
+                }
+              });
+              $scope.ratingObjects[talk.topic].ratingAvg = Math.round(average($scope.ratingObjects[talk.topic].ratings) * 100) / 100;
+              $scope.ratingObjects[talk.topic].rating = Math.round($scope.ratingObjects[talk.topic].ratingAvg);
+            });
+          }, function (err) {
+            console.log(err)
+          }
+        )
+
+      });
+  })
+
+  /*
    Controller for editing user information
    First gets user current personal information stored on backend
    After clicking submit button in edit-account view calls update account function with user form as a parameter
@@ -1023,24 +1119,36 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if ($scope.questions.length == 0) $scope.available = false;
     })
     $scope.choose = function (qId) {
-      chooseQuestion(qId, function () {
-        $translate('is chosen as a current question').then(function (de) {
-          $ionicLoading.show({
-            template: '"' + questionToChoose[0].question + '" ' + de,
-            noBackdrop: true,
-            duration: 1150
+      chooseQuestion(qId, function (deselected) {
+        if(deselected) {
+          $translate('is deselected').then(function (de) {
+            $ionicLoading.show({
+              template: '"' + questionToChoose[0].question + '" ' + de,
+              noBackdrop: true,
+              duration: 1150
+            })
           })
-        })
+        }else{
+          $translate('is chosen as a current question').then(function (de) {
+            $ionicLoading.show({
+              template: '"' + questionToChoose[0].question + '" ' + de,
+              noBackdrop: true,
+              duration: 1150
+            })
+          })
+        }
         backendService.updateEvent($stateParams.eventId, "questions", $scope.questions)
       })
     }
     function chooseQuestion(qId, callback) {
+      deselected = false;
       currentQuestion = $filter('filter')($scope.questions, {current: true})
       questionToChoose = $filter('filter')($scope.questions, {id: qId})
+      if(questionToChoose[0] == currentQuestion[0]) deselected = true;
       questionToChoose[0].current = true;
       if (currentQuestion.length > 0)
         currentQuestion[0].current = false;
-      callback();
+      callback(deselected);
     }
 
     /*
@@ -1063,4 +1171,45 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     };
+  })
+  /*
+   Controller for live voting
+   Gets active question out of event.
+   On submit, the field is incremented and updated. Then, every second the event is loaded again for displaying changes.
+   On leaving the event the interval call is cancelled.
+   */
+  .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval, $filter) {
+    $scope.beforeSubmit = false;
+    $scope.afterSubmit = false;
+    $scope.firstLoadComplete = false;
+
+    interval = $interval(function () {
+      backendService.getEventById($stateParams.eventId).then(
+        function (res) {
+          thisEvent = res['data'];
+          currentQuestions = $filter('filter')(thisEvent.questions, {current: true})
+          if (currentQuestions.length == 0) {
+            $scope.questionObject = {};
+            $scope.beforeSubmit = false;
+            $scope.afterSubmit = false;
+          } else {
+            $scope.questionObject = currentQuestions[0];
+            $scope.beforeSubmit = !$scope.afterSubmit;
+          }
+          $scope.firstLoadComplete = true;
+        });
+    }, 1000);
+
+    $scope.$on('$ionicView.beforeLeave', function () {
+      $interval.cancel(interval);
+    });
+
+    $scope.submit = function (result) {
+      $scope.questionObject[result] += 1;
+      backendService.updateEvent(thisEvent.id, "questions", thisEvent.questions).then(
+        function (res) {
+          $scope.beforeSubmit = false;
+          $scope.afterSubmit = true;
+        })
+    }
   });
