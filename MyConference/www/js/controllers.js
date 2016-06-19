@@ -321,6 +321,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
+    //function for the Remind-about-event-button
+    $scope.sendReminder = function () {
+    };
     /*
     Function that returns the first begin time of all talks and the last end time of all talks.
     Should be simplified once we store the start time of the event itself.
