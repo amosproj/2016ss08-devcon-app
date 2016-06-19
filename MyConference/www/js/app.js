@@ -21,7 +21,7 @@
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings'])
-  .run(function ($ionicPlatform, $ionicPopup) {
+  .run(function ($ionicPlatform, $ionicPopup, backendService) {
     $ionicPlatform.ready(function () {
       setupPush = function () {
         var push = PushNotification.init({
@@ -34,9 +34,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
 
         push.on('registration', function (data) {
           var oldRegistrationId = localStorage.getItem('registrationId');
+          var notificationsEnabled = localStorage.getItem('notificationsEnabled');
           if (oldRegistrationId !== data.registrationId) {
             // Save new registration ID
             localStorage.setItem('registrationId', data.registrationId);
+            // Post registrationId to baasbox server as the value has changed
+            if (notificationsEnabled === true) {
+              backendService.enablePushNotificationsForCurrentUser();
             }
           }
         });
