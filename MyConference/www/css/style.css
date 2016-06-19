@@ -20,3 +20,11 @@
 .ionic_ratings .read_only {
   pointer-events:none !important;
 }
+
+.button.button-bordered{
+  border: 5px solid #387EF5;
+  border-radius: 10px;
+  width: 35%;
+  line-height: 100%;
+  font-size: 13px;
+}
