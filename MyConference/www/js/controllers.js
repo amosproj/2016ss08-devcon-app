@@ -322,10 +322,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     };
     /*
-    Function that returns the first begin time of all talks and the last end time of all talks.
-    Should be simplified once we store the start time of the event itself.
-    */
-    getBorderTimesOfTalks = function(){
+     Function that returns the first begin time of all talks and the last end time of all talks.
+     Should be simplified once we store the start time of the event itself.
+     */
+    getBorderTimesOfTalks = function () {
       firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
       for (agendaNr in $scope.agendaList) {
@@ -338,7 +338,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           lastEndTime = endTime;
         }
       }
-      return {firstBeginTime:firstBeginTime, lastEndTime:lastEndTime};
+      return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
     }
 
     /*
@@ -365,7 +365,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
      */
     areFeedbackResultsVisible = function () {
-      if($scope.agendaList.length==0){
+      if ($scope.agendaList.length == 0) {
         return true;
       }
       borderTimes = getBorderTimesOfTalks();
@@ -407,8 +407,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     createCSV($scope.event.participants.length - 1, 'download')
                   }
                 },
-                {text: cancel,
-                type: 'button-assertive'}
+                {
+                  text: cancel,
+                  type: 'button-assertive'
+                }
               ]
             });
           })
@@ -574,6 +576,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Controller for Updating an  event:
    First get all event information by using getEventById(), then update all event fields by calling
    UpdateEvent() and shows a popup alert about successful updating of an event and redirects to main view.
+   call SetStatusTrue to update all Participant in this Event set {updated = true}
 
    */
 
@@ -583,23 +586,31 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var id = $scope.event.id;
 
       $scope.updateEvent = function (ev) {
-        backendService.updateEvent($stateParams.eventId, "title", ev.title);
-        backendService.updateEvent($stateParams.eventId, "location", ev.location);
-        backendService.updateEvent($stateParams.eventId, "date", ev.date);
-        backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
-        /* updated all Participant in this Event set {updated = true} */
-        backendService.SetStatusTrue(id);
-        console.log('user status {updated : true}');
-        $translate('Done!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
-            }).then(function (res) {
-              $state.go('app.start')
-            });
-          }
-        );
+        backendService.updateEvent(ev).then(function (re) {
+          backendService.SetStatusTrue(id);
+          console.log('user status {updated : true}');
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+              }).then(function (res) {
+                $state.go('app.main')
+              });
+            }
+          )
+        }, function (error) {
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{ 'Error is occurred, please try again later' | translate }}"
+              }).then(function (res) {
+                $state.go('app.main')
+              });
+            }
+          )
+        })
       }
     })
   })
@@ -616,9 +627,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.updateAgenda = function (ag) {
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
-        if(ag.end !== null ){
+        if (ag.end !== null) {
           backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
-        }else{
+        } else {
           backendService.updateAgenda($stateParams.agendaId, "end", agenda.end);
         }
       })
@@ -1120,7 +1131,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
     $scope.choose = function (qId) {
       chooseQuestion(qId, function (deselected) {
-        if(deselected) {
+        if (deselected) {
           $translate('is deselected').then(function (de) {
             $ionicLoading.show({
               template: '"' + questionToChoose[0].question + '" ' + de,
@@ -1128,7 +1139,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               duration: 1150
             })
           })
-        }else{
+        } else {
           $translate('is chosen as a current question').then(function (de) {
             $ionicLoading.show({
               template: '"' + questionToChoose[0].question + '" ' + de,
@@ -1144,7 +1155,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       deselected = false;
       currentQuestion = $filter('filter')($scope.questions, {current: true})
       questionToChoose = $filter('filter')($scope.questions, {id: qId})
-      if(questionToChoose[0] == currentQuestion[0]) deselected = true;
+      if (questionToChoose[0] == currentQuestion[0]) deselected = true;
       questionToChoose[0].current = true;
       if (currentQuestion.length > 0)
         currentQuestion[0].current = false;
