@@ -511,6 +511,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("agenda", id)
     };
 
-      return backend;
-    }
+    /*
+     Function for sending a push notification with a text to a list of users.
+     "users" has to be an array of usernames.
+     Returns a promise.
+     */
+    backend.sendPushNotificationToUsers = function (message, users) {
+      params = {
+        "users": users,
+        "message": message
+      };
+      return BaasBox.sendPushNotification(params);
+    };
+
+    return backend;
+  }
 );

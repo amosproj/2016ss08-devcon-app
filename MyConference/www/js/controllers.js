@@ -323,6 +323,81 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
     //function for the Remind-about-event-button
     $scope.sendReminder = function () {
+      if ($scope.event.date) {
+        daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
+        firstPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
+          {
+            eventName: ($scope.event.title.length > 0 ? $scope.event.title : "an event"),
+            daysTillEvent: daysTillEvent
+          }
+        );
+      } else {
+        firstPromise = $translate("Senacor is happy to remind you that $eventName is coming.",
+          {
+            eventName: ($scope.event.title.length > 0 ? $scope.event.title : "an event")
+          }
+        );
+      }
+      firstPromise.then(
+        function (firstSentence) {
+          if ($scope.event.date) {
+            dateFormatted = $filter('date')($scope.event.date, "dd.MM.yy");
+            if ($scope.event.time) {
+              if ($scope.event.location) {
+                secondPromise = $translate("See you on $date at $time, $location!", {
+                  date: dateFormatted,
+                  time: $scope.event.time,
+                  location: $scope.event.location
+                })
+              } else {
+                secondPromise = $translate("See you on $date at $time!", {date: dateFormatted, time: $scope.event.time})
+              }
+            } else {
+              if ($scope.event.location) {
+                secondPromise = $translate("See you on $date at $location!", {
+                  date: dateFormatted,
+                  location: $scope.event.location
+                })
+              } else {
+                secondPromise = $translate("See you on $date!", {date: dateFormatted})
+              }
+            }
+          } else {
+            if ($scope.event.time) {
+              if ($scope.event.location) {
+                secondPromise = $translate("See you on at $time, $location!", {
+                  time: $scope.event.time,
+                  location: $scope.event.location
+                })
+              } else {
+                secondPromise = $translate("See you at $time!", {time: $scope.event.time})
+              }
+            } else {
+              if ($scope.event.location) {
+                secondPromise = $translate("See you at $location!", {location: $scope.event.location})
+              } else {
+                secondPromise = $translate("See you!")
+              }
+            }
+          }
+          secondPromise.then(
+            function (secondSentence) {
+              message = firstSentence + " " + secondSentence;
+              users = $scope.event.participants.map(function (e) {
+                return e.name
+              });
+              backendService.sendPushNotificationToUsers(message, users).then(
+                function (res) {
+                  console.log(res)
+                },
+                function (err) {
+                  console.log(err)
+                }
+              );
+            }
+          )
+        }
+      );
     };
     /*
     Function that returns the first begin time of all talks and the last end time of all talks.
