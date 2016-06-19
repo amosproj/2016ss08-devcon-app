@@ -27,8 +27,5 @@
     "cordova-plugin-file-transfer",
     "cordova-plugin-file",
     "cordova-plugin-email-composer"
-  ],
-  "cordovaPlatforms": [
-    "ios"
   ]
 }
