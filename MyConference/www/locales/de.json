@@ -97,5 +97,16 @@
   "Loading...": "Lädt...",
   "Show feedback results": "Feedback-Ergebnisse anzeigen",
   "Feedback results": "Ergebnisse Feedback",
-  "is deselected": "wird abgewählt"
+  "is deselected": "wird abgewählt",
+  "Remind about event": "An Event erinnern",
+  "Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.": "Senacor erinnert voll Vorfreude an '{{eventName}}' in {{daysTillEvent}} Tagen.",
+  "Senacor is happy to remind you that $eventName is coming.": "Senacor erinnert voll Vorfreude an '{{eventName}}'.",
+  "See you on $date at $time, $location!": "Bis dann am {{date}} um {{time}} in {{location}}!",
+  "See you on $date at $time!": "Bis dann am {{date}} um {{time}}!",
+  "See you on $date at $location!": "Bis dann am {{date}} in {{location}}!",
+  "See you on $date!": "Bis dann am {{date}}!",
+  "See you on at $time, $location!": "Bis dann um {{time}} in {{location}}!",
+  "See you at $time!": "Bis dann um {{time}}!",
+  "See you at $location!": "Bis dann in {{location}}!",
+  "See you!": "Bis dann!"
 }
