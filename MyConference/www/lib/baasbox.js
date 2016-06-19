@@ -533,6 +533,20 @@ var BaasBox = (function() {
       return $.get(BaasBox.endPoint + '/following/' + username);
     },
 
+    enableNotifications: function (os, pushToken) {
+      return $.ajax({
+        url: BaasBox.endPoint + '/push/enable/' + os + '/' + pushToken,
+        method: 'PUT'
+      });
+    },
+
+    disableNotifications: function (pushToken) {
+      return $.ajax({
+        url: BaasBox.endPoint + '/push/disable/' + pushToken,
+        method: 'PUT'
+      });
+    },
+
     sendPushNotification: function(params) {
       return $.ajax({
         url: BaasBox.endPoint + '/push/message',
