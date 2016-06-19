@@ -524,6 +524,23 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.sendPushNotification(params);
     };
 
+    /*
+     Function for enabling push notifications for the current user.
+     Returns a promise.
+     */
+    backend.enablePushNotificationsForCurrentUser = function () {
+      operatingSystem = "android";
+      return BaasBox.enableNotifications(operatingSystem, localStorage.getItem('registrationId'));
+    };
+
+    /*
+     Function for disabling push notifications for the current user.
+     Returns a promise.
+     */
+    backend.disablePushNotificationsForCurrentUser = function () {
+      return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
+    };
+
     return backend;
   }
 );
