@@ -582,21 +582,29 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.event = res['data']
     })
     $scope.updateEvent = function (ev) {
-      backendService.updateEvent($stateParams.eventId, "title", ev.title);
-      backendService.updateEvent($stateParams.eventId, "location", ev.location);
-      backendService.updateEvent($stateParams.eventId, "date", ev.date);
-      backendService.updateEvent($stateParams.eventId, "begin", ev.begin);
-      backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
-      $translate('Done!').then(
-        function (res) {
-          $ionicPopup.alert({
-            title: res,
-            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
+      backendService.updateEvent(ev).then(function (re) {
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        )
+      }, function (error) {
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{ 'Error is occurred, please try again later' | translate }}"
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        )
+      })
     }
   })
   /*
