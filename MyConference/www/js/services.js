@@ -236,15 +236,27 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Requires two parameters: attribute name to update and corresponding value for this attribute
      Returns a promise.
      */
-    backend.updateEvent = function (eventId, fieldToUpdate, value) {
-      return BaasBox.updateField(eventId, "events", fieldToUpdate, value)
+     backend.updateEvent = function (event, fieldToUpdate, value) {
+    if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
+      return BaasBox.save(event, "events")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    } else {
+      return BaasBox.updateField(event, "events", fieldToUpdate, value)
         .done(function (res) {
           console.log("Event updated ", res);
         })
         .fail(function (error) {
           console.log("Event update error ", error);
         })
-    };
+    }
+  };
     /*
      Function for updating an agenda
      */
