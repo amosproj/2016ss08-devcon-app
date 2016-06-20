@@ -909,6 +909,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             template: "{{'Are you sure you want to delete your account?' | translate}}"
           }).then(function (result) {
             if (result) {
+              backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   backendService.logout();
