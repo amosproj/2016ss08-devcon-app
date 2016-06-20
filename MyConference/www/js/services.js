@@ -65,7 +65,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (res) {
           console.log("signup ", res);
           backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
           backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
         })
         .fail(function (error) {
