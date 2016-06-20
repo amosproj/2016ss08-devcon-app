@@ -197,6 +197,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
+    $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       if (typeof backendService.currentUser !== 'undefined'
@@ -466,6 +467,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         return false;
       }
     };
+    /*
+     Function that determines if today is before the date of the event (so reminders are allowed).
+     */
+    isReminderAllowed = function () {
+      dateOfEvent = new Date($scope.event.date);
+      now = new Date();
+
+      if (now < dateOfEvent) {
+        return true;
+      } else {
+        return false;
+      }
+    };
 
     // function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
@@ -616,6 +630,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.agendaList = res;
       $scope.isFeedbackAllowed = isFeedbackAllowed();
       $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
+      $scope.isReminderAllowed = isReminderAllowed();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
