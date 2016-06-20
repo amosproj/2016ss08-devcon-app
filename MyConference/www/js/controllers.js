@@ -537,6 +537,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
+
+    $scope.showRoute = function () {
+      if(typeof $scope.event.location === 'undefined' || $scope.event.location === ""){
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Address is not defined yet, please try it later' | translate}}"
+            });
+          }
+        );
+      }else{
+        $scope.download('https://www.google.com/maps/place/'+$scope.event.location);
+      }
+    }
   })
 
   /*
