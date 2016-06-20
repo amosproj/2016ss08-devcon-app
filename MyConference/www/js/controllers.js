@@ -584,9 +584,44 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
       var id = $scope.event.id;
-
       $scope.updateEvent = function (ev) {
-        backendService.updateEvent(ev).then(function (re) {
+          backendService.getEventById($stateParams.eventId).then(function (res) {
+          if (ev.begin !== null) {
+            var timeText = ev.begin;
+            var hour = timeText.substr(0, 2);
+            var minus = timeText.substr(2);
+            var hourPlus = parseInt(hour);
+            var usedHour;
+            if(hourPlus == 0){
+              usedHour = 23;
+            }else{
+              usedHour = hourPlus - 1;
+            }
+            var savedTimeDate;
+            if(usedHour>= 0 && usedHour <= 9){
+              savedTimeDate = '1970-01-01T0' + usedHour + minus + ':00.000Z';
+            }else{
+              savedTimeDate = '1970-01-01T' + usedHour + minus + ':00.000Z';
+            }
+            backendService.updateEvent($stateParams.eventId, "begin", savedTimeDate);
+          } else {
+            backendService.updateEvent($stateParams.eventId, "begin", event.begin);
+          }
+        })
+        //
+        backendService.getEventById($stateParams.eventId).then(function (res) {
+          if (ev.date !== null) {
+            var dateText = ev.date;
+            var savedDate = dateText + 'T22:00:00.000Z';
+            backendService.updateEvent($stateParams.eventId, "date", savedDate);
+          } else {
+            backendService.updateEvent($stateParams.eventId, "date", event.date);
+          }
+        })
+        backendService.updateEvent($stateParams.eventId, "title", ev.title);
+        backendService.updateEvent($stateParams.eventId, "descr", ev.descr);
+        backendService.updateEvent($stateParams.eventId, "location", ev.location)
+          .then(function (re) {
           backendService.SetStatusTrue(id);
           console.log('user status {updated : true}');
           $translate('Done!').then(
@@ -628,7 +663,24 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
         if (ag.end !== null) {
-          backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
+          var timeText = ag.end;
+          var hour = timeText.substr(0, 2);
+          var minus = timeText.substr(2);
+          var hourPlus = parseInt(hour);
+          var usedHour;
+          if(hourPlus == 0){
+            usedHour = 23;
+          }else{
+            usedHour = hourPlus - 1;
+          }
+          var savedTimeDate;
+          if(usedHour>= 0 && usedHour <= 9){
+            savedTimeDate = '1970-01-01T0' + usedHour + minus + ':00.000Z';
+          }
+          else{
+            savedTimeDate = '1970-01-01T' + usedHour + minus + ':00.000Z';
+          }
+          backendService.updateAgenda($stateParams.agendaId, "end", savedTimeDate);
         } else {
           backendService.updateAgenda($stateParams.agendaId, "end", agenda.end);
         }
@@ -636,7 +688,24 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
         if (ag.begin !== null) {
-          backendService.updateAgenda($stateParams.agendaId, "begin", ag.begin);
+          var timeText = ag.begin;
+          var hour = timeText.substr(0, 2);
+          var minus = timeText.substr(2);
+          var hourPlus = parseInt(hour);
+          var usedHour;
+          if(hourPlus == 0){
+            usedHour = 23;
+          }else{
+            usedHour = hourPlus - 1;
+          }
+          var savedTimeDate;
+          if(usedHour>= 0 && usedHour <= 9){
+            savedTimeDate = '1970-01-01T0' + usedHour + minus + ':00.000Z';
+          }
+          else{
+            savedTimeDate = '1970-01-01T' + usedHour + minus + ':00.000Z';
+          }
+          backendService.updateAgenda($stateParams.agendaId, "begin", savedTimeDate);
         } else {
           backendService.updateAgenda($stateParams.agendaId, "begin", agenda.begin);
         }
