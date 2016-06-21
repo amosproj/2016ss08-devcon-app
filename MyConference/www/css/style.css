@@ -4,6 +4,15 @@
 .ionic_ratings .icon {
   font-size: 55px;
 }
+#map {
+  height: 100%;
+  width: 100%;
+}
+
+.scroll {
+  height: 100%;
+}
+
 
 .green{
   background-color: #b8f23c;
