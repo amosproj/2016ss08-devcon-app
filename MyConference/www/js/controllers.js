@@ -325,15 +325,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
      */
-    getBorderTimesOfTalks = function () {
-      firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
+    getBorderTimesOfEvent = function () {
+      firstBeginTime = new Date($scope.event.begin);
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
       for (agendaNr in $scope.agendaList) {
-        beginTime = new Date($scope.agendaList[agendaNr].begin);
         endTime = new Date($scope.agendaList[agendaNr].end);
-        if (beginTime < firstBeginTime) {
-          firstBeginTime = beginTime;
-        }
         if (endTime > lastEndTime) {
           lastEndTime = endTime;
         }
@@ -346,7 +342,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
-      borderTimes = getBorderTimesOfTalks();
+      borderTimes = getBorderTimesOfEvent();
+      console.log(borderTimes);
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
@@ -368,7 +365,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if ($scope.agendaList.length == 0) {
         return true;
       }
-      borderTimes = getBorderTimesOfTalks();
+      borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = $scope.event.date.split("-");
