@@ -414,10 +414,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                       users = users.filter(function (user) {
                         return user != null;
                       });
-                      console.log(users)
                       backendService.sendPushNotificationToUsers(message, users).then(
                         function (res) {
-                          console.log(res)
+                          $translate("Done!").then(
+                            function (res) {
+                              $ionicPopup.alert({
+                                title: res,
+                                template: "{{'The push notification was sent successfully.' | translate}}"
+                              });
+                            }
+                          );
                         },
                         function (err) {
                           console.log(err)
