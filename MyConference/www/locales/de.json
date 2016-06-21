@@ -108,11 +108,6 @@
   "Show feedback results": "Feedback-Ergebnisse anzeigen",
   "Feedback results": "Ergebnisse Feedback",
   "is deselected": "wird abgewählt",
-  "Error is occurred, please try again later": "Fehler aufgetreten, versuchen Sie es später noch einmal",
-  "Latitude": "Breitengrad",
-  "Longitude": "Längengrad",
-  "Latitude should have format XX.XXXXX (For example, 49.45512)": "Breitengrad soll XX.XXXXX Format haben (z.B. 49,45512)",
-  "Longitude should have format XX.XXXXX (For example, 11.09272)": "Längengrad soll XX.XXXXX Format haben (z.B. 11.09272)",
   "How to come to the event": "Weg - beschreibung zum Event",
   "Address is not defined yet, please try it later": "Adresse ist nicht definiert, später erneut versuchen",
   "No events": "Keine Events"
