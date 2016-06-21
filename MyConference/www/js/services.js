@@ -528,6 +528,17 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
     };
 
+    /*
+     Function for applying the given settings to the user
+     */
+    backend.applySettings = function (settings) {
+      if(settings.pushNotificationEnabled){
+        backend.enablePushNotificationsForCurrentUser();
+      } else {
+        backend.disablePushNotificationsForCurrentUser();
+      }
+    }
+
       return backend;
     }
 );
