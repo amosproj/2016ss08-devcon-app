@@ -532,6 +532,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for applying the given settings to the user
      */
     backend.applySettings = function (settings) {
+      if (settings !== undefined) {
+        if (settings.pushNotificationEnable) {
           backend.enablePushNotificationsForCurrentUser();
         } else {
           backend.disablePushNotificationsForCurrentUser();
@@ -539,13 +541,15 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       }
     }
 
-      return backend;
     /*
      Function for applying the settings for the current user
      */
     backend.applySettingsForCurrentUser = function () {
       userInfo = backend.currentUser.visibleByTheUser;
       backend.applySettings(userInfo.settings);
-    }
+    };
+
+    return backend;
+  }
 
 );
