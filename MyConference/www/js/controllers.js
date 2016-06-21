@@ -511,16 +511,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
+      console.log(now);
+      console.log(beginDate);
+      console.log(endDatePlus48h);
       if (now >= beginDate && now <= endDatePlus48h) {
-        backendService.isUserAttendedForEvent().then(
+        backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
-            return res;
+            console.log("res "+res);
+            $scope.isFeedbackAllowed = res;
           }, function (err) {
-            return false;
+            console.log("err "+err)
+            $scope.isFeedbackAllowed = false
           }
         )
       } else {
-        return false;
+        $scope.isFeedbackAllowed = false;
       }
     }
     /*
@@ -537,11 +542,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-
       if (now >= endDate) {
-        return true;
+        $scope.areFeedbackResultsVisible = true;
       } else {
-        return false;
+        $scope.areFeedbackResultsVisible = false;
       }
     };
 

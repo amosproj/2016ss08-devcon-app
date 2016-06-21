@@ -554,7 +554,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       Abstract function for checking if an user has a given status as participant of an event.
       Returns a promise.
      */
-    backend.hasUserRightStatusInEvent = function (user, eventId, expectedStatus) {
+    hasUserRightStatusInEvent = function (user, eventId, expectedStatus) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
