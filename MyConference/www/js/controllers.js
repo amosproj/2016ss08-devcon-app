@@ -1105,6 +1105,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.addingQuestion(que, $stateParams.eventId);
       $scope.questions.push(que);
       $scope.add = false;
+      $scope.que = {question: ""};
       $translate('Done!').then(
         function (res2) {
           var alertPopup = $ionicPopup.alert({
