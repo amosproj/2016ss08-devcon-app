@@ -402,11 +402,52 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       feedbackEntry = {rating: rating, comment: comment};
       return addFeedbackToItem(talkId, "agenda", feedbackEntry);
     };
+    /*
+ +   Function for changing the status of the user in the participant list of the event set (status = not attended).
+ +   Checks if user is already participant for avoiding double entries.
+ +   Returns a promise.
+ +   */
+ +  backend.userStatusNotAttend = function (user, eventId) {
+ +    var deferred = $q.defer();
+ +    backend.getEventById(eventId).then(function (res) {
+ +      event = res['data'];
+ +      searchResult = $filter('filter')(event.participants, {"name": user.username});
+ +      if (searchResult.length == 0) {
+ +        // user never registered, insert into list
+ +        participant = {};
+ +        participant.name = user.username;
+ +        participant.status = "not attended";
+ +        event.participants.push(participant);
+ +      } else {
+ +        //user already in participants list, so just change status
+ +        searchResult[0].status = "not attended";
+ +      }
+ +
+ +      BaasBox.updateField(eventId, "events", "participants", event.participants).then(
+ +        function (res) {
+ +          deferred.resolve(res);
+ +        }, function (err) {
+ +          deferred.reject(err)
+ +        }
+ +      )
+ +    }, function (err) {
+ +      deferred.reject(err)
+ +    });
+ +    return deferred.promise;
+ +  };
+ +  /*
+ +   Function for changing the status of the current user in the participants list of the event.
+ +   Calls userStatusNotAttend().
+ +   Returns a promise.
+ +   */
+ +  backend.changeUserStatusToNot = function (eventId) {
+ +    return backend.userStatusNotAttend(BaasBox.getCurrentUser(), eventId)
+ +  };
 
   /*
-   Function for adding a user to an event.
-   Checks if user is already participant for avoiding double entries.
-   Returns a promise.
+   Function for changing the status of the user in the participant list of the event set (status = attended).
+ +   Checks if user is already participant for avoiding double entries.
+ +   Returns a promise.
    */
   backend.userStatusAttend = function (user, eventId) {
     var deferred = $q.defer();
@@ -437,9 +478,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     return deferred.promise;
   };
   /*
-   Function for adding the current user to an event.
-   Calls addUserToEvent().
-   Returns a promise.
+   Function for changing the status of the current user in the participants list of the event.
+ +   Calls userStatusAttend().
+ +   Returns a promise.
    */
   backend.changeUserStatus = function (eventId) {
     return backend.userStatusAttend(BaasBox.getCurrentUser(), eventId)
