@@ -224,7 +224,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                         });
 
                     } else {
-                      backendService.changeUserStatus(id);
                       console.log('--->Else : false');
                       $translate('Not Attended!').then(
                         function (res1) {
