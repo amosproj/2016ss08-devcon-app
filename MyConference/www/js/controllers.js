@@ -179,6 +179,36 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     }
 
 
+                    function toRadians(num) {
+                      return num * Math.PI / 180;
+                    }
+
+
+                    function calcTheDistance(lati1, long1) {
+                      var r = 6371000; //metres
+                      var eventLat = evlat;
+                      var eventLon = evlong;
+                      var la1 = lati1;
+                      var la2 = eventLat;
+                      var lat1 = toRadians(lati1);
+                      var lat2 = toRadians(eventLat);
+                      var lo1 = long1;
+                      var lo2 = eventLon;
+                      var la2minla1 = toRadians(la2 - la1);
+                      var lo2minlo1 = toRadians(lo2 - lo1);
+
+                      var cal = Math.sin(la2minla1 / 2) * Math.sin(la2minla1 / 2) +
+                        Math.cos(lat1) * Math.cos(lat2) *
+                        Math.sin(lo2minlo1 / 2) * Math.sin(lo2minlo1 / 2);
+                      var c = 2 * Math.atan2(Math.sqrt(cal), Math.sqrt(1 - cal));
+
+                      var d = r * c;
+
+                      return Math.round(d);
+
+                    }
+
+                    var x = calcTheDistance(lat, long);
                     var y = 300;
                     var id = event.id;
                     if (x < y) {
@@ -241,6 +271,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     )
   })
+
 
 
   /*
