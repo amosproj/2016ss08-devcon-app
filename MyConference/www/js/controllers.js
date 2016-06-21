@@ -154,8 +154,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     var myLatlng = new google.maps.LatLng(lat, long);
 
 
-
-
                     var mapOptions = {
                       center: myLatlng,
                       zoom: 16,
@@ -225,7 +223,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
                     } else {
                       console.log('---Participant not attended');
-                      backendService.changeUserStatusToNot(id);
                       $translate('Not Attended!').then(
                         function (res1) {
                           $ionicPopup.alert({
@@ -240,7 +237,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     console.log('****distance****', x);
                     $scope.map = map;
                     $ionicLoading.hide();
-                  }, function(error){
+                  }, function (error) {
 
                     console.log("Could not get location");
                     $translate('Enable GPS').then(
@@ -701,7 +698,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
 
     $scope.showRoute = function () {
-      if(typeof $scope.event.location === 'undefined' || $scope.event.location === ""){
+      if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
         $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
@@ -710,8 +707,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             });
           }
         );
-      }else{
-        $scope.download('https://www.google.com/maps/place/'+$scope.event.location);
+      } else {
+        $scope.download('https://www.google.com/maps/place/' + $scope.event.location);
       }
     }
   })
