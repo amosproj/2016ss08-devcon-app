@@ -1,6 +1,16 @@
 {
   "UPCOMING": "KOMMENDE",
   "updated": "Bearbeitet",
+  "Great! you have attended this Event. Your position is": "Großartig!, Sie haben diese Veranstaltung besucht. Ihre Position ist",
+  "meter far from the Event": "Meter weit von der Veranstaltung",
+  "Oops! You have not attended this Event. Your position is":"Hoppla! Sie haben nicht diese Veranstaltung besucht. Ihre Position ist",
+  "Enable GPS" : "GPS aktivieren",
+  "please make sure that your GPS is activated and try again later": "Bitte stellen Sie sicher, dass Ihr GPS aktiviert ist, und versuchen Sie es später noch einmal",
+  "Permission to use GPS": "GPS verwenden",
+  "please make sure that your GPS is activated": "Bitte stellen Sie sicher, dass Ihr GPS aktiviert ist.",
+  "Attended!": "Besucht",
+  "I'm Here": "Ich bin hier",
+  "Not Attended!": "nicht besucht",
   "PREVIOUS": "VERGANGENE",
   "TODAY": "HEUTE",
   "Overview": "Übersicht",
@@ -103,4 +113,7 @@
   "Longitude": "Längengrad",
   "Latitude should have format XX.XXXXX (For example, 49.45512)": "Breitengrad soll XX.XXXXX Format haben (z.B. 49,45512)",
   "Longitude should have format XX.XXXXX (For example, 11.09272)": "Längengrad soll XX.XXXXX Format haben (z.B. 11.09272)"
+  "How to come to the event": "Weg - beschreibung zum Event",
+  "Address is not defined yet, please try it later": "Adresse ist nicht definiert, später erneut versuchen",
+  "No events": "Keine Events"
 }

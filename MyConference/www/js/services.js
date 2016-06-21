@@ -152,6 +152,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       creator = {};
       creator.name = BaasBox.getCurrentUser().username;
       creator.status = "joined";
+      creator.updated = "false";
       ev.participants.push(creator);
       console.log(creator);
       console.log(ev.participants);
@@ -215,10 +216,10 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         event = res['data'];
         question = {};
         question = que;
-        if(event.questions.length == 0){
+        if (event.questions.length == 0) {
           questionId = 0;
         }
-        else{
+        else {
           questionId = event.questions[event.questions.length - 1].id + 1;
         }
         question.id = questionId;
@@ -357,10 +358,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           participant = {};
           participant.name = user.username;
           participant.status = "joined";
+          participant.updated = "false";
           event.participants.push(participant);
         } else {
           //user already in participants list, so just change status
           searchResult[0].status = "joined";
+          searchResult[0].updated = "false";
         }
 
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
@@ -401,6 +404,50 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       feedbackEntry = {rating: rating, comment: comment};
       return addFeedbackToItem(talkId, "agenda", feedbackEntry);
     };
+
+
+    /*
+     Function for changing the status of the user in the participant list of the event set (status = attended).
+     Checks if user is already participant for avoiding double entries.
+     Returns a promise.
+     */
+    backend.userStatusAttend = function (user, eventId) {
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        if (searchResult.length == 0) {
+          // user never registered, insert into list
+          participant = {};
+          participant.name = user.username;
+          participant.status = "attended";
+          event.participants.push(participant);
+        } else {
+          //user already in participants list, so just change status
+          searchResult[0].status = "attended";
+        }
+
+        BaasBox.updateField(eventId, "events", "participants", event.participants).then(
+          function (res) {
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err)
+          }
+        )
+      }, function (err) {
+        deferred.reject(err)
+      });
+      return deferred.promise;
+    };
+    /*
+     Function for changing the status of the current user in the participants list of the event.
+     +   Calls userStatusAttend().
+     +   Returns a promise.
+     */
+    backend.changeUserStatus = function (eventId) {
+      return backend.userStatusAttend(BaasBox.getCurrentUser(), eventId)
+    };
+
 
     /*
      Function for adding rating to an event.
@@ -516,6 +563,83 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
+    /*
+     Function for updating the participants who are joined the Event.
+     updating the attribute "updated" = "false"
+     Returns a promise.
+     */
+    backend.updatedIsFalse = function (user, eventId) {
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        searchResult = $filter('filter')(event.participants, {"name": user.username});
+        if (searchResult.length == 0) {
+          // user never registered, insert into list
+          console.log('something is wrong')
+        } else {
+          //user already in participants list, so just change status
+          searchResult[0].updated = "false";
+        }
+        BaasBox.updateField(eventId, "events", "participants", event.participants).then(
+          function (res) {
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err)
+          }
+        )
+      }, function (err) {
+        deferred.reject(err)
+      });
+      return deferred.promise;
+    };
+
+    /*
+     Function for updating  the current user attribute "updated".
+     Calls updatedIsFalse().
+     Returns a promise.
+     */
+
+    backend.SetStatusFalse = function (eventId) {
+      return backend.updatedIsFalse(BaasBox.getCurrentUser(), eventId)
+    };
+    backend.updatedIsTrue = function (user, eventId) {
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(function (res) {
+        event = res['data'];
+        searchResult = $filter('filter')(event.participants, {});
+        var l = searchResult.length;
+        if (searchResult.length == 0) {
+          // user never registered, insert into list
+          console.log('No Participants in this Event')
+        } else {
+          //user already in participants list, so just change status
+          for (var i = 0; i < l; i++) {
+            searchResult[i].updated = "true";
+          }
+        }
+
+        BaasBox.updateField(eventId, "events", "participants", event.participants).then(
+          function (res) {
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err)
+          }
+        )
+      }, function (err) {
+        deferred.reject(err)
+      });
+      return deferred.promise;
+    };
+    /*
+     Function for updating  the current user attribute "updated".
+     Calls updatedIsTrue().
+     Returns a promise.
+     */
+
+    backend.SetStatusTrue = function (eventId) {
+      return backend.updatedIsTrue(BaasBox.getCurrentUser(), eventId)
+    };
+
 
     /*
      Function for getting a speaker talk by agendId
@@ -525,6 +649,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("agenda", id)
     };
 
-      return backend;
-    }
+    return backend;
+  }
 );

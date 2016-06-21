@@ -29,16 +29,19 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   <ion-content>
     <ion-list>
       <ion-item class="item item-divider icon ion-chevron-right" ng-show="events" translate>TODAY</ion-item>
-      <ion-item ng-repeat="ev in events | filter: todaysEvents"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
+      <ion-item ng-repeat="ev in todays = (events | filter: todaysEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
       </ion-item>
+      <ion-item ng-show="!todays.length">{{ 'No events' | translate}}</ion-item>
 
       <ion-item class="item item-divider icon ion-chevron-right" translate>UPCOMING</ion-item>
-      <ion-item ng-repeat="ev in events | filter: previousEvents"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
+      <ion-item ng-repeat="ev in prev = (events | filter: previousEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
       </ion-item>
+      <ion-item ng-show="!prev.length">{{ 'No events' | translate}}</ion-item>
 
       <ion-item class="item item-divider icon ion-chevron-right" translate>PREVIOUS</ion-item>
-      <ion-item ng-repeat="ev in events | filter: nextEvents"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
+      <ion-item ng-repeat="ev in next = (events | filter: nextEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{ev.title}} {{(ev.date | date:'dd/MM/yy')}}</a>
       </ion-item>
+      <ion-item ng-show="!next.length">{{ 'No events' | translate}}</ion-item>
 
 
     </ion-list></ion-content>

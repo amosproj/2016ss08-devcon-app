@@ -14,19 +14,16 @@ You should find a copy of the GNU Affero General Public License in the
 root directory along with this program.
 If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
-
-<ion-view>
-  <ion-nav-title>{{user.username}}</ion-nav-title>
-  <ion-nav-buttons side="right">
-    <button ng-click="goToEdit()" class="button icon ion-edit" menu-toggle="right"></button>
-  </ion-nav-buttons>
+<ion-view view-title="My Position">
   <ion-content>
-    <ion-list>
-      <ion-item><i>{{'Name' | translate }}:</i> {{user.name}}</ion-item>
-      <ion-item><i>{{'Given name' | translate }}:</i> {{user.gName}}</ion-item>
-      <ion-item><i>{{'Email' | translate }}:</i> {{user.email}}</ion-item>
-      <buton ng-click="deleteAccount(user)" class="button button-block button-assertive" translate>Delete account</buton>
-    </ion-list>
-  </ion-content>
+    <form ng-app="starter.controllers">
+    <ion-pane>
+      <ion-content>
+        <div id="map" data-tap-disabled="true"></div>
+      </ion-content>
+    </ion-pane>
 
+      <script src="https://maps.googleapis.com/maps/api/js?sensor=true"></script>
+    </form>
+  </ion-content>
 </ion-view>
