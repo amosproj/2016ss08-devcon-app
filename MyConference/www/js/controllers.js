@@ -766,7 +766,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          backendService.applySettingsForCurrentUser()
+          backendService.applySettingsForCurrentUser();
           $translate('Done!').then(
             function (result) {
               $ionicPopup.alert({
