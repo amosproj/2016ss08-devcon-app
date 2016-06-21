@@ -403,17 +403,60 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return addFeedbackToItem(talkId, "agenda", feedbackEntry);
     };
 
-    /*
-     Function for adding rating to an event.
-     Excepts rating array of arbitrary length of the form:
-     [
-     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
-     { title: "CategoryName", rating: "ratingValue", comment: "comment" },
-     (...)
-     ]
-     Calls the abstract function addFeedbackToItem.
-     Returns a promise.
-     */
+  /*
+   Function for adding a user to an event.
+   Checks if user is already participant for avoiding double entries.
+   Returns a promise.
+   */
+  backend.userStatusAttend = function (user, eventId) {
+    var deferred = $q.defer();
+    backend.getEventById(eventId).then(function (res) {
+      event = res['data'];
+      searchResult = $filter('filter')(event.participants, {"name": user.username});
+      if (searchResult.length == 0) {
+        // user never registered, insert into list
+        participant = {};
+        participant.name = user.username;
+        participant.status = "attended";
+        event.participants.push(participant);
+      } else {
+        //user already in participants list, so just change status
+        searchResult[0].status = "attended";
+      }
+
+      BaasBox.updateField(eventId, "events", "participants", event.participants).then(
+        function (res) {
+          deferred.resolve(res);
+        }, function (err) {
+          deferred.reject(err)
+        }
+      )
+    }, function (err) {
+      deferred.reject(err)
+    });
+    return deferred.promise;
+  };
+  /*
+   Function for adding the current user to an event.
+   Calls addUserToEvent().
+   Returns a promise.
+   */
+  backend.changeUserStatus = function (eventId) {
+    return backend.userStatusAttend(BaasBox.getCurrentUser(), eventId)
+  };
+
+
+  /*
+   Function for adding rating to an event.
+   Excepts rating array of arbitrary length of the form:
+   [
+   { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+   { title: "CategoryName", rating: "ratingValue", comment: "comment" },
+   (...)
+   ]
+   Calls the abstract function addFeedbackToItem.
+   Returns a promise.
+   */
     backend.addFeedbackToEvent = function (eventId, ratingArray) {
       return addFeedbackToItem(eventId, "events", ratingArray);
     };
