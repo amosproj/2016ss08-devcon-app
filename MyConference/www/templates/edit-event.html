@@ -18,9 +18,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-content>
-
     <form name="eventForm" ng-submit="updateEvent(event)">
-
       <label class="item item-input">
         <span class="input-label fixed">{{ 'Title' | translate }}</span>
         <input type="text" ng-model="event.title"  required>
@@ -45,10 +43,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         <textarea rows="5" placeholder="{{event.descr}}" ng-model="event.descr"></textarea>
       </label>
       <button type="submit" class="button button-block button-positive">{{ 'Submit' | translate }}</button>
-
     </form>
-
-
-
   </ion-content>
 </ion-view>
