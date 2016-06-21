@@ -849,6 +849,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             title: res,
             template: "{{'Welcome' | translate}}" + ', ' + user.name
           }).then(function (res) {
+            backendService.enablePushNotificationsForCurrentUser();
             $state.go('app.main')
           });
         }
