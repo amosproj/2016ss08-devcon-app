@@ -353,7 +353,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
-        return true;
+        backendService.isUserAttendedForEvent().then(
+          function (res) {
+            return res;
+          }, function (err) {
+            return false;
+          }
+        )
       } else {
         return false;
       }
