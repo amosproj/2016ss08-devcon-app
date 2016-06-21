@@ -224,7 +224,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                         });
 
                     } else {
-                      console.log('--->Else : false');
+                      console.log('---Participant not attended');
+                      backendService.changeUserStatusToNot(id);
                       $translate('Not Attended!').then(
                         function (res1) {
                           $ionicPopup.alert({
