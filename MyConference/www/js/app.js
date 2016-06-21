@@ -160,6 +160,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         }
       })
       .state('app.edit-event', {
+        cache: false,
         url: '/edit-event/:eventId',
         views: {
           'menuContent': {
@@ -229,6 +230,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           'menuContent': {
             templateUrl: 'templates/edit-account.html',
             controller: 'EditAccountCtrl'
+          }
+        }
+      })
+      .state('app.my-position', {
+        cache: false,
+        url: '/my-position/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/my-position.html',
+            controller: 'MapCtrl'
           }
         }
       })
