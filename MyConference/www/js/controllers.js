@@ -1166,8 +1166,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     userInfo = backendService.currentUser.visibleByTheUser;
     $scope.settings = userInfo.settings;
 
-    $scope.updateSettings = function () {
-      userInfo.settings = $scope.settings;
+    $scope.updateSettings = function (settings) {
+      userInfo.settings = settings;
       backendService.updateUserProfile({"visibleByTheUser": userInfo}).then(function (res) {
         backendService.applySettings(userInfo.settings);
         $translate("Done!").then(
