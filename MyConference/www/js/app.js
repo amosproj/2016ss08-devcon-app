@@ -197,6 +197,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
+      .state('app.my-position', {
+        cache: false,
+        url: '/my-position/:eventId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/my-position.html',
+            controller: 'MapCtrl'
+          }
+        }
+      })
       .state('app.transition', {
         cache: false,
         url: '/transition/:to/',
