@@ -65,6 +65,9 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         </div>
       </form>
       <!-- button to show add new agenda -->
+      <div class="item item-button-right">
+        <a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced " >{{ "I'm Here" | translate}}</a><br>
+      </div>
       <button class="button button-block button-positive" ng-show="!addingAgendaForm && isLoggedIn"
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}</button>
       <button class="button button-block button-positive" ng-show="addingAgendaForm"
