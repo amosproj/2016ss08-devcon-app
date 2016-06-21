@@ -328,6 +328,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    and redirects to main view
    */
   .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
+    $scope.coordinates = false;
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
       $translate('Done!').then(
@@ -755,10 +756,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    */
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
+    $scope.coordinates = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
       var id = $scope.event.id;
-
       $scope.updateEvent = function (ev) {
         backendService.updateEvent(ev).then(function (re) {
           backendService.SetStatusTrue(id);
