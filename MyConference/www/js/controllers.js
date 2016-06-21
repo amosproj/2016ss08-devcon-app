@@ -343,7 +343,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       firstPromise = $translate("an event");
       firstPromise.then(
         function (anEventTranslation) {
-
           if ($scope.event.date) {
             daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
             secondPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
@@ -404,17 +403,27 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               thirdPromise.then(
                 function (secondSentence) {
                   message = firstSentence + " " + secondSentence;
-                  users = $scope.event.participants.map(function (e) {
-                    return e.name
-                  });
-                  backendService.sendPushNotificationToUsers(message, users).then(
+                  backendService.getEventById($stateParams.eventId).then(
                     function (res) {
-                      console.log(res)
-                    },
-                    function (err) {
-                      console.log(err)
-                    }
-                  );
+                      $scope.event = res['data'];
+                      users = $scope.event.participants.map(function (participant) {
+                        if (participant.status == "joined") {
+                          return participant.name;
+                        }
+                      });
+                      users = users.filter(function (user) {
+                        return user != null;
+                      });
+                      console.log(users)
+                      backendService.sendPushNotificationToUsers(message, users).then(
+                        function (res) {
+                          console.log(res)
+                        },
+                        function (err) {
+                          console.log(err)
+                        }
+                      );
+                    });
                 }
               )
             }
