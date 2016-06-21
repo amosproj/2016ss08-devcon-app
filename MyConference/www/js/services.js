@@ -674,6 +674,17 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("agenda", id)
     };
 
+    /*
+     Function for applying the given settings to the user
+     */
+    backend.applySettings = function (settings) {
+      if(settings.pushNotificationEnabled){
+        backend.enablePushNotificationsForCurrentUser();
+      } else {
+        backend.disablePushNotificationsForCurrentUser();
+      }
+    }
+
     return backend;
   }
 );
