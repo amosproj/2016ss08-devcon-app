@@ -1163,19 +1163,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
   .controller('SettingsCtrl', function ($scope, backendService, $state, $ionicPopup, $translate) {
     userInfo = backendService.currentUser.visibleByTheUser;
-    if(typeof userInfo.settings === 'undefined') userInfo.settings = {"pushNotification": "yes"};
-    $scope.yesSelected = userInfo.settings.pushNotification === "yes" ? true : false;
-    $scope.updateSettings = function (settings) {
-      userInfo.settings = settings;
+    $scope.settings = userInfo.settings;
+
+    $scope.updateSettings = function () {
+      userInfo.settings = $scope.settings;
       backendService.updateUserProfile({"visibleByTheUser": userInfo}).then(function (res) {
         $translate("Done!").then(
           function (de) {
             $ionicPopup.alert({
               title: de,
               template: "{{'Settings are updated' | translate}}"
-            }).then(function (re) {
-              $state.go('app.main');
-            });
+            })
           }
         );
       })
