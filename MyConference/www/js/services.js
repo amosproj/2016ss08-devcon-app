@@ -541,6 +541,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
     };
 
+    /*
+    TODO in Sprint 11
+     */
+    backend.isCurrentUserOrganizer = function(){
+      return true;
+    }
+
     return backend;
   }
 );

@@ -468,14 +468,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     };
     /*
-     Function that determines if today is before the date of the event (so reminders are allowed).
+     Function that determines if user is admin or author of the event and
+     today is before the date of the event (so reminders are allowed).
      */
     isReminderAllowed = function () {
       dateOfEvent = new Date($scope.event.date);
       now = new Date();
 
-      if (now < dateOfEvent) {
-        return true;
+      if (backendService.isCurrentUserOrganizer()) {
+        return now < dateOfEvent;
       } else {
         return false;
       }
