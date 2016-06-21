@@ -216,6 +216,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           console.log("Error by getting file details")
         })
       }
+      /*
+       hide - show form after click on adding agenda 
+       */
+      $scope.addingAgendaForm = false;
+      $scope.showAddingAgenda = function () {
+        $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+      };
+      //retrieve agenda by condition
+      backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
+        $scope.agendaList = res;
+        $scope.isFeedbackAllowed = isFeedbackAllowed();
+        $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
+        $scope.isReminderAllowed = isReminderAllowed();
+      }, function (error) {
+        console.log("Error by retrieving the event", error)
+      })
     }, function (error) {
       console.log("Error by retrieving the event", error)
     });
@@ -619,22 +635,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         }
       );
     };
-    /*
-     hide - show form after click on adding agenda 
-     */
-    $scope.addingAgendaForm = false;
-    $scope.showAddingAgenda = function () {
-      $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
-    };
-    //retrieve agenda by condition
-    backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
-      $scope.agendaList = res;
-      $scope.isFeedbackAllowed = isFeedbackAllowed();
-      $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
-      $scope.isReminderAllowed = isReminderAllowed();
-    }, function (error) {
-      console.log("Error by retrieving the event", error)
-    })
   })
 
   /*
