@@ -109,5 +109,6 @@
   "See you on at $time, $location!": "Bis dann um {{time}} in {{location}}!",
   "See you at $time!": "Bis dann um {{time}}!",
   "See you at $location!": "Bis dann in {{location}}!",
-  "See you!": "Bis dann!"
+  "See you!": "Bis dann!",
+  "The push notification was sent successfully.": "Push-Benachrichtigung erfolgreich versandt."
 }
