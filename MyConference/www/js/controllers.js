@@ -1183,17 +1183,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.addingQuestion = function (que) {
       backendService.addingQuestion(que, $stateParams.eventId);
+      $scope.questions.push(que);
+      $scope.add = false;
+      $scope.que = {question: ""};
       $translate('Done!').then(
         function (res2) {
           var alertPopup = $ionicPopup.alert({
             title: res2,
             template: "{{'New Question is added' | translate}}"
-          });
-          alertPopup.then(function (res) {
-            $state.go('app.transition', {
-              to: 'app.choose-question',
-              data: {eventId: $stateParams.eventId}
-            })
           });
         }
       );
