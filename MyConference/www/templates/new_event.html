@@ -14,31 +14,40 @@ You should find a copy of the GNU Affero General Public License in the
 root directory along with this program.
 If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
-<ion-view view-title="{{ 'Create event' | translate }}">
+
+<ion-view>
+  <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-content>
-      <form name="eventForm" ng-submit="createEvent(ev)">
-        <label class="item item-input">
-          <input type="text" placeholder="{{ 'Title' | translate }}" ng-model="ev.title" required>
-          </label>
-        <label class="item item-input">
-          <input type="text" ng-model="ev.location" placeholder="{{ 'Location' | translate }}">
-        </label>
-        <button class="button button-block button-positive" ng-show="!coordinates" ng-click="coordinates = !coordinates">Enter coordinates</button>
-        <label ng-if="coordinates" class="item item-input">
-          <input type="number" name="lat" min="-90" step="0.00001" max="90" ng-pattern="/-?\d{1,2}\.\d{5}/" ng-model="ev.coordinates.lat" placeholder="{{ 'Latitude' | translate }}" required>
-              <input type="number" name="long" min="-180" step="0.00001" max="180" ng-pattern="/-?\d{1,3}\.\d{5}/" ng-model="ev.coordinates.long" placeholder="{{ 'Longitude' | translate }}" required>
-        </label>
+    <form name="eventForm" ng-submit="updateEvent(event)">
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Title' | translate }}</span>
+        <input type="text" ng-model="event.title"  required>
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Location' | translate }}</span>
+        <input type="text" ng-model="event.location" placeholder="{{event.location}}">
+      </label>
+      <a class="button button-block button-positive" ng-show="!coordinates" ng-click="coordinates = !coordinates">Edit coordinates</a>
+      <label ng-if="coordinates" class="item item-input">
+        <input type="number" name="lat" min="-90" step="0.00001" max="90" ng-pattern="/-?\d{1,2}\.\d{5}/" ng-model="event.coordinates.lat" placeholder="{{ 'Latitude' | translate }}" required>
+        <input type="number" name="long" min="-180" step="0.00001" max="180" ng-pattern="/-?\d{1,3}\.\d{5}/" ng-model="event.coordinates.long" placeholder="{{ 'Longitude' | translate }}" required>
+      </label>
         <span class="error" ng-show="eventForm.lat.$error.pattern">
         {{ 'Latitude should have format XX.XXXXX (For example, 49.45512)' | translate}}</span>
           <span class="error" ng-show="eventForm.long.$error.pattern">
         {{ 'Longitude should have format XX.XXXXX (For example, 11.09272)' | translate}}</span>
-        <label class="item item-input">{{ 'Date' | translate }}:
-          <input type="date" ng-model="ev.date">
-        </label>
-        <label class="item item-input">
-          <textarea rows="5" placeholder="{{ 'Short description' | translate }}" ng-model="ev.descr"></textarea>
-        </label>
-        <button type="submit" class="button button-block button-positive" translate>Create event</button>
-      </form>
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Date' | translate }}:</span>
+        <input type="date" ng-model="event.date" value="{{(event.date | date: 'yyyy-MM-dd')}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Begin' | translate }}:</span>
+        <input type="time" ng-model="event.begin" value="{{event.begin | date: 'HH:mm'}}">
+      </label>
+      <label class="item item-input">
+        <textarea rows="5" placeholder="{{event.descr}}" ng-model="event.descr"></textarea>
+      </label>
+      <button type="submit" class="button button-block button-positive">{{ 'Submit' | translate }}</button>
+    </form>
   </ion-content>
 </ion-view>
