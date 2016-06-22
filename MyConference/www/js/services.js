@@ -95,6 +95,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
     backend.logout = function () {
+      disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
           backend.loginStatus = false;
@@ -679,7 +680,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
     backend.applySettings = function (settings) {
       if (settings !== undefined) {
-        if (settings.pushNotificationEnable) {
+        console.log(settings)
+        if (settings.pushNotificationEnabled) {
           backend.enablePushNotificationsForCurrentUser();
         } else {
           backend.disablePushNotificationsForCurrentUser();
