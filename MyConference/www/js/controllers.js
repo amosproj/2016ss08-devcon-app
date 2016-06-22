@@ -113,6 +113,165 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
+   Controller for getting Map view with current position
+   and the difference between current position and event position using coordinates
+   */
+
+  .controller('MapCtrl', function ($scope, $state, $stateParams, $timeout, backendService, $cordovaGeolocation,
+                                   $translate, $ionicLoading, $ionicPlatform, $ionicPopup) {
+
+    backendService.getEventById($stateParams.eventId).then(function (res) {
+        $scope.event = res['data'];
+        var event = $scope.event;
+        var cord = event.coordinates;
+        var evlat = cord.lat;
+        var evlong = cord.long;
+
+
+        $ionicPlatform.ready(function () {
+
+          var posOptions = {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+          };
+          $translate('Permission to use GPS').then(
+            function (res) {
+              var confirmPopup = $ionicPopup.confirm({
+                title: res,
+                template: "{{'please make sure that your GPS is activated' | translate }}"
+              });
+              confirmPopup.then(function (res) {
+                if (res) {
+                  $ionicLoading.show({
+                    template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
+                  });
+                  $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
+                    var lat = position.coords.latitude;
+                    var long = position.coords.longitude;
+                    var dst = 'Distance: ' + calcTheDistance(lat, long) + ' Metres';
+
+                    var myLatlng = new google.maps.LatLng(lat, long);
+
+
+                    var mapOptions = {
+                      center: myLatlng,
+                      zoom: 16,
+                      mapTypeId: google.maps.MapTypeId.ROADMAP
+                    };
+
+                    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+                    var marker = new google.maps.Marker({
+                      map: map, position: myLatlng,
+                      draggable: true,
+                      animation: google.maps.Animation.DROP
+                    });
+                    marker.addListener('click', toggleBounce);
+
+                    function toggleBounce() {
+                      if (marker.getAnimation() !== null) {
+                        marker.setAnimation(null);
+                      } else {
+                        marker.setAnimation(google.maps.Animation.BOUNCE);
+                      }
+                    }
+
+
+                    function toRadians(num) {
+                      return num * Math.PI / 180;
+                    }
+
+
+                    function calcTheDistance(lati1, long1) {
+                      var r = 6371000; //metres
+                      var eventLat = evlat;
+                      var eventLon = evlong;
+                      var la1 = lati1;
+                      var la2 = eventLat;
+                      var lat1 = toRadians(lati1);
+                      var lat2 = toRadians(eventLat);
+                      var lo1 = long1;
+                      var lo2 = eventLon;
+                      var la2minla1 = toRadians(la2 - la1);
+                      var lo2minlo1 = toRadians(lo2 - lo1);
+
+                      var cal = Math.sin(la2minla1 / 2) * Math.sin(la2minla1 / 2) +
+                        Math.cos(lat1) * Math.cos(lat2) *
+                        Math.sin(lo2minlo1 / 2) * Math.sin(lo2minlo1 / 2);
+                      var c = 2 * Math.atan2(Math.sqrt(cal), Math.sqrt(1 - cal));
+
+                      var d = r * c;
+
+                      return Math.round(d);
+
+                    }
+
+                    var x = calcTheDistance(lat, long);
+                    var y = 300;
+                    var id = event.id;
+                    if (x < y) {
+
+                      console.log('---Participant attended');
+                      backendService.changeUserStatus(id);
+                      $translate('Attended!').then(
+                        function (res) {
+                          $ionicPopup.alert({
+                            title: res,
+                            template: "{{'Great! you have attended this Event. Your position is' | translate}}" + ' "' + x + '" ' + "{{'meter far from the Event' | translate}}" + "."
+                          });
+                        });
+
+                    } else {
+                      console.log('---Participant not attended');
+                      $translate('Not Attended!').then(
+                        function (res1) {
+                          $ionicPopup.alert({
+                            title: res1,
+                            template: "{{'Oops! You have not attended this Event. Your position is' | translate}}" + ' "' + x + '" ' + "{{'meter far from the Event' | translate}}" + "."
+                          });
+                        });
+                    }
+
+                    console.log('latitude:', lat);
+                    console.log('longitude:', long);
+                    console.log('****distance****', x);
+                    $scope.map = map;
+                    $ionicLoading.hide();
+                  }, function (error) {
+
+                    console.log("Could not get location");
+                    $translate('Enable GPS').then(
+                      function (res) {
+                        $ionicPopup.alert({
+                          title: res,
+                          template: "{{'please make sure that your GPS is activated and try again later' | translate}}"
+                        });
+                      });
+                    $ionicLoading.hide();
+                    $state.go('app.main')
+                  });
+
+                }
+                else {
+                  $state.go('app.main')
+                }
+              })
+            });
+          console.log('coordinates  : ', cord);
+
+        });
+
+      },
+      function (err) {
+        $ionicLoading.hide();
+        console.log(err);
+      }
+    )
+  })
+
+
+
+  /*
    Controller for transition handling
    redirects to the defined as a parameter state
    */
@@ -169,6 +328,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    and redirects to main view
    */
   .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
+    $scope.coordinates = false;
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
       $translate('Done!').then(
@@ -322,23 +482,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
     };
     /*
-    Function that returns the first begin time of all talks and the last end time of all talks.
-    Should be simplified once we store the start time of the event itself.
-    */
-    getBorderTimesOfTalks = function(){
-      firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
+     Function that returns the first begin time of all talks and the last end time of all talks.
+     Should be simplified once we store the start time of the event itself.
+     */
+    getBorderTimesOfEvent = function () {
+      firstBeginTime = new Date($scope.event.begin);
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
       for (agendaNr in $scope.agendaList) {
-        beginTime = new Date($scope.agendaList[agendaNr].begin);
         endTime = new Date($scope.agendaList[agendaNr].end);
-        if (beginTime < firstBeginTime) {
-          firstBeginTime = beginTime;
-        }
         if (endTime > lastEndTime) {
           lastEndTime = endTime;
         }
       }
-      return {firstBeginTime:firstBeginTime, lastEndTime:lastEndTime};
+      return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
     }
 
     /*
@@ -346,7 +502,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
-      borderTimes = getBorderTimesOfTalks();
+      borderTimes = getBorderTimesOfEvent();
+      console.log(borderTimes);
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
@@ -355,31 +512,41 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
+      console.log(now);
+      console.log(beginDate);
+      console.log(endDatePlus48h);
       if (now >= beginDate && now <= endDatePlus48h) {
-        return true;
+        backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
+          function (res) {
+            console.log("res "+res);
+            $scope.isFeedbackAllowed = res;
+          }, function (err) {
+            console.log("err "+err)
+            $scope.isFeedbackAllowed = false
+          }
+        )
       } else {
-        return false;
+        $scope.isFeedbackAllowed = false;
       }
     }
     /*
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
      */
     areFeedbackResultsVisible = function () {
-      if($scope.agendaList.length==0){
+      if ($scope.agendaList.length == 0) {
         return true;
       }
-      borderTimes = getBorderTimesOfTalks();
+      borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = $scope.event.date.split("-");
       eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-
       if (now >= endDate) {
-        return true;
+        $scope.areFeedbackResultsVisible = true;
       } else {
-        return false;
+        $scope.areFeedbackResultsVisible = false;
       }
     };
 
@@ -407,8 +574,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     createCSV($scope.event.participants.length - 1, 'download')
                   }
                 },
-                {text: cancel,
-                type: 'button-assertive'}
+                {
+                  text: cancel,
+                  type: 'button-assertive'
+                }
               ]
             });
           })
@@ -535,6 +704,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
+
+    $scope.showRoute = function () {
+      if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Address is not defined yet, please try it later' | translate}}"
+            });
+          }
+        );
+      } else {
+        $scope.download('https://www.google.com/maps/place/' + $scope.event.location);
+      }
+    }
   })
 
   /*
@@ -574,38 +758,43 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Controller for Updating an  event:
    First get all event information by using getEventById(), then update all event fields by calling
    UpdateEvent() and shows a popup alert about successful updating of an event and redirects to main view.
+   call SetStatusTrue to update all Participant in this Event set {updated = true}
 
    */
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
+    $scope.coordinates = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
+      var id = $scope.event.id;
+      $scope.updateEvent = function (ev) {
+        backendService.updateEvent(ev).then(function (re) {
+          backendService.SetStatusTrue(id);
+          console.log('user status {updated : true}');
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
+              }).then(function (res) {
+                $state.go('app.main')
+              });
+            }
+          )
+        }, function (error) {
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{ 'Error is occurred, please try again later' | translate }}"
+              }).then(function (res) {
+                $state.go('app.main')
+              });
+            }
+          )
+        })
+      }
     })
-    $scope.updateEvent = function (ev) {
-      backendService.updateEvent(ev).then(function (re) {
-        $translate('Done!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'updated' | translate}}" + "."
-            }).then(function (res) {
-              $state.go('app.main')
-            });
-          }
-        )
-      }, function (error) {
-        $translate('Error!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{ 'Error is occurred, please try again later' | translate }}"
-            }).then(function (res) {
-              $state.go('app.main')
-            });
-          }
-        )
-      })
-    }
   })
   /*
    function for editting agenda page
@@ -620,9 +809,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.updateAgenda = function (ag) {
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
-        if(ag.end !== null ){
+        if (ag.end !== null) {
           backendService.updateAgenda($stateParams.agendaId, "end", ag.end);
-        }else{
+        } else {
           backendService.updateAgenda($stateParams.agendaId, "end", agenda.end);
         }
       })
@@ -775,14 +964,63 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          $translate('Done!').then(
-            function (result) {
-              $ionicPopup.alert({
-                title: result,
-                template: "{{'Login successful.' | translate}}"
-              }).then(function (re) {
-                $state.go('app.main');
-              });
+          backendService.getEvents().then(function (res) {
+              $scope.event = res['data'];
+              var me = credentials.username;
+              console.log('current user is :', me);
+              var length = res.length;
+              console.log('--------------------we have:', length, 'events');
+              var x = false;
+
+              for (var i = 0; i < length; i++) {
+                var participants = res[i].participants;
+                const title = res[i].title;
+                const id = res[i].id;
+                var l = participants.length;
+
+                console.log('------------------>Event number :', i);
+                console.log('---There is', l, 'participants in this event : ', title, '---');
+                console.log('---------------------------------------------------------');
+                for (var j = 0; j < l; j++) {
+                  var name = participants[j].name;
+                  var status = participants[j].status;
+                  var updated = participants[j].updated;
+                  console.log('-participant name   :', name);
+                  console.log('-participant status :', status);
+                  console.log('-participant updated :', updated);
+
+                  var sta = "joined";
+                  var upd = "true";
+
+                  if (updated == upd && name == me && status == sta) {
+                    x = true;
+                    /* updated the Current user in the Participant list of the Events set {updated = false} */
+                    backendService.SetStatusFalse(id);
+                    console.log('user status {updated : false}');
+                    $translate('Done!').then(
+                      function (result) {
+                        $ionicPopup.alert({
+                          title: result,
+                          template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'updated' | translate}}" + "."
+                        })
+                      }
+                    )
+                  } else {
+                    x = false
+                  }
+                  console.log(x);
+                }
+              }
+              $translate('Done!').then(
+                function (result) {
+                  $ionicPopup.alert({
+                    title: result,
+                    template: "{{'Login successful.' | translate}}"
+                  }).then(function (re) {
+                    $state.go('app.main');
+                  });
+                }
+              )
             }
           )
         },
@@ -800,7 +1038,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       )
     };
   })
-
   /* 
    Controller for Logout 
    Logouts the user, shows a popup and then goes to main page. 
@@ -854,6 +1091,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             template: "{{'Are you sure you want to delete your account?' | translate}}"
           }).then(function (result) {
             if (result) {
+              backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   backendService.logout();
@@ -1076,7 +1314,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
     $scope.choose = function (qId) {
       chooseQuestion(qId, function (deselected) {
-        if(deselected) {
+        if (deselected) {
           $translate('is deselected').then(function (de) {
             $ionicLoading.show({
               template: '"' + questionToChoose[0].question + '" ' + de,
@@ -1084,7 +1322,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               duration: 1150
             })
           })
-        }else{
+        } else {
           $translate('is chosen as a current question').then(function (de) {
             $ionicLoading.show({
               template: '"' + questionToChoose[0].question + '" ' + de,
@@ -1100,7 +1338,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       deselected = false;
       currentQuestion = $filter('filter')($scope.questions, {current: true})
       questionToChoose = $filter('filter')($scope.questions, {id: qId})
-      if(questionToChoose[0] == currentQuestion[0]) deselected = true;
+      if (questionToChoose[0] == currentQuestion[0]) deselected = true;
       questionToChoose[0].current = true;
       if (currentQuestion.length > 0)
         currentQuestion[0].current = false;
@@ -1112,17 +1350,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.addingQuestion = function (que) {
       backendService.addingQuestion(que, $stateParams.eventId);
+      $scope.questions.push(que);
+      $scope.add = false;
+      $scope.que = {question: ""};
       $translate('Done!').then(
         function (res2) {
           var alertPopup = $ionicPopup.alert({
             title: res2,
             template: "{{'New Question is added' | translate}}"
-          });
-          alertPopup.then(function (res) {
-            $state.go('app.transition', {
-              to: 'app.choose-question',
-              data: {eventId: $stateParams.eventId}
-            })
           });
         }
       );
