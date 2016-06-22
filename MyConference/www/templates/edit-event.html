@@ -36,8 +36,13 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         {{ 'Latitude should have format XX.XXXXX (For example, 49.45512)' | translate}}</span>
           <span class="error" ng-show="eventForm.long.$error.pattern">
         {{ 'Longitude should have format XX.XXXXX (For example, 11.09272)' | translate}}</span>
-      <label class="item item-input">{{ 'Date' | translate }}:
-        <input type="date" ng-model="event.date" placeholder="{{event.date}}">
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Date' | translate }}:</span>
+        <input type="date" ng-model="event.date" value="{{(event.date | date: 'yyyy-MM-dd')}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label fixed">{{ 'Begin' | translate }}:</span>
+        <input type="time" ng-model="event.begin" value="{{event.begin | date: 'HH:mm'}}">
       </label>
       <label class="item item-input">
         <textarea rows="5" placeholder="{{event.descr}}" ng-model="event.descr"></textarea>
