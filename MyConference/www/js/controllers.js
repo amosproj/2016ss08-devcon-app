@@ -113,165 +113,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-   Controller for getting Map view with current position
-   and the difference between current position and event position using coordinates
-   */
-
-  .controller('MapCtrl', function ($scope, $state, $stateParams, $timeout, backendService, $cordovaGeolocation,
-                                   $translate, $ionicLoading, $ionicPlatform, $ionicPopup) {
-
-    backendService.getEventById($stateParams.eventId).then(function (res) {
-        $scope.event = res['data'];
-        var event = $scope.event;
-        var cord = event.coordinates;
-        var evlat = cord.lat;
-        var evlong = cord.long;
-
-
-        $ionicPlatform.ready(function () {
-
-          var posOptions = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-          };
-          $translate('Permission to use GPS').then(
-            function (res) {
-              var confirmPopup = $ionicPopup.confirm({
-                title: res,
-                template: "{{'please make sure that your GPS is activated' | translate }}"
-              });
-              confirmPopup.then(function (res) {
-                if (res) {
-                  $ionicLoading.show({
-                    template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
-                  });
-                  $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
-                    var lat = position.coords.latitude;
-                    var long = position.coords.longitude;
-                    var dst = 'Distance: ' + calcTheDistance(lat, long) + ' Metres';
-
-                    var myLatlng = new google.maps.LatLng(lat, long);
-
-
-                    var mapOptions = {
-                      center: myLatlng,
-                      zoom: 16,
-                      mapTypeId: google.maps.MapTypeId.ROADMAP
-                    };
-
-                    var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-                    var marker = new google.maps.Marker({
-                      map: map, position: myLatlng,
-                      draggable: true,
-                      animation: google.maps.Animation.DROP
-                    });
-                    marker.addListener('click', toggleBounce);
-
-                    function toggleBounce() {
-                      if (marker.getAnimation() !== null) {
-                        marker.setAnimation(null);
-                      } else {
-                        marker.setAnimation(google.maps.Animation.BOUNCE);
-                      }
-                    }
-
-
-                    function toRadians(num) {
-                      return num * Math.PI / 180;
-                    }
-
-
-                    function calcTheDistance(lati1, long1) {
-                      var r = 6371000; //metres
-                      var eventLat = evlat;
-                      var eventLon = evlong;
-                      var la1 = lati1;
-                      var la2 = eventLat;
-                      var lat1 = toRadians(lati1);
-                      var lat2 = toRadians(eventLat);
-                      var lo1 = long1;
-                      var lo2 = eventLon;
-                      var la2minla1 = toRadians(la2 - la1);
-                      var lo2minlo1 = toRadians(lo2 - lo1);
-
-                      var cal = Math.sin(la2minla1 / 2) * Math.sin(la2minla1 / 2) +
-                        Math.cos(lat1) * Math.cos(lat2) *
-                        Math.sin(lo2minlo1 / 2) * Math.sin(lo2minlo1 / 2);
-                      var c = 2 * Math.atan2(Math.sqrt(cal), Math.sqrt(1 - cal));
-
-                      var d = r * c;
-
-                      return Math.round(d);
-
-                    }
-
-                    var x = calcTheDistance(lat, long);
-                    var y = 300;
-                    var id = event.id;
-                    if (x < y) {
-
-                      console.log('---Participant attended');
-                      backendService.changeUserStatus(id);
-                      $translate('Attended!').then(
-                        function (res) {
-                          $ionicPopup.alert({
-                            title: res,
-                            template: "{{'Great! you have attended this Event. Your position is' | translate}}" + ' "' + x + '" ' + "{{'meter far from the Event' | translate}}" + "."
-                          });
-                        });
-
-                    } else {
-                      console.log('---Participant not attended');
-                      $translate('Not Attended!').then(
-                        function (res1) {
-                          $ionicPopup.alert({
-                            title: res1,
-                            template: "{{'Oops! You have not attended this Event. Your position is' | translate}}" + ' "' + x + '" ' + "{{'meter far from the Event' | translate}}" + "."
-                          });
-                        });
-                    }
-
-                    console.log('latitude:', lat);
-                    console.log('longitude:', long);
-                    console.log('****distance****', x);
-                    $scope.map = map;
-                    $ionicLoading.hide();
-                  }, function (error) {
-
-                    console.log("Could not get location");
-                    $translate('Enable GPS').then(
-                      function (res) {
-                        $ionicPopup.alert({
-                          title: res,
-                          template: "{{'please make sure that your GPS is activated and try again later' | translate}}"
-                        });
-                      });
-                    $ionicLoading.hide();
-                    $state.go('app.main')
-                  });
-
-                }
-                else {
-                  $state.go('app.main')
-                }
-              })
-            });
-          console.log('coordinates  : ', cord);
-
-        });
-
-      },
-      function (err) {
-        $ionicLoading.hide();
-        console.log(err);
-      }
-    )
-  })
-
-
-
-  /*
    Controller for transition handling
    redirects to the defined as a parameter state
    */
@@ -706,7 +547,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     })
 
     $scope.showRoute = function () {
-      if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
+      if(typeof $scope.event.location === 'undefined' || $scope.event.location === ""){
         $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
@@ -715,8 +556,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             });
           }
         );
-      } else {
-        $scope.download('https://www.google.com/maps/place/' + $scope.event.location);
+      }else{
+        $scope.download('https://www.google.com/maps/place/'+$scope.event.location);
       }
     }
   })
