@@ -357,6 +357,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
+    $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       if (typeof backendService.currentUser !== 'undefined'
