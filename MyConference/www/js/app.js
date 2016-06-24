@@ -34,14 +34,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
 
         push.on('registration', function (data) {
           var oldRegistrationId = localStorage.getItem('registrationId');
-          var notificationsEnabled = localStorage.getItem('notificationsEnabled');
           if (oldRegistrationId !== data.registrationId) {
             // Save new registration ID
             localStorage.setItem('registrationId', data.registrationId);
-            // Post registrationId to baasbox server as the value has changed
-            if (notificationsEnabled === true) {
-              backendService.enablePushNotificationsForCurrentUser();
-            }
           }
         });
 
