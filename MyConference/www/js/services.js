@@ -677,6 +677,20 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+     Function for sending a push notification with a text to a list of users.
+     "users" has to be an array of usernames.
+     Returns a promise.
+     */
+    backend.sendPushNotificationToUsers = function (message, users) {
+      params = {
+        "users": users,
+        "message": message
+      };
+      console.log(users,message)
+      return BaasBox.sendPushNotification(params);
+    }
+
+    /*
      Function for enabling push notifications for the current user.
      Returns a promise.
      */
@@ -714,6 +728,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       userInfo = backend.currentUser.visibleByTheUser;
       backend.applySettings(userInfo.settings);
     };
+
+    /*
+      TODO in Sprint 11
+    */
+    backend.isCurrentUserOrganizer = function(){
+      return true;
+    }
 
     return backend;
   }
