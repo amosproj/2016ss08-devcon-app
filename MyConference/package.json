@@ -29,7 +29,7 @@
     "cordova-plugin-email-composer",
     {
       "variables": {
-        "SENDER_ID": "amos-ss16-proj8"
+        "SENDER_ID": "510200253238"
       },
       "locator": "phonegap-plugin-push",
       "id": "phonegap-plugin-push"
