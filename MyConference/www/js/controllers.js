@@ -482,6 +482,105 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
+    //function for the Remind-about-event-button
+    $scope.sendReminder = function () {
+      firstPromise = $translate("an event");
+      firstPromise.then(
+        function (anEventTranslation) {
+          if ($scope.event.date) {
+            daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
+            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
+              {
+                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation),
+                daysTillEvent: daysTillEvent
+              }
+            );
+          } else {
+            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming.",
+              {
+                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation)
+              }
+            );
+          }
+          secondPromise.then(
+            function (firstSentence) {
+              if ($scope.event.date) {
+                dateFormatted = $filter('date')($scope.event.date, "dd.MM.yy");
+                if ($scope.event.time) {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on $date at $time, $location!", {
+                      date: dateFormatted,
+                      time: $scope.event.time,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you on $date at $time!", {date: dateFormatted, time: $scope.event.time})
+                  }
+                } else {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on $date at $location!", {
+                      date: dateFormatted,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you on $date!", {date: dateFormatted})
+                  }
+                }
+              } else {
+                if ($scope.event.time) {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on at $time, $location!", {
+                      time: $scope.event.time,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you at $time!", {time: $scope.event.time})
+                  }
+                } else {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you at $location!", {location: $scope.event.location})
+                  } else {
+                    thirdPromise = $translate("See you!")
+                  }
+                }
+              }
+              thirdPromise.then(
+                function (secondSentence) {
+                  message = firstSentence + " " + secondSentence;
+                  backendService.getEventById($stateParams.eventId).then(
+                    function (res) {
+                      $scope.event = res['data'];
+                      users = $scope.event.participants.map(function (participant) {
+                        if (participant.status == "joined") {
+                          return participant.name;
+                        }
+                      });
+                      users = users.filter(function (user) {
+                        return user != null;
+                      });
+                      backendService.sendPushNotificationToUsers(message, users).then(
+                        function (res) {
+                          $translate("Done!").then(
+                            function (res) {
+                              $ionicPopup.alert({
+                                title: res,
+                                template: "{{'The push notification was sent successfully.' | translate}}"
+                              });
+                            }
+                          );
+                        },
+                        function (err) {
+                          console.log(err)
+                        }
+                      );
+                    });
+                }
+              )
+            }
+          );
+        }
+      )
+    };
     /*
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
