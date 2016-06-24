@@ -108,8 +108,6 @@
   "Show feedback results": "Feedback-Ergebnisse anzeigen",
   "Feedback results": "Ergebnisse Feedback",
   "is deselected": "wird abgewählt",
-  "Enable push notifications": "Push-Benachrichtigungen zulassen",
-  "Settings are updated": "Einstellungen wurden gespeichert"
   "Remind about event": "An Event erinnern",
   "an event": "eine Veranstaltung",
   "Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.": "Senacor erinnert voll Vorfreude an {{eventName}} in {{daysTillEvent}} Tagen.",

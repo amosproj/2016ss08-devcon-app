@@ -1088,7 +1088,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
-          backendService.applySettingsForCurrentUser();
           backendService.getEvents().then(function (res) {
               $scope.event = res['data'];
               var me = credentials.username;
@@ -1527,25 +1526,5 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           $scope.beforeSubmit = false;
           $scope.afterSubmit = true;
         })
-    }
-  })
-
-  .controller('SettingsCtrl', function ($scope, backendService, $state, $ionicPopup, $translate) {
-    userInfo = backendService.currentUser.visibleByTheUser;
-    $scope.settings = userInfo.settings;
-
-    $scope.updateSettings = function (settings) {
-      userInfo.settings = settings;
-      backendService.updateUserProfile({"visibleByTheUser": userInfo}).then(function (res) {
-        backendService.applySettings(userInfo.settings);
-        $translate("Done!").then(
-          function (de) {
-            $ionicPopup.alert({
-              title: de,
-              template: "{{'Settings are updated' | translate}}"
-            })
-          }
-        );
-      })
     }
   });

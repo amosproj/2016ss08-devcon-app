@@ -65,7 +65,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (res) {
           console.log("signup ", res);
           backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
+          backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
           backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
         })
         .fail(function (error) {
@@ -95,7 +95,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
     backend.logout = function () {
-      backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
           backend.loginStatus = false;
@@ -686,45 +685,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.isCurrentUserOrganizer = function(){
       return true;
     }
-     Function for enabling push notifications for the current user.
-     Returns a promise.
-     */
-    backend.enablePushNotificationsForCurrentUser = function () {
-      operatingSystem = "android";
-      return BaasBox.enableNotifications(operatingSystem, localStorage.getItem('registrationId'));
-    };
-
-    /*
-     Function for disabling push notifications for the current user.
-     Returns a promise.
-     */
-    backend.disablePushNotificationsForCurrentUser = function () {
-      return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
-    };
-
-    /*
-     Function for applying the given settings to the user
-     */
-    backend.applySettings = function (settings) {
-      if (settings !== undefined) {
-        console.log(settings)
-        if (settings.pushNotificationEnabled) {
-          backend.enablePushNotificationsForCurrentUser();
-        } else {
-          backend.disablePushNotificationsForCurrentUser();
-        }
-      }
-    }
-
-    /*
-     Function for applying the settings for the current user
-     */
-    backend.applySettingsForCurrentUser = function () {
-      userInfo = backend.currentUser.visibleByTheUser;
-      backend.applySettings(userInfo.settings);
-    };
-
     return backend;
   }
-
 );
