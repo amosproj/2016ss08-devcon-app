@@ -26,6 +26,7 @@
     "cordova-plugin-inappbrowser",
     "cordova-plugin-file-transfer",
     "cordova-plugin-file",
+    "cordova-plugin-geolocation",
     "cordova-plugin-email-composer"
   ],
   "cordovaPlatforms": [
