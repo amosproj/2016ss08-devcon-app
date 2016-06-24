@@ -328,6 +328,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    and redirects to main view
    */
   .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
+    $scope.coordinates = false;
     $scope.createEvent = function (ev) {
       backendService.createEvent(ev);
       $translate('Done!').then(
@@ -484,15 +485,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
      */
-    getBorderTimesOfTalks = function () {
-      firstBeginTime = new Date("1970-01-01T22:59:00.000Z");
+    getBorderTimesOfEvent = function () {
+      firstBeginTime = new Date($scope.event.begin);
       lastEndTime = new Date("1969-12-31T23:00:00.000Z");
       for (agendaNr in $scope.agendaList) {
-        beginTime = new Date($scope.agendaList[agendaNr].begin);
         endTime = new Date($scope.agendaList[agendaNr].end);
-        if (beginTime < firstBeginTime) {
-          firstBeginTime = beginTime;
-        }
         if (endTime > lastEndTime) {
           lastEndTime = endTime;
         }
@@ -505,7 +502,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
-      borderTimes = getBorderTimesOfTalks();
+      borderTimes = getBorderTimesOfEvent();
+      console.log(borderTimes);
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
@@ -514,10 +512,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
+      console.log(now);
+      console.log(beginDate);
+      console.log(endDatePlus48h);
       if (now >= beginDate && now <= endDatePlus48h) {
-        return true;
+        backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
+          function (res) {
+            console.log("res "+res);
+            $scope.isFeedbackAllowed = res;
+          }, function (err) {
+            console.log("err "+err)
+            $scope.isFeedbackAllowed = false
+          }
+        )
       } else {
-        return false;
+        $scope.isFeedbackAllowed = false;
       }
     }
     /*
@@ -527,18 +536,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if ($scope.agendaList.length == 0) {
         return true;
       }
-      borderTimes = getBorderTimesOfTalks();
+      borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = $scope.event.date.split("-");
       eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-
       if (now >= endDate) {
-        return true;
+        $scope.areFeedbackResultsVisible = true;
       } else {
-        return false;
+        $scope.areFeedbackResultsVisible = false;
       }
     };
 
@@ -755,10 +763,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    */
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
+    $scope.coordinates = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
       var id = $scope.event.id;
-
       $scope.updateEvent = function (ev) {
         backendService.updateEvent(ev).then(function (re) {
           backendService.SetStatusTrue(id);
@@ -1342,17 +1350,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.addingQuestion = function (que) {
       backendService.addingQuestion(que, $stateParams.eventId);
+      $scope.questions.push(que);
+      $scope.add = false;
+      $scope.que = {question: ""};
       $translate('Done!').then(
         function (res2) {
           var alertPopup = $ionicPopup.alert({
             title: res2,
             template: "{{'New Question is added' | translate}}"
-          });
-          alertPopup.then(function (res) {
-            $state.go('app.transition', {
-              to: 'app.choose-question',
-              data: {eventId: $stateParams.eventId}
-            })
           });
         }
       );

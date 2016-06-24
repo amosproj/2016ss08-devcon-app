@@ -232,32 +232,34 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       })
     };
 
-    /*
-     Function for updating an event
-     Requires two parameters: attribute name to update and corresponding value for this attribute
-     Returns a promise.
-     */
-    backend.updateEvent = function (event, fieldToUpdate, value) {
-      if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
-        return BaasBox.save(event, "events")
-          .done(function (res) {
-            console.log("res ", res);
-            BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-            BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
-          })
-          .fail(function (error) {
-            console.log("error ", error);
-          })
-      } else {
-        return BaasBox.updateField(event, "events", fieldToUpdate, value)
-          .done(function (res) {
-            console.log("Event updated ", res);
-          })
-          .fail(function (error) {
-            console.log("Event update error ", error);
-          })
-      }
-    };
+  /*
+   Function for updating an event
+   Can get one or three arguments
+   If function is called only with one argument (event object) the whole event is updated
+   If there are 3 arguments only one defined field of the event is updated with the given value
+   Returns a promise.
+   */
+  backend.updateEvent = function (event, fieldToUpdate, value) {
+    if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
+      return BaasBox.save(event, "events")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    } else {
+      return BaasBox.updateField(event, "events", fieldToUpdate, value)
+        .done(function (res) {
+          console.log("Event updated ", res);
+        })
+        .fail(function (error) {
+          console.log("Event update error ", error);
+        })
+    }
+  };
     /*
      Function for updating an agenda
      */
@@ -523,6 +525,38 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Returns a promise.
      */
     backend.isUserRegisteredForEvent = function (user, eventId) {
+      return hasUserRightStatusInEvent(user, eventId, "joined");
+    };
+
+    /*
+     Function for checking if the current user is user is participant of an event.
+     Returns a promise.
+     */
+    backend.isCurrentUserRegisteredForEvent = function (eventId) {
+      return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
+    };
+
+    /*
+     Function for checking if a user is stored as attended at the event.
+     Returns a promise.
+     */
+    backend.isUserAttendedForEvent = function (user, eventId) {
+      return hasUserRightStatusInEvent(user, eventId, "attended");
+    };
+
+    /*
+      Function for checking if current user is stored as attended at the event.
+      Returns a promise
+     */
+    backend.isCurrentUserAttendedForEvent = function (eventId) {
+      return backend.isUserAttendedForEvent(BaasBox.getCurrentUser(), eventId)
+    };
+
+    /*
+      Abstract function for checking if an user has a given status as participant of an event.
+      Returns a promise.
+     */
+    hasUserRightStatusInEvent = function (user, eventId, expectedStatus) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(function (res) {
         event = res['data'];
@@ -533,19 +567,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           deferred.resolve(false);
         } else {
           //user is in participants list, but is he still registred?
-          deferred.resolve(searchResult[0].status == "joined")
+          deferred.resolve(searchResult[0].status == expectedStatus)
         }
       }), function (err) {
         deferred.reject(err)
       };
       return deferred.promise
-    };
-    /*
-     Function for checking if the current user is user is participant of an event.
-     Returns a promise.
-     */
-    backend.isCurrentUserRegisteredForEvent = function (eventId) {
-      return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
 
     /*
