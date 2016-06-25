@@ -65,8 +65,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (res) {
           console.log("signup ", res);
           backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
           backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+          backend.applySettingsForCurrentUser();
         })
         .fail(function (error) {
           console.log("Signup error ", error);
@@ -95,6 +96,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
     backend.logout = function () {
+      backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
           backend.loginStatus = false;
@@ -674,6 +676,67 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("agenda", id)
     };
 
+    /*
+     Function for sending a push notification with a text to a list of users.
+     "users" has to be an array of usernames.
+     Returns a promise.
+     */
+    backend.sendPushNotificationToUsers = function (message, users) {
+      params = {
+        "users": users,
+        "message": message
+      };
+      console.log(users,message)
+      return BaasBox.sendPushNotification(params);
+    }
+
+    /*
+     Function for enabling push notifications for the current user.
+     Returns a promise.
+     */
+    backend.enablePushNotificationsForCurrentUser = function () {
+      operatingSystem = "android";
+      return BaasBox.enableNotifications(operatingSystem, localStorage.getItem('registrationId'));
+    };
+
+    /*
+     Function for disabling push notifications for the current user.
+     Returns a promise.
+     */
+    backend.disablePushNotificationsForCurrentUser = function () {
+      return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
+    };
+
+    /*
+     Function for applying the given settings to the user
+     */
+    backend.applySettings = function (settings) {
+      if (settings !== undefined) {
+        console.log(settings)
+        if (settings.pushNotificationEnabled) {
+          backend.enablePushNotificationsForCurrentUser();
+        } else {
+          backend.disablePushNotificationsForCurrentUser();
+        }
+      }
+    }
+
+    /*
+     Function for applying the settings for the current user
+     */
+    backend.applySettingsForCurrentUser = function () {
+      userInfo = backend.currentUser.visibleByTheUser;
+      backend.applySettings(userInfo.settings);
+    };
+
+    /*
+      TODO in Sprint 11
+    */
+    backend.isCurrentUserOrganizer = function(){
+      return true;
+    }
+
     return backend;
   }
+
 );

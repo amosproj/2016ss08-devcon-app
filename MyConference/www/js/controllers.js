@@ -357,6 +357,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
+    $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       if (typeof backendService.currentUser !== 'undefined'
@@ -375,6 +376,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           console.log("Error by getting file details")
         })
       }
+      /*
+       hide - show form after click on adding agenda
+       */
+      $scope.addingAgendaForm = false;
+      $scope.showAddingAgenda = function () {
+        $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+      };
+      //retrieve agenda by condition
+      backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
+        $scope.agendaList = res;
+        $scope.isFeedbackAllowed = isFeedbackAllowed();
+        $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
+        $scope.isReminderAllowed = isReminderAllowed();
+      }, function (error) {
+        console.log("Error by retrieving the event", error)
+      })
     }, function (error) {
       console.log("Error by retrieving the event", error)
     });
@@ -481,6 +498,105 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
+    //function for the Remind-about-event-button
+    $scope.sendReminder = function () {
+      firstPromise = $translate("an event");
+      firstPromise.then(
+        function (anEventTranslation) {
+          if ($scope.event.date) {
+            daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
+            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
+              {
+                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation),
+                daysTillEvent: daysTillEvent
+              }
+            );
+          } else {
+            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming.",
+              {
+                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation)
+              }
+            );
+          }
+          secondPromise.then(
+            function (firstSentence) {
+              if ($scope.event.date) {
+                dateFormatted = $filter('date')($scope.event.date, "dd.MM.yy");
+                if ($scope.event.time) {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on $date at $time, $location!", {
+                      date: dateFormatted,
+                      time: $scope.event.time,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you on $date at $time!", {date: dateFormatted, time: $scope.event.time})
+                  }
+                } else {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on $date at $location!", {
+                      date: dateFormatted,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you on $date!", {date: dateFormatted})
+                  }
+                }
+              } else {
+                if ($scope.event.time) {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on at $time, $location!", {
+                      time: $scope.event.time,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you at $time!", {time: $scope.event.time})
+                  }
+                } else {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you at $location!", {location: $scope.event.location})
+                  } else {
+                    thirdPromise = $translate("See you!")
+                  }
+                }
+              }
+              thirdPromise.then(
+                function (secondSentence) {
+                  message = firstSentence + " " + secondSentence;
+                  backendService.getEventById($stateParams.eventId).then(
+                    function (res) {
+                      $scope.event = res['data'];
+                      users = $scope.event.participants.map(function (participant) {
+                        if (participant.status == "joined") {
+                          return participant.name;
+                        }
+                      });
+                      users = users.filter(function (user) {
+                        return user != null;
+                      });
+                      backendService.sendPushNotificationToUsers(message, users).then(
+                        function (res) {
+                          $translate("Done!").then(
+                            function (res) {
+                              $ionicPopup.alert({
+                                title: res,
+                                template: "{{'The push notification was sent successfully.' | translate}}"
+                              });
+                            }
+                          );
+                        },
+                        function (err) {
+                          console.log(err)
+                        }
+                      );
+                    });
+                }
+              )
+            }
+          );
+        }
+      )
+    };
     /*
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
@@ -503,7 +619,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     isFeedbackAllowed = function () {
       borderTimes = getBorderTimesOfEvent();
-      console.log(borderTimes);
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
@@ -512,9 +627,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      console.log(now);
-      console.log(beginDate);
-      console.log(endDatePlus48h);
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
@@ -547,6 +659,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.areFeedbackResultsVisible = true;
       } else {
         $scope.areFeedbackResultsVisible = false;
+      }
+    };
+
+    /*
+     Function that determines if user is organizer and
+     now is before the begin of the event (so reminders are allowed).
+     */
+    isReminderAllowed = function () {
+      dateOfEvent = new Date($scope.event.date);
+      now = new Date();
+
+      if (backendService.isCurrentUserOrganizer()) {
+        return now < dateOfEvent;
+      } else {
+        return false;
       }
     };
 
@@ -964,6 +1091,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.login = function (credentials) {
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
+          backendService.applySettingsForCurrentUser();
           backendService.getEvents().then(function (res) {
               $scope.event = res['data'];
               var me = credentials.username;
@@ -1402,5 +1530,25 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           $scope.beforeSubmit = false;
           $scope.afterSubmit = true;
         })
+    }
+  })
+
+  .controller('SettingsCtrl', function ($scope, backendService, $state, $ionicPopup, $translate) {
+    userInfo = backendService.currentUser.visibleByTheUser;
+    $scope.settings = userInfo.settings;
+
+    $scope.updateSettings = function (settings) {
+      userInfo.settings = settings;
+      backendService.updateUserProfile({"visibleByTheUser": userInfo}).then(function (res) {
+        backendService.applySettings(userInfo.settings);
+        $translate("Done!").then(
+          function (de) {
+            $ionicPopup.alert({
+              title: de,
+              template: "{{'Settings are updated' | translate}}"
+            })
+          }
+        );
+      })
     }
   });
