@@ -32,7 +32,7 @@
       "variables": {
         "SENDER_ID": "amos-ss16-proj8"
       },
-      "locator": "add",
+      "locator": "phonegap-plugin-push",
       "id": "phonegap-plugin-push"
     }
   ],
