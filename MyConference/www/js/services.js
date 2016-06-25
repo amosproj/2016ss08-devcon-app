@@ -61,7 +61,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      and "visibleByRegisteredUsers" field saving name and given name
      */
     backend.createAccount = function (user) {
-      BaasBox.signup(user.email, user.pass)
+      return BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
           backend.login(user.email, user.pass);
@@ -156,7 +156,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       ev.participants.push(creator);
       console.log(creator);
       console.log(ev.participants);
-      BaasBox.save(ev, "events")
+      return BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
           BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
@@ -172,7 +172,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
 
     backend.addingAgenda = function (ag, evId) {
-      BaasBox.save(ag, "agenda")
+      return BaasBox.save(ag, "agenda")
         .done(function (res) {
           console.log("res ", res);
           BaasBox.updateEventAgenda(res, evId);
@@ -212,7 +212,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
 
     backend.addingQuestion = function (que, eventId) {
-      backend.getEventById(eventId).then(function (res) {
+      return backend.getEventById(eventId).then(function (res) {
         event = res['data'];
         question = {};
         question = que;
@@ -228,7 +228,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         question.dontKnow = 0;
         question.current = false;
         event.questions.push(question);
-        BaasBox.updateField(eventId, "events", "questions", event.questions);
+        return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
     };
 
