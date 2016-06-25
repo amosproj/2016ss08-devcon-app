@@ -288,6 +288,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Provides the filter methods for previous and next events.
    */
   .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
+    $scope.isOrganizer = false;
+    if (typeof backendService.currentUser !== 'undefined'
+      && (backendService.currentUser.roles.indexOf('administrator') != -1))
+      $scope.isOrganizer = true;
     var today = new Date();
     /*
      This method is used for filter after prevoius events in the main view
@@ -352,16 +356,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-    $scope.showButton = false;
+    $scope.isOrganizer = false;
+    if (typeof backendService.currentUser !== 'undefined'
+      && (backendService.currentUser.roles.indexOf('administrator') != -1))
+      $scope.isOrganizer = true;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
-      if (typeof backendService.currentUser !== 'undefined'
-        && (backendService.currentUser.roles.indexOf('administrator') != -1 || backendService.currentUser.username == res['data']._author))
-        $scope.showButton = true;
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
         function (res) {
           $scope.isCurrentUserRegistered = res;
@@ -726,6 +730,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    can delete talk, edit talk information
    */
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+    $scope.isOrganizer = false;
+    if (typeof backendService.currentUser !== 'undefined'
+      && (backendService.currentUser.roles.indexOf('administrator') != -1))
+      $scope.isOrganizer = true;
     $scope.upload = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
