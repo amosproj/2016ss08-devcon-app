@@ -130,5 +130,6 @@
   "Longitude should have format XX.XXXXX (For example, 11.09272)": "Längengrad soll XX.XXXXX Format haben (z.B. 11.09272)",
   "How to come to the event": "Weg - beschreibung zum Event",
   "Address is not defined yet, please try it later": "Adresse ist nicht definiert, später erneut versuchen",
-  "No events": "Keine Events"
+  "No events": "Keine Events",
+  "An error occurred, please check your internet connection and try again": "Fehler aufgetreten, bitte Internetverbindung überprüfen und erneut versuchen"
 }
