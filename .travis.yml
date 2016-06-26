@@ -26,6 +26,7 @@ before_install:
 - npm install -g npm
 - npm install karma --save-dev
 - npm install karma-jasmine --save-dev
+- npm install jasmine-core --save-dev
 - npm install -g karma-cli
 - npm install -g phantomjs
 # Set execution rights
