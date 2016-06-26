@@ -23,6 +23,7 @@ services:
 env:
   - TRAVIS_CI_BUILD=true
 before_install:  
+- cd MyConference
 - npm install -g npm
 - npm install karma --save-dev
 - npm install karma-jasmine --save-dev
@@ -40,7 +41,6 @@ before_script:
 
 script:
   # Build .apk file and build docker image (inside docker container)
-  - cd MyConference
   - npm test
   - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
