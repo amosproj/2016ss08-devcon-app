@@ -44,7 +44,7 @@ script:
   # Build .apk file and build docker image (inside docker container)
   - cd MyConference
   - cd tests
-  - npm karma start unit-tests.conf.js
+  - karma start unit-tests.conf.js
   - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
 
