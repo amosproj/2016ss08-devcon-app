@@ -34,6 +34,9 @@ script:
   # Build .apk file and build docker image (inside docker container)
   - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
+  after_script:
+- npm test
+
 # Deploy via script, only on master
 deploy:
   provider: script
