@@ -730,7 +730,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     backend.isCurrentUserOrganizer = function(){
-      return (typeof backend.currentUser !== 'undefined' && backendService.currentUser.roles.indexOf('administrator') != -1);
+      return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
     return backend;
