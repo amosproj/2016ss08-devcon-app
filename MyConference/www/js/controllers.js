@@ -683,6 +683,41 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       )
     };
     /*
+    function for delete Event
+    delete related agenda and files as well
+    */
+    $scope.deleteEvent = function () {
+      $translate('Confirmation needed').then(
+        function (res3) {
+          var confirmPopup = $ionicPopup.confirm({
+            title: res3,
+            template: "{{'Are you sure you want to delete this event?' | translate}}"
+          });
+          confirmPopup.then(function (res) {
+            if (res) {
+              backendService.getEventById($stateParams.eventId).then(function (res) {
+                backendService.deleteFile(res['data'].fileId);
+                for (agendaNr in $scope.agendaList) {
+                  backendService.deleteAgenda($scope.agendaList[agendaNr].id);
+                }
+                backendService.deleteEvent($stateParams.eventId)
+              });
+              $translate('Done!').then(
+                function (res4) {
+                  var alertPopup = $ionicPopup.alert({
+                    title: res4,
+                    template: "{{'This Event Has Been Deleted.' | translate}}"
+                  });
+                  alertPopup.then(function (re) {
+                    $state.go('app.main');
+                  });
+                })
+            } else {
+            }
+          });
+        })
+      }
+    /*
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
      */

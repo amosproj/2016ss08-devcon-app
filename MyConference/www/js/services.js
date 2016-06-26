@@ -169,6 +169,20 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
+  /*
+   Function for deleting an event
+   */
+  backend.deleteEvent = function (eventId) {
+    //return
+    BaasBox.deleteObject(eventId, "events")
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
+  };
+
     /*
      Function for adding an agenda talk to an event
      */
@@ -187,7 +201,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-     Function for deleting a talk.
+     Function for deleting a talk / agenda
      */
     backend.deleteAgenda = function (agendaId) {
       //return
