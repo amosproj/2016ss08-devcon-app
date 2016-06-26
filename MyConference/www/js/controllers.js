@@ -1403,6 +1403,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     $state.go('app.main');
                   });
                   credentials.password = "";
+                  credentials.username = "";
                 }
               )
             }
