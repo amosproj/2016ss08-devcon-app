@@ -30,9 +30,6 @@
     "cordova-plugin-file",
     "cordova-plugin-email-composer"
   ],
-    "scripts": {
-    "test": "./node_modules/karma/bin/karma start unit-tests.conf.js"
-},
   "cordovaPlatforms": [
     "ios"
   ]

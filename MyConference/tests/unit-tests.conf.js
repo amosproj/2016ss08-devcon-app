@@ -26,7 +26,7 @@ module.exports = function(config) {
       './www/lib/ionic/js/angular/angular-resource.js',
       './www/lib/ionic/js/angular/angular-sanitize.js',
       './www/lib/ionic/js/angular-ui/angular-ui-router.js',
-      './tests/unit-tests/**/*.js'
+      'unit-tests/**/*.js'
     ],
 
 
