@@ -45,6 +45,7 @@ script:
   - cd MyConference
   - cd tests
   - karma start unit-tests.conf.js
+  - cd ..
   - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
 
