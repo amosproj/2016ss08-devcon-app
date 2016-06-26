@@ -42,12 +42,11 @@ before_script:
 
 script:
   # Build .apk file and build docker image (inside docker container)
-  - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
-
-after_script:
-- cd MyConference
+  - cd MyConference
   - cd tests
   - karma start unit-tests.conf.js
+  - cd ..
+  - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
 # Deploy via script, only on master
 deploy:
