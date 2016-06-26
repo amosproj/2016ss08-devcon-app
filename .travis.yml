@@ -24,7 +24,9 @@ env:
   - TRAVIS_CI_BUILD=true
 before_install:  
 - npm install -g bower
+- cd MyConference
 - bower install
+- cd ..
 - npm install karma --save-dev
 - bower install angular-mocks#1.5.3 --save-dev
 - npm install -g npm
