@@ -23,11 +23,13 @@ services:
 env:
   - TRAVIS_CI_BUILD=true
 before_install:  
+- npm -g install bower
 - cd MyConference
 - npm install -g npm
 - npm install karma --save-dev
 - npm install karma-jasmine --save-dev
 - npm install jasmine-core --save-dev
+- bower install angular-mocks#1.5.3 --save-dev
 - npm install -g karma-cli
 - npm install -g phantomjs
 - npm install karma-phantomjs-launcher
@@ -45,7 +47,7 @@ script:
   - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
 after_script:
-- cd MyConference
+  - cd MyConference
   - cd tests
   - karma start unit-tests.conf.js
 
