@@ -1,4 +1,5 @@
-describe('Controllers', function(){
-  // load the controller's module
-  beforeEach(module('starter.controllers'));
+describe('example test', function() {
+  it('should be true', function() {
+    expect('foo').toBe('foo');
+  });
 });
