@@ -17,7 +17,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view>
   <ion-nav-title>{{agenda.speaker}}</ion-nav-title>
   <ion-nav-buttons side="right">
-    <button ng-click="goToEdit(agenda.id)" class="button icon ion-edit" menu-toggle="right"></button>
+    <button ng-click="goToEdit(agenda.id)" ng-show="isOrganizer" class="button icon ion-edit" menu-toggle="right"></button>
   </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">

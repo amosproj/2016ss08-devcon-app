@@ -17,8 +17,12 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-nav-buttons side="right">
+<<<<<<< HEAD
     <a href="#/app/edit-event/{{event.id}}" ng-show="showButton" class="button icon ion-edit" menu-toggle="right"></a>
     <a ng-click="deleteEvent()" ng-show="showButton" class="button icon ion-trash-a" menu-toggle="right"></a>
+=======
+    <a href="#/app/edit-event/{{event.id}}" ng-show="isOrganizer" class="button icon ion-edit" menu-toggle="right"></a>
+>>>>>>> 49-Organizer-permission-create-change-events
   </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
@@ -69,7 +73,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <div class="item item-button-right">
         <a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced " >{{ "I'm Here" | translate}}</a><br>
       </div>
-      <button class="button button-block button-positive" ng-show="!addingAgendaForm && isLoggedIn"
+      <button class="button button-block button-positive" ng-show="!addingAgendaForm && isOrganizer"
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}</button>
       <button class="button button-block button-positive" ng-show="addingAgendaForm"
               ng-click="showAddingAgenda()">{{"Hide" | translate}}</button>
@@ -98,10 +102,10 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="upload = !upload" ng-show="upload" class="button button-block button-assertive">
       {{"Cancel" | translate}}
     </button>
-    <button ng-click="upload = !upload" ng-show="!upload && !agenda" class="button button-block button-positive">
+    <button ng-click="upload = !upload" ng-show="!upload && !agenda && isOrganizer" class="button button-block button-positive">
       {{"Add agenda" | translate}}
     </button>
-    <button ng-click="upload = !upload" ng-show="!upload && agenda" class="button button-block button-positive">
+    <button ng-click="upload = !upload" ng-show="!upload && agenda && isOrganizer" class="button button-block button-positive">
       {{"Change agenda" | translate}}
     </button>
     <button ng-click="joinEvent()" ng-show="!isCurrentUserRegistered" class="button button-block button-balanced">
@@ -113,7 +117,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="showAlert()" class="button button-block button-positive">
       {{"Participants list" | translate}}
     </button>
-    <a href="#app/choose-question/{{event.id}}" ng-show="showButton" class="button button-block button-positive">{{"Choose current question" | translate}}</a>
+    <a href="#app/choose-question/{{event.id}}" ng-show="isOrganizer" class="button button-block button-positive">{{"Choose current question" | translate}}</a>
     <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive" ng-show="isFeedbackAllowed">
       {{"Feedback" | translate}}</button>
     <button ui-sref="app.live-voting({eventId: event.id})" class="button button-block button-positive" ng-show="event.questions.length>0">
