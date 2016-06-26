@@ -30,6 +30,9 @@
     "cordova-plugin-file",
     "cordova-plugin-email-composer"
   ],
+    "scripts": {
+   "test": "MyConference/tests karma start unit-tests.conf.js --single-run --browsers PhantomJS"
+},
   "cordovaPlatforms": [
     "ios"
   ]
