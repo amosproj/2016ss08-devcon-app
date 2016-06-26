@@ -22,7 +22,8 @@ services:
 
 env:
   - TRAVIS_CI_BUILD=true
-
+before_install:  
+- npm install -g npm
 # Set execution rights
 before_script:
   - export DISPLAY=:99.0
