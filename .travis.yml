@@ -26,7 +26,6 @@ before_install:
 - npm install -g npm
 - npm install karma --save-dev
 - npm install karma-jasmine --save-dev
-- bower install angular-mocks#1.5.3 --save-dev
 - npm install -g karma-cli
 - npm install -g phantomjs
 # Set execution rights
