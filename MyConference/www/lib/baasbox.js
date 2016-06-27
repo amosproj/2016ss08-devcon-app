@@ -51,6 +51,7 @@ var BaasBox = (function() {
     }
   }
 
+
   function getCurrentUser() {
     // if the user is using Zepto, then local storage must be used (if supported by the current browser)
     if (window.Zepto && window.localStorage) {
@@ -113,6 +114,13 @@ var BaasBox = (function() {
         instance = createInstance();
       }
       return instance;
+    },
+    //Get All users by email
+    getUsers: function(user){
+      return $.ajax({
+        url: BaasBox.endPoint + '/admin/user/'  + user.email,
+        method: 'GET'
+      })
     },
 
     setEndPoint: function(endPointURL) {
