@@ -64,10 +64,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
-          backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
-          backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-          backend.applySettingsForCurrentUser();
+          backend.login(user.email, user.pass).then(
+            function(res){
+              backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
+              backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+              backend.applySettingsForCurrentUser();
+            }
+          );
         })
         .fail(function (error) {
           console.log("Signup error ", error);
