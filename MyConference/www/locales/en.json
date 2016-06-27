@@ -26,5 +26,6 @@
   "See you on at $time, $location!": "See you at $time, $location!",
   "See you at $time!": "See you at $time!",
   "See you at $location!": "See you at $location!",
-  "See you!": "See you"
+  "See you!": "See you",
+  "New participant $name $gName is registered for $event": "New participant {{name}} {{gName}} is registered for {{event}}"
 }

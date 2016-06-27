@@ -133,5 +133,6 @@
   "No events": "Keine Events",
   "An error occurred, please check your internet connection and try again": "Fehler aufgetreten, bitte Internetverbindung überprüfen und erneut versuchen",
   "Are you sure you want to delete this event?": "Sind Sie sicher, diese Veranstaltung zu löschen?",
-  "This Event Has Been Deleted.": "Diese Veranstaltung wurde gelöscht"
+  "This Event Has Been Deleted.": "Diese Veranstaltung wurde gelöscht",
+  "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
 }
