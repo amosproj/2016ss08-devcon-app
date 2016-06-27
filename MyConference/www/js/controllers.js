@@ -1394,7 +1394,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               var me = credentials.username;
               console.log('current user is :', me);
               var length = res.length;
-              console.log('--------------------we have:', length, 'events');
+      
               var x = false;
 
               for (var i = 0; i < length; i++) {
@@ -1403,17 +1403,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 const id = res[i].id;
                 var l = participants.length;
 
-                console.log('------------------>Event number :', i);
-                console.log('---There is', l, 'participants in this event : ', title, '---');
-                console.log('---------------------------------------------------------');
                 for (var j = 0; j < l; j++) {
                   var name = participants[j].name;
                   var status = participants[j].status;
                   var updated = participants[j].updated;
-                  console.log('-participant name   :', name);
-                  console.log('-participant status :', status);
-                  console.log('-participant updated :', updated);
-
                   var sta = "joined";
                   var upd = "true";
 
