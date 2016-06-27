@@ -18,13 +18,14 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-nav-buttons side="right">
     <a href="#/app/edit-event/{{event.id}}" ng-show="isOrganizer" class="button icon ion-edit" menu-toggle="right"></a>
+    <a ng-click="deleteEvent()" ng-show="isOrganizer" class="button icon ion-trash-a" menu-toggle="right"></a>
   </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
       <ion-item class="item item-icon-left"><i class="icon ion-calendar"></i> {{(event.date | date: "dd-MM-yyyy") ||
         "t.b.a"}}
       </ion-item>
-      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "HH:mm"}} </ion-item>
+      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "HH:mm"}}</ion-item>
 
       <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
@@ -60,27 +61,32 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
           <textarea rows="3" ng-model="ag.talkSummary"></textarea>
         </label>
         <div class="button-bar">
-          <button type="submit" class="button button-block button-balanced" ng-disabled="addAgendaForm.$invalid">{{"Submit" | translate}}</button>
+          <button type="submit" class="button button-block button-balanced" ng-disabled="addAgendaForm.$invalid">
+            {{"Submit" | translate}}
+          </button>
           <button type="reset" class="button button-block button-stable">{{"Clear Fields" | translate}}</button>
         </div>
       </form>
       <!-- button to show add new agenda -->
       <div class="item item-button-right">
-        <a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced " >{{ "I'm Here" | translate}}</a><br>
+        <a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced ">{{ "I'm Here" |
+          translate}}</a><br>
       </div>
       <button class="button button-block button-positive" ng-show="!addingAgendaForm && isOrganizer"
-              ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}</button>
+              ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}
+      </button>
       <button class="button button-block button-positive" ng-show="addingAgendaForm"
-              ng-click="showAddingAgenda()">{{"Hide" | translate}}</button>
+              ng-click="showAddingAgenda()">{{"Hide" | translate}}
+      </button>
       <!-- Agenda List listed by beginning time -->
       <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
         <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
-          <div class = "item item-text-wrap">
+          <div class="item item-text-wrap">
             <b>From</b> {{i.begin | date: 'HH:mm' || "n/a"}} <b>to</b> {{i.end | date: 'HH:mm' || "n/a"}}<br>
             <b>Speaker</b>: {{i.speaker || "n/a"}}<br>
             <b>Topic</b>: {{i.topic || "n/a"}}<br>
           </div>
-      </a>
+        </a>
       </div>
       <p>
         {{event.descr}}
@@ -97,10 +103,12 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="upload = !upload" ng-show="upload" class="button button-block button-assertive">
       {{"Cancel" | translate}}
     </button>
-    <button ng-click="upload = !upload" ng-show="!upload && !agenda && isOrganizer" class="button button-block button-positive">
+    <button ng-click="upload = !upload" ng-show="!upload && !agenda && isOrganizer"
+            class="button button-block button-positive">
       {{"Add agenda" | translate}}
     </button>
-    <button ng-click="upload = !upload" ng-show="!upload && agenda && isOrganizer" class="button button-block button-positive">
+    <button ng-click="upload = !upload" ng-show="!upload && agenda && isOrganizer"
+            class="button button-block button-positive">
       {{"Change agenda" | translate}}
     </button>
     <button ng-click="joinEvent()" ng-show="!isCurrentUserRegistered" class="button button-block button-balanced">
@@ -112,14 +120,23 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="showAlert()" class="button button-block button-positive">
       {{"Participants list" | translate}}
     </button>
-    <a href="#app/choose-question/{{event.id}}" ng-show="isOrganizer" class="button button-block button-positive">{{"Choose current question" | translate}}</a>
-    <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive" ng-show="isFeedbackAllowed">
-      {{"Feedback" | translate}}</button>
-    <button ui-sref="app.live-voting({eventId: event.id})" class="button button-block button-positive" ng-show="event.questions.length>0">
+    <a href="#app/choose-question/{{event.id}}" ng-show="isOrganizer" class="button button-block button-positive">{{"Choose
+      current question" | translate}}</a>
+    <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive"
+            ng-show="isFeedbackAllowed">
+      {{"Feedback" | translate}}
+    </button>
+    <button ui-sref="app.live-voting({eventId: event.id})" class="button button-block button-positive"
+            ng-show="event.questions.length>0">
       {{"Live Voting" | translate}}
     </button>
-    <button ui-sref="app.feedback-results({eventId: event.id})" class="button button-block button-balanced" ng-show="areFeedbackResultsVisible">
-      {{"Show feedback results" | translate}}</button>
+    <button ui-sref="app.feedback-results({eventId: event.id})" class="button button-block button-balanced"
+            ng-show="areFeedbackResultsVisible">
+      {{"Show feedback results" | translate}}
+    </button>
     <button ng-click="showRoute()" class="button button-bordered">{{'How to come to the event' | translate}}</button>
+    <button ng-click="sendReminder()" class="button button-block button-positive" ng-show="isReminderAllowed">
+      {{"Remind about event" | translate}}
+    </button>
   </ion-content>
 </ion-view>

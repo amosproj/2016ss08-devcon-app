@@ -63,7 +63,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    If connection successfully establishes redirects to main view,
    if no shows an error alert and reloads controller
    */
-  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService, $translate) {
+  .controller('StartCtrl', function ($scope, $state, $ionicHistory, $ionicPopup, $ionicLoading, backendService, $translate, $timeout) {
     console.log("Start contorller");
     $ionicLoading.show({
       content: 'Loading',
@@ -81,10 +81,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }, function (err) {
       $translate("Error!").then(
         function (res) {
+          $ionicLoading.hide();
           $ionicPopup.alert({
             title: res,
             template: "{{'Check your internet connection and try again' | translate}}"
-          });
+          }).then(function (r) {
+            $state.go('app.transition', {to: 'app.start'})
+          })
           credentials.password = "";
         }
       );
@@ -331,20 +334,43 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Calls createEvent service, shows a popup alert about successful creation of an event
    and redirects to main view
    */
-  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
+  .controller('CreateEventCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
     $scope.coordinates = false;
     $scope.createEvent = function (ev) {
-      backendService.createEvent(ev);
-      $translate('Done!').then(
-        function (res) {
-          $ionicPopup.alert({
-            title: res,
-            template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'created' | translate}}" + "."
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+        $ionicLoading.hide();
+        $translate('Error!').then(
+          function (res2) {
+            var alertPopup = $ionicPopup.alert({
+              title: res2,
+              template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+            });
+          }
+        )}}, 6000);
+      backendService.createEvent(ev).then(function (res) {
+        $ionicLoading.hide();
+        $scope.hidden = true;
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Event' | translate}}" + ' "' + ev.title + '" ' + "{{'created' | translate}}" + "."
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        );
+      })
+
     }
   })
 
@@ -353,7 +379,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Gets event by its id rom backend, gets agenda file name and download url if it exist
    Contains functions for uploading and downloading a file
    */
-  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter) {
+  .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     $scope.isOrganizer = false;
@@ -364,6 +390,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
+    $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
@@ -379,6 +406,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           console.log("Error by getting file details")
         })
       }
+      /*
+       hide - show form after click on adding agenda
+       */
+      $scope.addingAgendaForm = false;
+      $scope.showAddingAgenda = function () {
+        $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+      };
+      //retrieve agenda by condition
+      backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
+        $scope.agendaList = res;
+        $scope.isFeedbackAllowed = isFeedbackAllowed();
+        $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
+        $scope.isReminderAllowed = isReminderAllowed();
+      }, function (error) {
+        console.log("Error by retrieving the event", error)
+      })
     }, function (error) {
       console.log("Error by retrieving the event", error)
     });
@@ -392,6 +435,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         maxWidth: 200,
         showDelay: 0
       });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 9000);
       var formData = new FormData();
       formData.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
@@ -400,6 +455,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           backendService.deleteFile($stateParams.agenda);
         }
         $ionicLoading.hide();
+        $scope.hidden = true;
         $translate('Done!').then(
           function (res2) {
             $ionicPopup.alert({
@@ -416,6 +472,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       }, function (error) {
         $ionicLoading.hide();
+        $scope.hidden = true;
         $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
@@ -439,8 +496,29 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
     //function for the Join-Event-Button
     $scope.joinEvent = function () {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
       backendService.addCurrentUserToEvent($scope.event.id).then(
         function (res) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           $translate('Done!').then(
             function (res2) {
               $scope.isCurrentUserRegistered = true;
@@ -451,6 +529,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           );
         }, function (err) {
+          $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
               $ionicPopup.alert({
@@ -463,8 +542,29 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     };
     //function for the Leave-Event-Button
     $scope.leaveEvent = function () {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
       backendService.removeCurrentUserFromEvent($scope.event.id).then(
         function (res) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           $translate('Done!').then(
             function (res2) {
               $scope.isCurrentUserRegistered = false;
@@ -475,6 +575,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           );
         }, function (err) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           $translate('Error!').then(
             function (res2) {
               $ionicPopup.alert({
@@ -485,6 +587,140 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         });
     };
+    //function for the Remind-about-event-button
+    $scope.sendReminder = function () {
+      firstPromise = $translate("an event");
+      firstPromise.then(
+        function (anEventTranslation) {
+          if ($scope.event.date) {
+            daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
+            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
+              {
+                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation),
+                daysTillEvent: daysTillEvent
+              }
+            );
+          } else {
+            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming.",
+              {
+                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation)
+              }
+            );
+          }
+          secondPromise.then(
+            function (firstSentence) {
+              if ($scope.event.date) {
+                dateFormatted = $filter('date')($scope.event.date, "dd.MM.yy");
+                if ($scope.event.time) {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on $date at $time, $location!", {
+                      date: dateFormatted,
+                      time: $scope.event.time,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you on $date at $time!", {date: dateFormatted, time: $scope.event.time})
+                  }
+                } else {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on $date at $location!", {
+                      date: dateFormatted,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you on $date!", {date: dateFormatted})
+                  }
+                }
+              } else {
+                if ($scope.event.time) {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you on at $time, $location!", {
+                      time: $scope.event.time,
+                      location: $scope.event.location
+                    })
+                  } else {
+                    thirdPromise = $translate("See you at $time!", {time: $scope.event.time})
+                  }
+                } else {
+                  if ($scope.event.location) {
+                    thirdPromise = $translate("See you at $location!", {location: $scope.event.location})
+                  } else {
+                    thirdPromise = $translate("See you!")
+                  }
+                }
+              }
+              thirdPromise.then(
+                function (secondSentence) {
+                  message = firstSentence + " " + secondSentence;
+                  backendService.getEventById($stateParams.eventId).then(
+                    function (res) {
+                      $scope.event = res['data'];
+                      users = $scope.event.participants.map(function (participant) {
+                        if (participant.status == "joined") {
+                          return participant.name;
+                        }
+                      });
+                      users = users.filter(function (user) {
+                        return user != null;
+                      });
+                      backendService.sendPushNotificationToUsers(message, users).then(
+                        function (res) {
+                          $translate("Done!").then(
+                            function (res) {
+                              $ionicPopup.alert({
+                                title: res,
+                                template: "{{'The push notification was sent successfully.' | translate}}"
+                              });
+                            }
+                          );
+                        },
+                        function (err) {
+                          console.log(err)
+                        }
+                      );
+                    });
+                }
+              )
+            }
+          );
+        }
+      )
+    };
+    /*
+    function for delete Event
+    delete related agenda and files as well
+    */
+    $scope.deleteEvent = function () {
+      $translate('Confirmation needed').then(
+        function (res3) {
+          var confirmPopup = $ionicPopup.confirm({
+            title: res3,
+            template: "{{'Are you sure you want to delete this event?' | translate}}"
+          });
+          confirmPopup.then(function (res) {
+            if (res) {
+              backendService.getEventById($stateParams.eventId).then(function (res) {
+                backendService.deleteFile(res['data'].fileId);
+                for (agendaNr in $scope.agendaList) {
+                  backendService.deleteAgenda($scope.agendaList[agendaNr].id);
+                }
+                backendService.deleteEvent($stateParams.eventId)
+              });
+              $translate('Done!').then(
+                function (res4) {
+                  var alertPopup = $ionicPopup.alert({
+                    title: res4,
+                    template: "{{'This Event Has Been Deleted.' | translate}}"
+                  });
+                  alertPopup.then(function (re) {
+                    $state.go('app.main');
+                  });
+                })
+            } else {
+            }
+          });
+        })
+      }
     /*
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
@@ -507,7 +743,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     isFeedbackAllowed = function () {
       borderTimes = getBorderTimesOfEvent();
-      console.log(borderTimes);
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
@@ -516,9 +751,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      console.log(now);
-      console.log(beginDate);
-      console.log(endDatePlus48h);
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
@@ -554,6 +786,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     };
 
+    /*
+     Function that determines if user is organizer and
+     now is before the begin of the event (so reminders are allowed).
+     */
+    isReminderAllowed = function () {
+      dateOfEvent = new Date($scope.event.date);
+      now = new Date();
+
+      if (backendService.isCurrentUserOrganizer()) {
+        return now < dateOfEvent;
+      } else {
+        return false;
+      }
+    };
+
     // function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
       $translate('Send Email').then(function (send) {
@@ -567,6 +814,25 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   type: 'button-positive',
                   onTap: function (e) {
                     e.preventDefault();
+                    $ionicLoading.show({
+                      content: 'Loading',
+                      animation: 'fade-in',
+                      showBackdrop: true,
+                      maxWidth: 200,
+                      showDelay: 0
+                    });
+                    $scope.hidden = false;
+                    $timeout(function () {
+                      if(!$scope.hidden){
+                        $ionicLoading.hide();
+                        $translate('Error!').then(
+                          function (res2) {
+                            var alertPopup = $ionicPopup.alert({
+                              title: res2,
+                              template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                            });
+                          }
+                        )}}, 12000);
                     createCSV($scope.event.participants.length - 1, 'email')
                   }
                 },
@@ -575,6 +841,25 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   type: 'button-positive',
                   onTap: function (e) {
                     e.preventDefault();
+                    $ionicLoading.show({
+                      content: 'Loading',
+                      animation: 'fade-in',
+                      showBackdrop: true,
+                      maxWidth: 200,
+                      showDelay: 0
+                    });
+                    $scope.hidden = false;
+                    $timeout(function () {
+                      if(!$scope.hidden){
+                        $ionicLoading.hide();
+                        $translate('Error!').then(
+                          function (res2) {
+                            var alertPopup = $ionicPopup.alert({
+                              title: res2,
+                              template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                            });
+                          }
+                        )}}, 12000);
                     createCSV($scope.event.participants.length - 1, 'download')
                   }
                 },
@@ -618,6 +903,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 console.log("Error by writing a file", error);
               });
             if (action === 'download') {
+              $ionicLoading.hide();
+              $scope.hidden = true;
               $scope.download(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
             } else {
               sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
@@ -655,6 +942,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 $cordovaEmailComposer.open(email).then(null, function () {
                   // email is sent or cancelled
                 });
+                $ionicLoading.hide();
+                $scope.hidden = true;
               }, function (notAvailable) {
                 $translate('Error!').then(
                   function (res2) {
@@ -664,6 +953,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     });
                   }
                 );
+                $ionicLoading.hide();
+                $scope.hidden = true;
               });
             })
           })
@@ -677,21 +968,44 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      is stored
      */
     $scope.addingAgenda = function (ag) {
-      backendService.addingAgenda(ag, $stateParams.eventId);
-      $translate('Done!').then(
-        function (res2) {
-          var alertPopup = $ionicPopup.alert({
-            title: res2,
-            template: "{{'New Talk Session is added' | translate}}"
-          });
-          alertPopup.then(function (res) {
-            $state.go('app.transition', {
-              to: 'app.event',
-              data: {eventId: $stateParams.eventId}
-            })
-          });
-        }
-      );
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
+      backendService.addingAgenda(ag, $stateParams.eventId).then(function (re) {
+        $ionicLoading.hide();
+        $scope.hidden = true;
+        $translate('Done!').then(
+          function (res2) {
+            var alertPopup = $ionicPopup.alert({
+              title: res2,
+              template: "{{'New Talk Session is added' | translate}}"
+            });
+            alertPopup.then(function (res) {
+              $state.go('app.transition', {
+                to: 'app.event',
+                data: {eventId: $stateParams.eventId}
+              })
+            });
+          }
+        );
+      })
+
     };
     /*
      hide - show form after click on adding agenda 
@@ -770,13 +1084,34 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
    */
 
-  .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate) {
+  .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
     $scope.coordinates = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
       var id = $scope.event.id;
       $scope.updateEvent = function (ev) {
+        $ionicLoading.show({
+          content: 'Loading',
+          animation: 'fade-in',
+          showBackdrop: true,
+          maxWidth: 200,
+          showDelay: 0
+        });
+        $scope.hidden = false;
+        $timeout(function () {
+          if(!$scope.hidden){
+            $ionicLoading.hide();
+            $translate('Error!').then(
+              function (res2) {
+                var alertPopup = $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                });
+              }
+            )}}, 7000);
         backendService.updateEvent(ev).then(function (re) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           backendService.SetStatusTrue(id);
           console.log('user status {updated : true}');
           $translate('Done!').then(
@@ -790,6 +1125,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           )
         }, function (error) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           $translate('Error!').then(
             function (res) {
               $ionicPopup.alert({
@@ -889,6 +1226,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         maxWidth: 200,
         showDelay: 0
       });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 9000);
       var formDataSpeaker = new FormData();
       formDataSpeaker.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFileAgenda(formDataSpeaker, agendaId).then(function (res) {
@@ -897,6 +1246,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           backendService.deleteFile(agendaId);
         }
         $ionicLoading.hide();
+        $scope.hidden = true;
         $translate('Done!').then(
           function (res2) {
             $ionicPopup.alert({
@@ -913,6 +1263,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       }, function (error) {
         $ionicLoading.hide();
+        $scope.hidden = true;
         $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
@@ -930,7 +1281,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    if no calls createAccount service with user form as a parameter
    "default" user means "not registered" user
    */
-  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate) {
+  .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         backendService.logout();
@@ -948,17 +1299,40 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     });
     $scope.createAccount = function (user) {
-      backendService.createAccount(user);
-      $translate('Done!').then(
-        function (res) {
-          $ionicPopup.alert({
-            title: res,
-            template: "{{'Welcome' | translate}}" + ', ' + user.name
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
+      backendService.createAccount(user).then(function (re) {
+        $ionicLoading.hide();
+        $scope.hidden = true;
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Welcome' | translate}}" + ', ' + user.name
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        );
+      })
+
     }
   })
 
@@ -967,12 +1341,21 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    First logouts the logged in default user, then calls the backend login and shows success/error popup. 
    Goes to Main Page if success, stays on login form but deletes password if error. 
    */
-  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+  .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate, $ionicLoading, $timeout) {
     backendService.logout();
     $scope.login = function (credentials) {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
+          backendService.applySettingsForCurrentUser();
           backendService.getEvents().then(function (res) {
+            $ionicLoading.hide();
               $scope.event = res['data'];
               var me = credentials.username;
               console.log('current user is :', me);
@@ -1027,12 +1410,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   }).then(function (re) {
                     $state.go('app.main');
                   });
+                  credentials.password = "";
+                  credentials.username = "";
                 }
               )
             }
           )
         },
         function (err) {
+          $ionicLoading.hide();
           $translate('Error!').then(
             function (res) {
               $ionicPopup.alert({
@@ -1072,7 +1458,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    If yes redirects to login view,
    if no gets username, name, given name and email information about logged user
    */
-  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+  .controller('MyAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate, $ionicLoading, $timeout) {
     backendService.fetchCurrentUser().then(function (res) {
       if (res['data']['user'].name == "default") {
         $state.go('app.login')
@@ -1099,9 +1485,30 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             template: "{{'Are you sure you want to delete your account?' | translate}}"
           }).then(function (result) {
             if (result) {
+              $ionicLoading.show({
+                content: 'Loading',
+                animation: 'fade-in',
+                showBackdrop: true,
+                maxWidth: 200,
+                showDelay: 0
+              });
+              $scope.hidden = false;
+              $timeout(function () {
+                if(!$scope.hidden){
+                  $ionicLoading.hide();
+                  $translate('Error!').then(
+                    function (res2) {
+                      var alertPopup = $ionicPopup.alert({
+                        title: res2,
+                        template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                      });
+                    }
+                  )}}, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
+                  $ionicLoading.hide();
+                  $scope.hidden = true;
                   backendService.logout();
                   $translate('Done!').then(
                     function (res2) {
@@ -1130,7 +1537,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Then creates the rating objects for every category.
    Last define the save function for storing the results in the backend.
    */
-  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory) {
+  .controller('FeedbackCtrl', function ($scope, $stateParams, backendService, $translate, $ionicPopup, $ionicHistory, $ionicLoading, $timeout) {
     /*
      Function for creating a new crating object
      Used for avoid redundance.
@@ -1165,6 +1572,25 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         console.log(err)
       });
     $scope.saveFeedback = function () {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
       for (talkNr in $scope.talks) {
         ratingObject = $scope.ratingObjects[$scope.talks[talkNr].topic];
         backendService.addFeedbackToTalk($scope.talks[talkNr].id, ratingObject.rating, ratingObject.comment)
@@ -1180,6 +1606,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
       backendService.addFeedbackToEvent($stateParams.eventId, ratingArray).then(
         function (res) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           $translate('Done!').then(
             function (res2) {
               $ionicPopup.alert({
@@ -1286,25 +1714,48 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    After clicking submit button in edit-account view calls update account function with user form as a parameter
    Then redirects to MyAccount view
    */
-  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+  .controller('EditAccountCtrl', function ($scope, $state, backendService, $ionicPopup, $translate, $ionicLoading, $timeout) {
     backendService.fetchCurrentUser().then(function (res) {
       $scope.user = res['data']['visibleByRegisteredUsers'];
       $scope.user.username = res['data']['user'].name;
       $scope.user.email = res['data']['visibleByTheUser'].email;
     });
     $scope.updateAccount = function (user) {
-      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}});
-      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-      $translate('Done!').then(
-        function (res) {
-          $ionicPopup.alert({
-            title: res,
-            template: "{{'Account updated.' | translate}}"
-          }).then(function (res) {
-            $state.go('app.my-account')
-          });
-        }
-      );
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
+      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}}).then(function (re) {
+        backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}}).then(function (ress) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Account updated.' | translate}}"
+              }).then(function (res) {
+                $state.go('app.my-account')
+              });
+            }
+          );
+        })
+      })
     }
   })
   /*
@@ -1312,7 +1763,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    contains functions to get a list of questions in one event, to choose a question
    as well as to add a new question for the event
    */
-  .controller('ChooseQuestionCtrl', function ($scope, $state, $ionicPopup, backendService, $filter, $stateParams, $ionicLoading, $translate) {
+  .controller('ChooseQuestionCtrl', function ($scope, $state, $ionicPopup, backendService, $filter, $stateParams, $ionicLoading, $translate, $timeout) {
     $scope.available = true;
     $scope.add = false;
     $scope.questions = [];
@@ -1357,18 +1808,40 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      function to add question to array questions in event object
      */
     $scope.addingQuestion = function (que) {
-      backendService.addingQuestion(que, $stateParams.eventId);
-      $scope.questions.push(que);
-      $scope.add = false;
-      $scope.que = {question: ""};
-      $translate('Done!').then(
-        function (res2) {
-          var alertPopup = $ionicPopup.alert({
-            title: res2,
-            template: "{{'New Question is added' | translate}}"
-          });
-        }
-      );
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
+      backendService.addingQuestion(que, $stateParams.eventId).then(function (re) {
+        $ionicLoading.hide();
+        $scope.hidden = true;
+        $scope.questions.push(que);
+        $scope.add = false;
+        $scope.que = {question: ""};
+        $translate('Done!').then(
+          function (res2) {
+            var alertPopup = $ionicPopup.alert({
+              title: res2,
+              template: "{{'New Question is added' | translate}}"
+            });
+          }
+        );
+      })
     };
   })
   /*
@@ -1377,7 +1850,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    On submit, the field is incremented and updated. Then, every second the event is loaded again for displaying changes.
    On leaving the event the interval call is cancelled.
    */
-  .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval, $filter) {
+  .controller('LiveVotingCtrl', function ($scope, backendService, $stateParams, $interval, $filter, $ionicLoading, $timeout, $ionicPopup, $translate) {
     $scope.beforeSubmit = false;
     $scope.afterSubmit = false;
     $scope.firstLoadComplete = false;
@@ -1404,11 +1877,52 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     });
 
     $scope.submit = function (result) {
+      $ionicLoading.show({
+        content: 'Loading',
+        animation: 'fade-in',
+        showBackdrop: true,
+        maxWidth: 200,
+        showDelay: 0
+      });
+      $scope.hidden = false;
+      $timeout(function () {
+        if(!$scope.hidden){
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )}}, 7000);
       $scope.questionObject[result] += 1;
       backendService.updateEvent(thisEvent.id, "questions", thisEvent.questions).then(
         function (res) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
           $scope.beforeSubmit = false;
           $scope.afterSubmit = true;
         })
+    }
+  })
+
+  .controller('SettingsCtrl', function ($scope, backendService, $state, $ionicPopup, $translate) {
+    userInfo = backendService.currentUser.visibleByTheUser;
+    $scope.settings = userInfo.settings;
+
+    $scope.updateSettings = function (settings) {
+      userInfo.settings = settings;
+      backendService.updateUserProfile({"visibleByTheUser": userInfo}).then(function (res) {
+        backendService.applySettings(userInfo.settings);
+        $translate("Done!").then(
+          function (de) {
+            $ionicPopup.alert({
+              title: de,
+              template: "{{'Settings are updated' | translate}}"
+            })
+          }
+        );
+      })
     }
   });

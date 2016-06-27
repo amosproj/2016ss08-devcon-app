@@ -61,12 +61,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      and "visibleByRegisteredUsers" field saving name and given name
      */
     backend.createAccount = function (user) {
-      BaasBox.signup(user.email, user.pass)
+      return BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
           backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email}});
+          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
           backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+          backend.applySettingsForCurrentUser();
         })
         .fail(function (error) {
           console.log("Signup error ", error);
@@ -95,6 +96,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
     backend.logout = function () {
+      backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
           backend.loginStatus = false;
@@ -156,7 +158,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       ev.participants.push(creator);
       console.log(creator);
       console.log(ev.participants);
-      BaasBox.save(ev, "events")
+      return BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
           BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
@@ -167,17 +169,31 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
+  /*
+   Function for deleting an event
+   */
+  backend.deleteEvent = function (eventId) {
+    //return
+    BaasBox.deleteObject(eventId, "events")
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
+  };
+
     /*
      Function for adding an agenda talk to an event
      */
 
     backend.addingAgenda = function (ag, evId) {
-      BaasBox.save(ag, "agenda")
+      return BaasBox.save(ag, "agenda")
         .done(function (res) {
           console.log("res ", res);
           BaasBox.updateEventAgenda(res, evId);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
         })
         .fail(function (error) {
           console.log("error ", error);
@@ -185,7 +201,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-     Function for deleting a talk.
+     Function for deleting a talk / agenda
      */
     backend.deleteAgenda = function (agendaId) {
       //return
@@ -212,7 +228,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
 
     backend.addingQuestion = function (que, eventId) {
-      backend.getEventById(eventId).then(function (res) {
+      return backend.getEventById(eventId).then(function (res) {
         event = res['data'];
         question = {};
         question = que;
@@ -228,7 +244,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         question.dontKnow = 0;
         question.current = false;
         event.questions.push(question);
-        BaasBox.updateField(eventId, "events", "questions", event.questions);
+        return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
     };
 
@@ -674,6 +690,67 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.loadObject("agenda", id)
     };
 
+    /*
+     Function for sending a push notification with a text to a list of users.
+     "users" has to be an array of usernames.
+     Returns a promise.
+     */
+    backend.sendPushNotificationToUsers = function (message, users) {
+      params = {
+        "users": users,
+        "message": message
+      };
+      console.log(users,message)
+      return BaasBox.sendPushNotification(params);
+    }
+
+    /*
+     Function for enabling push notifications for the current user.
+     Returns a promise.
+     */
+    backend.enablePushNotificationsForCurrentUser = function () {
+      operatingSystem = "android";
+      return BaasBox.enableNotifications(operatingSystem, localStorage.getItem('registrationId'));
+    };
+
+    /*
+     Function for disabling push notifications for the current user.
+     Returns a promise.
+     */
+    backend.disablePushNotificationsForCurrentUser = function () {
+      return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
+    };
+
+    /*
+     Function for applying the given settings to the user
+     */
+    backend.applySettings = function (settings) {
+      if (settings !== undefined) {
+        console.log(settings)
+        if (settings.pushNotificationEnabled) {
+          backend.enablePushNotificationsForCurrentUser();
+        } else {
+          backend.disablePushNotificationsForCurrentUser();
+        }
+      }
+    }
+
+    /*
+     Function for applying the settings for the current user
+     */
+    backend.applySettingsForCurrentUser = function () {
+      userInfo = backend.currentUser.visibleByTheUser;
+      backend.applySettings(userInfo.settings);
+    };
+
+    /*
+      TODO in Sprint 11
+    */
+    backend.isCurrentUserOrganizer = function(){
+      return true;
+    }
+
     return backend;
   }
+
 );
