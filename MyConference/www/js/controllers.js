@@ -1318,20 +1318,33 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               });
             }
           )}}, 7000);
-      backendService.createAccount(user).then(function (re) {
-        $ionicLoading.hide();
-        $scope.hidden = true;
-        $translate('Done!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Welcome' | translate}}" + ', ' + user.name
-            }).then(function (res) {
-              $state.go('app.main')
-            });
-          }
-        );
-      })
+
+      backendService.createAccount(user).then(
+        function (re) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Welcome' | translate}}" + ', ' + user.name
+              }).then(function (res) {
+                $state.go('app.main')
+              });
+            }
+          );
+        }, function (err){
+          $ionicLoading.hide();
+          $scope.hidden = true;
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'This mail adress is already in use.' | translate}}"
+              });
+            }
+          )
+        });
 
     }
   })
@@ -1503,7 +1516,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                         template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
                       });
                     }
-                  )}}, 7000);
+                  )}}, 000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
