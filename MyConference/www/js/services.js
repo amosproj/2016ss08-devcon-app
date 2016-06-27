@@ -604,6 +604,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
+  /*
+   Function for getting a user by his email
+   returns a promise
+   */
+
+  backend.getUsers = function (user) {
+    return BaasBox.getUsers(user)
+      .done(function (res) {
+
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("get user error ", err);
+      });
+  };
     /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
