@@ -743,11 +743,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-    /*
-      TODO in Sprint 11
-    */
     backend.isCurrentUserOrganizer = function(){
-      return true;
+      return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
     return backend;
