@@ -116,6 +116,40 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
+   Controller for adding Organizer
+   Calls getUsers service, ToDo  (change User Role to Administrator)
+   */
+
+  .controller('AddOrgCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
+    $scope.getUsers = function (user) {
+      backendService.getUsers(user).then(function (res) {
+        var user = res.data;
+        var email = user.visibleByTheUser.email;
+        var role = user.user.roles;
+        console.log(email);
+        console.log(role);
+        if (user = email){
+         /* ToDo  (change User Role to Administrator) */
+          $ionicPopup.alert({
+            title: 'Hallo ' + user,
+            template: 'this user is registred'
+          })
+        }
+      },function (err) {
+        $translate("Error!").then(
+          function (res) {
+            $ionicPopup.alert({
+              title: ' User Not found',
+              template: 'this user is not registred'
+            })
+          }
+        );
+      });
+    }
+  })
+
+
+  /*
    Controller for getting Map view with current position
    and the difference between current position and event position using coordinates
    */
@@ -1412,6 +1446,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   });
                   credentials.password = "";
                   credentials.username = "";
+
                 }
               )
             }
