@@ -291,10 +291,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Provides the filter methods for previous and next events.
    */
   .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
-    $scope.isOrganizer = false;
-    if (typeof backendService.currentUser !== 'undefined'
-      && (backendService.currentUser.roles.indexOf('administrator') != -1))
-      $scope.isOrganizer = true;
+    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     var today = new Date();
     /*
      This method is used for filter after prevoius events in the main view
@@ -382,10 +379,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-    $scope.isOrganizer = false;
-    if (typeof backendService.currentUser !== 'undefined'
-      && (backendService.currentUser.roles.indexOf('administrator') != -1))
-      $scope.isOrganizer = true;
+    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
@@ -1044,10 +1038,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    can delete talk, edit talk information
    */
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
-    $scope.isOrganizer = false;
-    if (typeof backendService.currentUser !== 'undefined'
-      && (backendService.currentUser.roles.indexOf('administrator') != -1))
-      $scope.isOrganizer = true;
+    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     $scope.upload = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
