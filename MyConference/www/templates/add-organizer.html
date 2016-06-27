@@ -1,0 +1,17 @@
+
+<ion-view title="Add Organizer">
+  <ion-content  has-tabs="true" padding="true">
+    <form name="userForm" ng-submit="getUsers(user)" novalidate>
+      <div class="list">
+        <label class="item item-input">
+          <input type="email" ng-model="user.email" placeholder="{{'Enter user email' | translate}}">
+        </label>
+      </div>
+      <div class="assertive" ng-show="error.message">{{error.message}}</div>
+      <button type="submit" class="button button-block button-positive" ng-disabled="userForm.$invalid">
+        <span ng-show="!loading">{{"Add Organizer" | translate}}</span>
+        <i ng-show="loading" class="ion-loading-b"></i>
+      </button>
+    </form>
+  </ion-content>
+</ion-view>
