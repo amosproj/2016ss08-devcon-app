@@ -31,7 +31,28 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.connect = function () {
       BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
       BaasBox.appcode = "1234567890";
-      return backend.login(defaultUsername, defaultPassword);
+
+      var deferred = $q.defer();
+      backend.currentUser =  BaasBox.getCurrentUser();
+      if (backend.currentUser){
+        if (backend.currentUser.username == defaultUsername){
+          backend.changeLoginStatus(false);
+        } else {
+          backend.changeLoginStatus(true);
+        }
+        deferred.resolve(backend.currentUser);
+      } else {
+        backend.changeLoginStatus(false);
+        backend.login(defaultUsername, defaultPassword).then(
+          function (res) {
+            backend.currentUser = res;
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err);
+          }
+        );
+      }
+      return deferred.promise;
     };
     /*
      Function for getting list of events from backend
