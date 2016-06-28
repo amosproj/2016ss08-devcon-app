@@ -147,7 +147,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               confirmPopup.then(function (res) {
                 if (res) {
                   $ionicLoading.show({
-                    template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Acquiring location!'
+                    template: '<ion-spinner icon="bubbles"></ion-spinner><br/>' + "{{'Acquiring location!' | translate }}"
                   });
                   $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
                     var lat = position.coords.latitude;
