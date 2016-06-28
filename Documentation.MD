@@ -90,4 +90,4 @@ For sending push notifications to a group of users, this backend service functio
 ```javascript
 sendPushNotificationToUsers(message, users)
 ```
-where message is a String and users is a list of usernames.
+where `message` is a String and `users` is a list of usernames.
