@@ -747,7 +747,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     backend.isCurrentUserOrganizer = function(){
+<<<<<<< HEAD
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
+=======
+      return (typeof backend.currentUser !== 'undefined'
+      && backend.currentUser.roles.indexOf('administrator') != -1);
+>>>>>>> 49-Organizer-permission-create-change-events
     }
 
     return backend;
