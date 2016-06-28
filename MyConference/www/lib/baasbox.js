@@ -10,7 +10,7 @@ var BaasBox = (function() {
   var instance;
   var user;
   var endPoint;
-  var COOKIE_KEY = "baasbox-cookie";
+  var SESSION_STORAGE_KEY = "baasbox-session";
 
   // check if the user is using Zepto, otherwise the standard jQuery ajaxSetup function is executed
   if (window.Zepto) {
@@ -43,25 +43,11 @@ var BaasBox = (function() {
       return;
     }
     this.user = userObject;
-    // if the user is using Zepto, then local storage must be used (if supported by the current browser)
-    if (window.Zepto && window.localStorage) {
-      window.localStorage.setItem(COOKIE_KEY, JSON.stringify(this.user));
-    } else {
-      $.cookie(COOKIE_KEY, JSON.stringify(this.user));
-    }
+    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.user));
   }
 
   function getCurrentUser() {
-    // if the user is using Zepto, then local storage must be used (if supported by the current browser)
-    if (window.Zepto && window.localStorage) {
-      if (localStorage.getItem(COOKIE_KEY)) {
-        this.user = JSON.parse(localStorage.getItem(COOKIE_KEY));
-      }
-    } else {
-      if ($.cookie(COOKIE_KEY)) {
-        this.user = JSON.parse($.cookie(COOKIE_KEY));
-      }
-    }
+    this.user = JSON.parse(window.localStorage.getItem(SESSION_STORAGE_KEY));
     return this.user;
   }
 
@@ -197,11 +183,7 @@ var BaasBox = (function() {
       var url = BaasBox.endPoint + '/logout';
       var req = $.post(url, {})
         .done(function (res) {
-          if(window.Zepto && window.localStorage) {
-            window.localStorage.removeItem(COOKIE_KEY);
-          } else {
-            $.cookie(COOKIE_KEY, null);
-          }
+          window.localStorage.removeItem(SESSION_STORAGE_KEY);
           setCurrentUser(null);
           deferred.resolve({"data": "ok","message": "User logged out"})
             .fail(function (error) {
@@ -251,6 +233,10 @@ var BaasBox = (function() {
 
     getCurrentUser: function() {
       return getCurrentUser();
+    },
+
+    setCurrentUser: function (userObject) {
+      return setCurrentUser(userObject)
     },
 
     fetchCurrentUser: function () {

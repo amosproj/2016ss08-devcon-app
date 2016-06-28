@@ -19,6 +19,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     // credentials for actions when user is not logged in
     var defaultUsername = "default";
     var defaultPassword = "123456";
+    var REMEMBER_LOGIN_KEY = "baasbox-remember-login";
+
     var backend = {};
     backend.currentUser;
     backend.loginStatus = false;
@@ -31,7 +33,30 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.connect = function () {
       BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
       BaasBox.appcode = "1234567890";
-      return backend.login(defaultUsername, defaultPassword);
+
+      var deferred = $q.defer()
+      backend.currentUser = JSON.parse(window.localStorage.getItem(REMEMBER_LOGIN_KEY));
+
+      if (backend.currentUser){
+        if (backend.currentUser.username == defaultUsername){
+          backend.changeLoginStatus(false);
+        } else {
+          BaasBox.setCurrentUser(backend.currentUser);
+          backend.changeLoginStatus(true);
+        }
+        deferred.resolve(backend.currentUser);
+      } else {
+        backend.changeLoginStatus(false);
+        backend.login(defaultUsername, defaultPassword).then(
+          function (res) {
+            backend.currentUser = res;
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err);
+          }
+        );
+      }
+      return deferred.promise;
     };
     /*
      Function for getting list of events from backend
@@ -84,9 +109,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.login(username, pass)
         .done(function (user) {
           if (username != defaultUsername) {
-            backend.loginStatus = true;
+            backend.changeLoginStatus(true);
             backend.currentUser = user;
-            $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
         })
@@ -94,22 +118,40 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log(" Login error ", err);
         });
     };
+
+
+    backend.rememberLogin = function () {
+      window.localStorage.setItem(REMEMBER_LOGIN_KEY, JSON.stringify(BaasBox.getCurrentUser()));
+      console.log(window.localStorage.getItem(REMEMBER_LOGIN_KEY))
+    }
+
+
+
     /*
      Function for logout
      returns a promise
      */
     backend.logout = function () {
+      window.localStorage.removeItem(REMEMBER_LOGIN_KEY);
       backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
-          backend.loginStatus = false;
-          $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
+          backend.changeLoginStatus(false);
           console.log(res);
         })
         .fail(function (error) {
           console.log("error ", error);
         })
     };
+
+    /* Function for changing the login status.
+      Triggers event for menu refresh.
+     */
+    backend.changeLoginStatus = function (newStatus) {
+      backend.loginStatus = newStatus;
+      $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
+    };
+
     /*
      Function for Reset
      returns a promise

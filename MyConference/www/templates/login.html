@@ -19,7 +19,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   <ion-content>
 
 
-    <form ng-submit="login(credentials)">
+    <form ng-submit="login(credentials, rememberLoginEnabled)">
       <div class="list">
         <label class="item item-input">
           <input type="text" placeholder="Username" ng-model="credentials.username" required>
@@ -32,7 +32,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 
 
         <div class="item item-button-right">
-          <h2>{{ 'Remember me' | translate }} &nbsp <input type="checkbox" ng-model="filter.blue"></h2></ion-checkbox>
+          <h2>{{ 'Remember me' | translate }} &nbsp <input type="checkbox" ng-model="rememberLoginEnabled"></h2></ion-checkbox>
           <button class="button button-positive " translate>Log In</button>
         </div>
       </div>

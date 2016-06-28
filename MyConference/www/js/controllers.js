@@ -1354,7 +1354,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    */
   .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate, $ionicLoading, $timeout) {
     backendService.logout();
-    $scope.login = function (credentials) {
+    $scope.login = function (credentials, rememberLoginEnabled) {
       $ionicLoading.show({
         content: 'Loading',
         animation: 'fade-in',
@@ -1364,6 +1364,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
+          if (rememberLoginEnabled) {
+            backendService.rememberLogin();
+          }
           backendService.applySettingsForCurrentUser();
           backendService.getEvents().then(function (res) {
             $ionicLoading.hide();
