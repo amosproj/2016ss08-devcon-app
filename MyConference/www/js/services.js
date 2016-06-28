@@ -19,6 +19,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     // credentials for actions when user is not logged in
     var defaultUsername = "default";
     var defaultPassword = "123456";
+    var REMEMBER_LOGIN_KEY = "baasbox-remember-login";
+
     var backend = {};
     backend.currentUser;
     backend.loginStatus = false;
@@ -32,12 +34,14 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
       BaasBox.appcode = "1234567890";
 
-      var deferred = $q.defer();
-      backend.currentUser =  BaasBox.getCurrentUser();
+      var deferred = $q.defer()
+      backend.currentUser = JSON.parse(window.localStorage.getItem(REMEMBER_LOGIN_KEY));
+
       if (backend.currentUser){
         if (backend.currentUser.username == defaultUsername){
           backend.changeLoginStatus(false);
         } else {
+          BaasBox.setCurrentUser(backend.currentUser);
           backend.changeLoginStatus(true);
         }
         deferred.resolve(backend.currentUser);
@@ -111,11 +115,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log(" Login error ", err);
         });
     };
+
+
+    backend.rememberLogin = function () {
+      window.localStorage.setItem(REMEMBER_LOGIN_KEY, JSON.stringify(BaasBox.getCurrentUser()));
+      console.log(window.localStorage.getItem(REMEMBER_LOGIN_KEY))
+    }
+
+
+
     /*
      Function for logout
      returns a promise
      */
     backend.logout = function () {
+      window.localStorage.removeItem(REMEMBER_LOGIN_KEY);
       backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {

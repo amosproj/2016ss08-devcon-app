@@ -235,6 +235,10 @@ var BaasBox = (function() {
       return getCurrentUser();
     },
 
+    setCurrentUser: function (userObject) {
+      return setCurrentUser(userObject)
+    },
+
     fetchCurrentUser: function () {
       return $.get(BaasBox.endPoint + '/me')
     },

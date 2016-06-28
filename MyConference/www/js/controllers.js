@@ -1353,6 +1353,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       backendService.login(credentials.username, credentials.password).then(
         function (res) {
+          if (rememberLoginEnabled) {
+            backendService.rememberLogin();
+          }
           backendService.applySettingsForCurrentUser();
           backendService.getEvents().then(function (res) {
             $ionicLoading.hide();
