@@ -23,36 +23,34 @@
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings'])
   .run(function ($ionicPlatform, $ionicPopup) {
     $ionicPlatform.ready(function () {
-      setupPush = function () {
-        var push = PushNotification.init({
-          "android": {
-            "senderID": "510200253238"
-          },
-          "ios": {},
-          "windows": {}
-        });
-
-        push.on('registration', function (data) {
-          var oldRegistrationId = localStorage.getItem('registrationId');
-          if (oldRegistrationId !== data.registrationId) {
-            // Save new registration ID
-            localStorage.setItem('registrationId', data.registrationId);
-          }
-        });
-
-        push.on('error', function (e) {
-          console.log("push error = " + e.message);
-        });
-
-        push.on('notification', function (data) {
-          $ionicPopup.alert({
-            title: data.title,
-            template: data.message
-          })
-        });
+      if (window.cordova) {
+        setupPush = function () {
+          var push = PushNotification.init({
+            "android": {
+              "senderID": "510200253238"
+            },
+            "ios": {},
+            "windows": {}
+          });
+          push.on('registration', function (data) {
+            var oldRegistrationId = localStorage.getItem('registrationId');
+            if (oldRegistrationId !== data.registrationId) {
+              // Save new registration ID
+              localStorage.setItem('registrationId', data.registrationId);
+            }
+          });
+          push.on('error', function (e) {
+            console.log("push error = " + e.message);
+          });
+          push.on('notification', function (data) {
+            $ionicPopup.alert({
+              title: data.title,
+              template: data.message
+            })
+          });
+        }
+        setupPush();
       }
-
-      setupPush();
 
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
