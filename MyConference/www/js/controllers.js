@@ -1731,7 +1731,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.fetchCurrentUser().then(function (res) {
       $scope.user = res['data']['visibleByRegisteredUsers'];
       $scope.user.username = res['data']['user'].name;
-      $scope.user.email = res['data']['visibleByTheUser'].email;
     });
     $scope.updateAccount = function (user) {
       $ionicLoading.show({
@@ -1753,21 +1752,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               });
             }
           )}}, 7000);
-      backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}}).then(function (re) {
-        backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}}).then(function (ress) {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          $translate('Done!').then(
-            function (res) {
-              $ionicPopup.alert({
-                title: res,
-                template: "{{'Account updated.' | translate}}"
-              }).then(function (res) {
-                $state.go('app.my-account')
-              });
-            }
-          );
-        })
+
+      backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}}).then(function (ress) {
+        $ionicLoading.hide();
+        $scope.hidden = true;
+        $translate('Done!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'Account updated.' | translate}}"
+            }).then(function (res) {
+              $state.go('app.my-account')
+            });
+          }
+        );
       })
     }
   })
