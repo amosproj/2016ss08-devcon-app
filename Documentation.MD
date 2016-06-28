@@ -1,7 +1,8 @@
 # Content
-1. Instruction for ng-translate
+1. ng-translate
+2. Push Notifications
 
-# Instruction for ng-translate
+# 1. ng-translate
 
 We are using the library ng-translate for the support of different languages in our app. This file explains how to use it.
 
@@ -66,3 +67,27 @@ In the directory www/locales the different language files are stored.
 Every file consists of a single json array defining the word pairs.
 
 Add a new translation by adding a new entry in a new line (make sure to add a colon).
+
+# 2. Push Notifications
+
+For push notifications, the BaasBox-backend is used. It connects to the [Google Cloud Messaging Service](https://developers.google.com/cloud-messaging/) (GCM). In the app, the [Phonegap Push Plugin](https://github.com/phonegap/phonegap-plugin-push) is used.
+
+For setting up, the project id of GCM has to be entered in the BaasBox console.
+
+The user's device has to be registered to Baasbox to enable push notifications. Therefore the device id token is needen, which is received by the Phonegap Push Plugin while starting up the app and is stored in the local storage (app.js):
+```javascript
+push.on('registration', function (data) {
+          var oldRegistrationId = localStorage.getItem('registrationId');
+          if (oldRegistrationId !== data.registrationId) {
+            // Save new registration ID
+            localStorage.setItem('registrationId', data.registrationId);
+          }
+        });
+```
+When enabling or disabling push notifications for a user, the service functions are reading this stored content and call the BaasBox-API for that.
+
+For sending push notifications to a group of users, this backend service function can be used:
+```javascript
+sendPushNotificationToUsers(message, users)
+```
+where `message` is a String and `users` is a list of usernames.
