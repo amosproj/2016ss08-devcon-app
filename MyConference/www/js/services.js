@@ -81,9 +81,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.login(username, pass)
         .done(function (user) {
           if (username != defaultUsername) {
-            backend.loginStatus = true;
+            backend.changeLoginStatus(true);
             backend.currentUser = user;
-            $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
         })
@@ -99,14 +98,22 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
-          backend.loginStatus = false;
-          $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
+          backend.changeLoginStatus(false);
           console.log(res);
         })
         .fail(function (error) {
           console.log("error ", error);
         })
     };
+
+    /* Function for changing the login status.
+      Triggers event for menu refresh.
+     */
+    backend.changeLoginStatus = function (newStatus) {
+      backend.loginStatus = newStatus;
+      $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
+    };
+
     /*
      Function for Reset
      returns a promise
