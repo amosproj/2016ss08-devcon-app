@@ -14,14 +14,13 @@
  root directory along with this program.
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
-describe('LoginCtrl:', function () {
+describe('LoginCtrl: ', function () {
   var scope,
     backendServiceMock,
     ctrl,
     credentials,
     ionicPopupMock,
     translateMock,
-    httpBackend,
     loginDfd,
     eventDfd,
     translateDfd,
@@ -50,7 +49,6 @@ describe('LoginCtrl:', function () {
     }
     ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert'])
     translateMock = jasmine.createSpy('$translate spy').and.returnValue(translateDfd.promise)
-    ionicPopupMock.alert.and.returnValue(alertDfd.promise)
     scope = $rootScope.$new();
     ctrl = $controller('LoginCtrl', {
       $scope: scope,
@@ -61,7 +59,7 @@ describe('LoginCtrl:', function () {
     scope.login(credentials);
   }));
   // tests
-  describe('login function', function () {
+  describe('login function ', function () {
     it('should call backendService.login function with the credentials that was inputted by user', function () {
       expect(backendServiceMock.login).toHaveBeenCalledWith('blabla', 'blabla');
     })
@@ -80,6 +78,7 @@ describe('LoginCtrl:', function () {
         expect(translateMock).toHaveBeenCalledWith('Done!');
       })
       it('should call alert about successful login', function () {
+        ionicPopupMock.alert.and.returnValue(alertDfd.promise)
         eventDfd.resolve([]);
         scope.$digest();
         translateDfd.resolve('Done!');
