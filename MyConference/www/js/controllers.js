@@ -390,6 +390,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
         function (res) {
           $scope.isCurrentUserRegistered = res;
+          if (res === false){
+            backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
+              function (res) {
+                $scope.isCurrentUserRegistered = res;
+              })
+
+          }
         }
       );
       if ($scope.agenda) {
