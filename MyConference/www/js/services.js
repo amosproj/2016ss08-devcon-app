@@ -650,6 +650,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
     /*
+     Function for getting a list of organizers
+     returns a promise
+     */
+    backend.getOrganisers = function () {
+      return BaasBox.fetchAdministrators()
+        .done(function (res) {
+          console.log("res ", res['data']);
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
+    /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
      Returns a promise.
@@ -788,10 +801,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
+    /*
+      TODO in Sprint 11
+    */
     backend.isCurrentUserOrganizer = function(){
-
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
-
     }
 
     return backend;

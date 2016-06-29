@@ -518,6 +518,30 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           )}}, 7000);
       backendService.addCurrentUserToEvent($scope.event.id).then(
         function (res) {
+          backendService.getOrganisers().then(function (org) {
+            arrayOfOrganiserNames = function() {
+              console.log("in deferred")
+              var d = new $.Deferred();
+              organiserNames = []
+              for (var i in org.data) {
+                organiserNames.push(org.data[i].user.name)
+              }
+              d.resolve(organiserNames)
+              return d.promise();
+            }
+            arrayOfOrganiserNames().then(function (arr) {
+              cUser = backendService.currentUser;
+              if(typeof cUser !== 'undefined') {
+                $translate('New participant $name $gName is registered for $event', {
+                  name: cUser.visibleByRegisteredUsers.name,
+                  gName: cUser.visibleByRegisteredUsers.gName,
+                  event: $scope.event.title
+                }).then(function (msg) {
+                  backendService.sendPushNotificationToUsers(msg, arr)
+                })
+              }
+            })
+          })
           $ionicLoading.hide();
           $scope.hidden = true;
           $translate('Done!').then(

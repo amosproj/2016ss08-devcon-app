@@ -473,6 +473,14 @@ var BaasBox = (function() {
       });
     },
 
+    fetchAdministrators: function (params) {
+      return $.ajax({
+        url: BaasBox.endPoint + '/users?where=user.roles[0].name%3D%3F&params=administrator',
+        method: 'GET',
+        data: params
+      });
+    },
+
     updateUserProfile: function (params) {
       return $.ajax({
         url: BaasBox.endPoint + '/me',
