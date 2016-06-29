@@ -61,13 +61,16 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      and "visibleByRegisteredUsers" field saving name and given name
      */
     backend.createAccount = function (user) {
-      BaasBox.signup(user.email, user.pass)
+      return BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
-          backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
-          backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-          backend.applySettingsForCurrentUser();
+          backend.login(user.email, user.pass).then(
+            function(res){
+              backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
+              backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+              backend.applySettingsForCurrentUser();
+            }
+          );
         })
         .fail(function (error) {
           console.log("Signup error ", error);
@@ -158,7 +161,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       ev.participants.push(creator);
       console.log(creator);
       console.log(ev.participants);
-      BaasBox.save(ev, "events")
+      return BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
           BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
@@ -169,17 +172,31 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
+  /*
+   Function for deleting an event
+   */
+  backend.deleteEvent = function (eventId) {
+    //return
+    BaasBox.deleteObject(eventId, "events")
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
+  };
+
     /*
      Function for adding an agenda talk to an event
      */
 
     backend.addingAgenda = function (ag, evId) {
-      BaasBox.save(ag, "agenda")
+      return BaasBox.save(ag, "agenda")
         .done(function (res) {
           console.log("res ", res);
           BaasBox.updateEventAgenda(res, evId);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
         })
         .fail(function (error) {
           console.log("error ", error);
@@ -187,7 +204,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-     Function for deleting a talk.
+     Function for deleting a talk / agenda
      */
     backend.deleteAgenda = function (agendaId) {
       //return
@@ -214,7 +231,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      */
 
     backend.addingQuestion = function (que, eventId) {
-      backend.getEventById(eventId).then(function (res) {
+      return backend.getEventById(eventId).then(function (res) {
         event = res['data'];
         question = {};
         question = que;
@@ -230,7 +247,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         question.dontKnow = 0;
         question.current = false;
         event.questions.push(question);
-        BaasBox.updateField(eventId, "events", "questions", event.questions);
+        return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
     };
 
@@ -730,7 +747,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     backend.isCurrentUserOrganizer = function(){
+
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
+
     }
 
     return backend;
