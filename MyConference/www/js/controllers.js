@@ -1372,9 +1372,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             $ionicLoading.hide();
               $scope.event = res['data'];
               var me = credentials.username;
-              console.log('current user is :', me);
               var length = res.length;
-              console.log('--------------------we have:', length, 'events');
               var x = false;
 
               for (var i = 0; i < length; i++) {
