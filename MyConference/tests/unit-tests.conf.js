@@ -29,6 +29,7 @@ module.exports = function(config) {
       '../www/lib/angular-translate/angular-translate.js',
       '../www/lib/ionic-ratings/src/ionic-ratings.js',
       '../www/lib/angular-translate-loader-static-files/angular-translate-loader-static-files.js',
+      '../www/lib/angular-dynamic-locale/tmhDynamicLocale.min.js',
       'unit-tests/**/*.js'
     ],
 
