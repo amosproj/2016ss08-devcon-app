@@ -1,16 +1,18 @@
 # Content
-1. ng-translate
+1. Localization
 2. Push Notifications
 
-# 1. ng-translate
+# 1. Localization
+
+## 1.1 ng-translate
 
 We are using the library ng-translate for the support of different languages in our app. This file explains how to use it.
 
-## General
+### General
 We develop our app in english, so you type everything in english. Then you use the function translate for telling the system to translate it.
 In the locales-files the translations are defined.
 
-## Usage of translate
+### Usage of translate
 
 Everywhere you use a text that should be translated automatically, you have to use the function translate. There are different ways to do so.
 
@@ -61,13 +63,32 @@ backendService.fetchCurrentUser().then(function (res) {
 });
 ```
 
-## Locale file
+### Locale file
 In the directory www/locales the different language files are stored.
 
 Every file consists of a single json array defining the word pairs.
 
 Add a new translation by adding a new entry in a new line (make sure to add a colon).
 
+## 1.2 angular-i18n
+
+For formatting time and date right for the selected language, the following formats have to be used:
+
+| format        | example German           | example English        |
+| ------------- |--------------------------| -----------------------|
+| shortTime     | 21:37                    | 9:37 PM                |
+| shortDate     | 07.07.16                 | 7/7/16                 |
+| fullDate      | Donnerstag, 7. Juli 2016 | Thursday, July 7, 2016 |
+See the full list [here](https://docs.angularjs.org/api/ng/filter/date).
+
+Use it like that:
+```javascript
+$filter('date')($scope.event.date, shortDate);
+```
+or like
+```html
+<ion-item> {{(event.date | date: "shortDate")}} </ion-item>
+```
 # 2. Push Notifications
 
 For push notifications, the BaasBox-backend is used. It connects to the [Google Cloud Messaging Service](https://developers.google.com/cloud-messaging/) (GCM). In the app, the [Phonegap Push Plugin](https://github.com/phonegap/phonegap-plugin-push) is used.
