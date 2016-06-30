@@ -74,6 +74,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       return 'de';
     });
   })
+  .config(function (tmhDynamicLocaleProvider) {
+    tmhDynamicLocaleProvider.localeLocationPattern('lib/angular-i18n/angular-locale_{{locale}}.js');
+  })
   .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
       .state('app', {
