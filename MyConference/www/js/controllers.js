@@ -15,14 +15,14 @@
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
 angular.module('starter.controllers', ['services', 'ngCordova'])
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate) {
-
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate, tmhDynamicLocale) {
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
     // To listen for when this page is active (for example, to refresh data),
     // listen for the $ionicView.enter event:
     //$scope.$on('$ionicView.enter', function(e) {
     //});
+    tmhDynamicLocale.set("de");
     // Form data for the login modal
     $scope.loginData = {};
     // Create the login modal that we will use later
@@ -43,11 +43,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.changeLanguage = function () {
       if ($scope.languageSwitched) {
         $translate.use("de");
+        tmhDynamicLocale.set("de");
       } else {
         $translate.use("en");
+        tmhDynamicLocale.set("en");
       }
       $scope.languageSwitched = !$scope.languageSwitched;
-      console.log($scope.languageSwitched);
     };
     $scope.isLoggedIn = false;
     $scope.$on('user:loginState', function (event, data) {
