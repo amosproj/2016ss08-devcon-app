@@ -381,6 +381,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
