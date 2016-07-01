@@ -593,6 +593,37 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+      Function for checking if a user has already given feedback
+      Gets the id of the feedbacked event and the user object
+      Returns a promise resolving to the boolean value
+     */
+    backend.hasUserAlreadyGivenFeedback = function(eventId, user){
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(
+        function (res) {
+          event = res.data;
+          if (event.hasOwnProperty("feedbackingUsers")){
+            deferred.resolve(event.feedbackingUsers.indexOf(user.username) != -1);
+          } else {
+            deferred.resolve(false);
+          }
+        }, function (err) {
+          deferred.reject(err);
+        }
+      )
+      return deferred.promise;
+    };
+
+    /*
+     Function for checking if the current user has already given feedback
+     Gets the id of the feedbacked event the user object
+     Returns a promise resolving to the boolean value
+     */
+    backend.hasCurrentUserAlreadyGivenFeedback = function(eventId){
+      return backend.hasUserAlreadyGivenFeedback(eventId, BaasBox.getCurrentUser());
+    }
+
+    /*
      Fucntion for removing a user from an event.
      Returns a promise.
      */
