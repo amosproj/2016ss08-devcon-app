@@ -1642,18 +1642,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
       backendService.addFeedbackToEvent($stateParams.eventId, ratingArray).then(
         function (res) {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          $translate('Done!').then(
-            function (res2) {
-              $ionicPopup.alert({
-                title: res2,
-                template: "{{'Feedback submitted. Thank you!' | translate}}"
-              }).then(function (res3) {
-                $ionicHistory.goBack();
-              });
+          backendService.addCurrentUserAsFeedbackerToEvent($stateParams.eventId).then(
+            function (res) {
+              $ionicLoading.hide();
+              $scope.hidden = true;
+              $translate('Done!').then(
+                function (res2) {
+                  $ionicPopup.alert({
+                    title: res2,
+                    template: "{{'Feedback submitted. Thank you!' | translate}}"
+                  }).then(function (res3) {
+                    $ionicHistory.goBack();
+                  });
+                }
+              );
             }
-          );
+          )
         }
       )
     }
