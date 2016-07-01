@@ -780,7 +780,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
             console.log("res "+res);
-            $scope.isFeedbackAllowed = res;
+            if(res == true){
+              backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
+                function (resAlreadyGiven) {
+                  $scope.isFeedbackAllowed = !resAlreadyGiven;
+                }, function (err) {
+                  $scope.isFeedbackAllowed = false;
+                }
+              )
+            } else {
+              $scope.isFeedbackAllowed = false;
+            }
           }, function (err) {
             console.log("err "+err)
             $scope.isFeedbackAllowed = false
