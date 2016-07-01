@@ -28,20 +28,20 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   </ion-nav-bar>
   <ion-content>
     <ion-list>
-      <ion-item class="item item-divider icon ion-chevron-right" ng-show="events" translate>TODAY</ion-item>
-      <ion-item ng-repeat="ev in todays = (events | filter: todaysEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{(ev.date | date:'shortDate')}} {{ev.title}}</a>
+      <p class="item item-divider icon-right" ng-class="{'ion-chevron-down': todaySeen, 'ion-chevron-right': !todaySeen}" ng-click="todaySeen = !todaySeen">{{'TODAY' | translate}}</p>
+      <ion-item ng-show="todaySeen" ng-repeat="ev in todays = (events | filter: todaysEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{(ev.date | date:'shortDate')}} {{ev.title}}</a>
       </ion-item>
-      <ion-item ng-show="!todays.length">{{ 'No events' | translate}}</ion-item>
+      <ion-item ng-show="!todays.length && todaySeen">{{ 'No events' | translate}}</ion-item>
 
-      <ion-item class="item item-divider icon ion-chevron-right" translate>UPCOMING</ion-item>
-      <ion-item ng-repeat="ev in prev = (events | filter: previousEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{(ev.date | date:'shortDate')}} {{ev.title}}</a>
+      <p class="item item-divider icon-right" ng-class="{'ion-chevron-down': previousSeen, 'ion-chevron-right': !previousSeen}" ng-click="previousSeen = !previousSeen">{{'UPCOMING' | translate}}</p>
+      <ion-item ng-show="previousSeen" ng-repeat="ev in prev = (events | filter: previousEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{(ev.date | date:'shortDate')}} {{ev.title}}</a>
       </ion-item>
-      <ion-item ng-show="!prev.length">{{ 'No events' | translate}}</ion-item>
+      <ion-item ng-show="!prev.length && previousSeen">{{ 'No events' | translate}}</ion-item>
 
-      <ion-item class="item item-divider icon ion-chevron-right" translate>PREVIOUS</ion-item>
-      <ion-item ng-repeat="ev in next = (events | filter: nextEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{(ev.date | date:'shortDate')}} {{ev.title}}</a>
+      <p class="item item-divider icon-right" ng-class="{'ion-chevron-down': nextSeen, 'ion-chevron-right': !nextSeen}" ng-click="nextSeen = !nextSeen">{{'PREVIOUS' | translate}}</p>
+      <ion-item ng-show="nextSeen" ng-repeat="ev in next = (events | filter: nextEvents)"><a href="#app/event/{{ev.id}}/{{ev.fileId}}">{{(ev.date | date:'shortDate')}} {{ev.title}}</a>
       </ion-item>
-      <ion-item ng-show="!next.length">{{ 'No events' | translate}}</ion-item>
+      <ion-item ng-show="!next.length && nextSeen">{{ 'No events' | translate}}</ion-item>
 
 
     </ion-list></ion-content>
