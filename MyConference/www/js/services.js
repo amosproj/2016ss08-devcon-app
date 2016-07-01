@@ -553,6 +553,46 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+      Function for adding a user in the list of feedbackingUsers to avoid double feedback.
+      Expects to be called only when it's cleared that the user is not yet in the list.
+      Gets the id of the feedbacked event and the user object
+      Returns a promise.
+     */
+    backend.addUserAsFeedbackerToEvent = function(eventId, user){
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(
+        function (res) {
+          event = res.data;
+          if (event.hasOwnProperty("feedbackingUsers")){
+            event.feedbackingUsers.push(user.username);
+          } else {
+            event.feedbackingUsers = [user.username];
+          }
+          backend.updateEvent(eventId, "feedbackingUsers", event.feedbackingUsers).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err);
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        }
+      )
+      return deferred.promise;
+    };
+
+    /*
+     Function for adding the current user in the list of feedbackingUsers to avoid double feedback.
+     Expects to be called only when it's cleared that the user is not yet in the list.
+     Gets the id of the feedbacked event and calls addUserAsFeedbackerToEvent
+     Returns a promise.
+     */
+    backend.addCurrentUserAsFeedbackerToEvent = function(eventId){
+      return backend.addUserAsFeedbackerToEvent(eventId, BaasBox.getCurrentUser());
+    };
+
+    /*
      Fucntion for removing a user from an event.
      Returns a promise.
      */
