@@ -30,6 +30,9 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
       </ion-item>
+      <p>
+        {{event.descr}}
+      </p>
       <!-- Form to add agenda -->
       <form name="addAgendaForm" ng-submit="addingAgenda(ag)" ng-show="addingAgendaForm" novalidate>
         <!-- input type time is not supported by firefox. However, in phone, it works well -->
@@ -72,14 +75,14 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         <br><a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced ">{{ "I'm Here" |
           translate}}</a><br>
       </div>
-      <button class="button button-block button-positive" ng-show="!addingAgendaForm && isOrganizer"
+      <button class="button button-block button-positive" ng-show="!addingAgendaForm && isOrganizer && showSpeakers"
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}
       </button>
       <button class="button button-block button-positive" ng-show="addingAgendaForm"
               ng-click="showAddingAgenda()">{{"Hide" | translate}}
       </button>
       <!-- Agenda List listed by beginning time -->
-      <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
+      <div ng-show="showSpeakers" class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
         <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
           <div class="item item-text-wrap">
             <b>From</b> {{i.begin | date: 'shortTime' || "n/a"}} <b>to</b> {{i.end | date: 'shortTime' || "n/a"}}<br>
@@ -88,12 +91,11 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
           </div>
         </a>
       </div>
-      <p>
-        {{event.descr}}
+      <p  ng-click="showSpeakers = !showSpeakers" class="item item-icon-left item-icon-right">
+        <i class="icon ion-ios-list-outline"></i>
+        AGENDA
+        <i ng-class="{'icon ion-chevron-right': !showSpeakers, 'icon ion-chevron-up': showSpeakers}"></i>
       </p>
-      <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> AGENDA ({{"click to download" |
-        translate}})
-      </ion-item>
       <button ng-show="agenda" ng-click="download(downloadUrl)">{{filename}}</button>
     </ion-list>
     <form ng-show="upload" id="uploadForm" method="post">
