@@ -779,7 +779,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
-            console.log("res "+res);
             if(res == true){
               backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
                 function (resAlreadyGiven) {
@@ -792,7 +791,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               $scope.isFeedbackAllowed = false;
             }
           }, function (err) {
-            console.log("err "+err)
             $scope.isFeedbackAllowed = false
           }
         )
