@@ -20,7 +20,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings'])
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings', 'tmh.dynamicLocale'])
   .run(function ($ionicPlatform, $ionicPopup) {
     $ionicPlatform.ready(function () {
       if (window.cordova) {
@@ -73,6 +73,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     $translateProvider.determinePreferredLanguage(function () {
       return 'de';
     });
+  })
+  .config(function (tmhDynamicLocaleProvider) {
+    tmhDynamicLocaleProvider.localeLocationPattern('lib/angular-i18n/angular-locale_{{locale}}.js');
   })
   .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider

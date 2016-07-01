@@ -22,10 +22,10 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
   </ion-nav-buttons>
   <ion-content>
     <ion-list class="bar-stable">
-      <ion-item class="item item-icon-left"><i class="icon ion-calendar"></i> {{(event.date | date: "dd-MM-yyyy") ||
+      <ion-item class="item item-icon-left"><i class="icon ion-calendar"></i> {{(event.date | date: "fullDate") ||
         "t.b.a"}}
       </ion-item>
-      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "HH:mm"}}</ion-item>
+      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "shortTime"}}</ion-item>
 
       <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
@@ -82,7 +82,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <div class="list card" ng-repeat="i in agendaList | orderBy: 'begin': false">
         <a href="#app/agenda/{{i.id}}" style="text-decoration:none;">
           <div class="item item-text-wrap">
-            <b>From</b> {{i.begin | date: 'HH:mm' || "n/a"}} <b>to</b> {{i.end | date: 'HH:mm' || "n/a"}}<br>
+            <b>From</b> {{i.begin | date: 'shortTime' || "n/a"}} <b>to</b> {{i.end | date: 'shortTime' || "n/a"}}<br>
             <b>Speaker</b>: {{i.speaker || "n/a"}}<br>
             <b>Topic</b>: {{i.topic || "n/a"}}<br>
           </div>
