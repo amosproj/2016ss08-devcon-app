@@ -1108,8 +1108,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
     $scope.coordinates = false;
+    $scope.showDate = true;
+    $scope.showTime = true;
+    $scope.showTypeDate = function(){
+      $scope.showDate = false;
+    }
+    $scope.showTypeTime = function(){
+      $scope.showTime = false;
+    }
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
+      var usedDate = $scope.event.date;
+      var usedBegin = $scope.event.begin;
       var id = $scope.event.id;
       $scope.updateEvent = function (ev) {
         $ionicLoading.show({
@@ -1132,7 +1142,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               }
             )}}, 7000);
         backendService.updateEvent(ev).then(function (re) {
-          $ionicLoading.hide();
+          if(ev.begin != null){
+            usedBegin = ev.begin;
+          }
+          if(ev.date != null){
+            usedDate = ev.date;
+          }
+          backendService.updateEvent($stateParams.eventId, "date", usedDate);
+          backendService.updateEvent($stateParams.eventId, "begin", usedBegin);
+            $ionicLoading.hide();
           $scope.hidden = true;
           backendService.SetStatusTrue(id);
           console.log('user status {updated : true}');
@@ -1173,6 +1191,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     /*
      function to update a talk session / agenda
      */
+    $scope.showBegin = true;
+    $scope.showEnd = true;
+    $scope.showTypeBegin = function(){
+      $scope.showBegin = false;
+    }
+    $scope.showTypeEnd = function(){
+      $scope.showEnd = false;
+    }
     $scope.updateAgenda = function (ag) {
       backendService.getAgendaById($stateParams.agendaId).then(function (res) {
         $scope.agenda = res['data'];
