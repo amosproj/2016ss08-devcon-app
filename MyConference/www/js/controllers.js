@@ -1367,7 +1367,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             function (res2) {
               var alertPopup = $ionicPopup.alert({
                 title: res2,
-                template: "{{'This mail adress is already in use.' | translate}}"
+                template: "{{'This mail address is already in use.' | translate}}"
               });
             }
           )
