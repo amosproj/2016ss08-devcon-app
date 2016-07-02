@@ -292,6 +292,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Provides the filter methods for previous and next events.
    */
   .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
+    $scope.todaySeen = true;
+    $scope.nextSeen = false;
+    $scope.previousSeen = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     var today = new Date();
     /*
