@@ -536,7 +536,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
             arrayOfOrganiserNames().then(function (arr) {
               cUser = backendService.currentUser;
-              if(typeof cUser !== 'undefined') {
+              if(typeof cUser !== 'undefined' && cUser != '') {
                 $translate('New participant $name $gName is registered for $event', {
                   name: cUser.visibleByRegisteredUsers.name,
                   gName: cUser.visibleByRegisteredUsers.gName,
@@ -1309,8 +1309,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    "default" user means "not registered" user
    */
   .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
-    backendService.fetchCurrentUser().then(function (res) {
-      if (res['data']['user'].name == "default") {
+      if (typeof backendService.currentUser === 'undefined' || backendService.currentUser == '') {
         backendService.logout();
       } else {
         $translate('Error!').then(
@@ -1324,7 +1323,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           }
         );
       }
-    });
     $scope.createAccount = function (user) {
       $ionicLoading.show({
         content: 'Loading',
