@@ -801,16 +801,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       borderTimes = getBorderTimesOfEvent();
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
-      console.log('borderTimes', borderTimes);
-      console.log('first', firstBeginTime);
-      console.log('last',  lastEndTime);
       date = $scope.event.date;
       eventDateSplitted = $scope.event.date.split("-");
       eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours() + 24 , firstBeginTime.getMinutes(), 0, 0);
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 24 , lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      console.log('now',  now);
       if (now >= beginDate && now <= endDate) {
         $scope.isGeoButtonVisible = true;
       } else {
