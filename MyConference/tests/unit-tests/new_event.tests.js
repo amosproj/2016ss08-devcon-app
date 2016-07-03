@@ -83,7 +83,7 @@ describe('LoginCtrl: ', function () {
         scope.$digest();
         expect(translateMock).toHaveBeenCalledWith('Done!');
       })
-      it('should call alert about successful login', function () {
+      it('should call alert about successful creation', function () {
         ionicPopupMock.alert.and.returnValue(alertDfd.promise)
         eventDfd.resolve([]);
         scope.$digest();
@@ -91,7 +91,7 @@ describe('LoginCtrl: ', function () {
         scope.$digest();
         expect(ionicPopupMock.alert).toHaveBeenCalledWith({
           title: 'Done!',
-          template: "{{'Login successful.' | translate}}"
+          template: "{{'Event' | translate}}" + ' "' + mockEvent.title + '" ' + "{{'created' | translate}}" + "."
         })
       })
     })
@@ -104,12 +104,12 @@ describe('LoginCtrl: ', function () {
       it('should call $translate service with "Error!" message', function () {
         expect(translateMock).toHaveBeenCalledWith('Error!');
       })
-      it('should call alert about unsuccessful login', function () {
+      it('should call alert about unsuccessful creation', function () {
         translateDfd.resolve('Error!');
         scope.$digest();
         expect(ionicPopupMock.alert).toHaveBeenCalledWith({
           title: 'Error!',
-          template: "{{'Username and password did not match.' | translate}}"
+          template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
         })
       })
     })
