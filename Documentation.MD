@@ -118,31 +118,31 @@ where `message` is a String and `users` is a list of usernames.
 
 ##### Requirements:
 
-- Software: [Xcode](https://developer.apple.com/xcode/)
+* Software: [Xcode](https://developer.apple.com/xcode/)
 
 ##### Steps:
 
-1. Add iOS platform:
+Step 1. Add iOS platform:
 ```bash
 $ ionic platform add ios
 ```
 
-2. Build iOS:
+Step 2. Build iOS:
 ```bash
 $ ionic build ios
 ```
 
-3. Install in iPhone:
-- Plugin iPhone to computer with a cable
-- Open ../platforms/ios/MyConference.xcodeproj with Xcode
-- Choose device as plugged in device
-- Click Build button and wait installation process finish
+Step 3. Install in iPhone:
+* Plugin iPhone to computer with a cable
+* Open ../platforms/ios/MyConference.xcodeproj with Xcode
+* Choose device as plugged in device
+* Click Build button and wait installation process finish
 
-4. Configure iPhone to run application:
-- Settings
-- General
-- Device Management
-- Tap on the Developer account
-- Trust
+Step 4. Configure iPhone to run application:
+* Settings
+* General
+* Device Management
+* Tap on the Developer account
+* Trust
 
 Now this app can be run on iPhone
