@@ -20,9 +20,38 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings'])
-  .run(function ($ionicPlatform) {
+angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives', 'pascalprecht.translate', 'ngCordova', 'ionic-ratings', 'tmh.dynamicLocale'])
+  .run(function ($ionicPlatform, $ionicPopup) {
     $ionicPlatform.ready(function () {
+      if (window.cordova) {
+        setupPush = function () {
+          var push = PushNotification.init({
+            "android": {
+              "senderID": "510200253238"
+            },
+            "ios": {},
+            "windows": {}
+          });
+          push.on('registration', function (data) {
+            var oldRegistrationId = localStorage.getItem('registrationId');
+            if (oldRegistrationId !== data.registrationId) {
+              // Save new registration ID
+              localStorage.setItem('registrationId', data.registrationId);
+            }
+          });
+          push.on('error', function (e) {
+            console.log("push error = " + e.message);
+          });
+          push.on('notification', function (data) {
+            $ionicPopup.alert({
+              title: data.title,
+              template: data.message
+            })
+          });
+        }
+        setupPush();
+      }
+
       // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
       // for form inputs)
       if (window.cordova && window.cordova.plugins.Keyboard) {
@@ -35,6 +64,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
       }
     });
   })
+
   .config(function ($translateProvider) {
     $translateProvider.useStaticFilesLoader({
       prefix: 'locales/',
@@ -43,6 +73,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     $translateProvider.determinePreferredLanguage(function () {
       return 'de';
     });
+  })
+  .config(function (tmhDynamicLocaleProvider) {
+    tmhDynamicLocaleProvider.localeLocationPattern('lib/angular-i18n/angular-locale_{{locale}}.js');
   })
   .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider
@@ -235,6 +268,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           'menuContent': {
             templateUrl: 'templates/live-voting.html',
             controller: 'LiveVotingCtrl'
+          }
+        }
+      })
+      .state('app.settings', {
+        cache: false,
+        url: '/settings',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/settings.html',
+            controller: 'SettingsCtrl'
           }
         }
       });
