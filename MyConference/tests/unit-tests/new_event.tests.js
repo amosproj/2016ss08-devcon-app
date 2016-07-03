@@ -30,7 +30,7 @@ describe('LoginCtrl: ', function () {
     });
     $urlRouterProvider.deferIntercept();
   }));
-  beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend, $state) {
+  beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend) {
     $httpBackend.whenGET('locales/de.json').respond(200, '');
     mockEvent = {
       "title": "mockTitle",
@@ -59,13 +59,12 @@ describe('LoginCtrl: ', function () {
     ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert'])
     translateMock = jasmine.createSpy('$translate spy').and.returnValue(translateDfd.promise)
     scope = $rootScope.$new();
-    ctrl = $controller('LoginCtrl', {
+    ctrl = $controller('CreateEventCtrl', {
       $scope: scope,
       $ionicPopup: ionicPopupMock,
       $translate: translateMock,
       backendService: backendServiceMock
     });
-    $state.go('app.new_event');
     scope.createEvent(mockEvent);
   }));
   // tests
