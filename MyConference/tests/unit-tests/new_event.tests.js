@@ -65,7 +65,7 @@ describe('LoginCtrl: ', function () {
       $translate: translateMock,
       backendService: backendServiceMock
     });
-    scope.createEvent(credentials);
+    scope.createEvent(mockEvent);
   }));
   // tests
   describe('createEvent function ', function () {
