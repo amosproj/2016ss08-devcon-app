@@ -30,7 +30,7 @@ describe('LoginCtrl: ', function () {
     });
     $urlRouterProvider.deferIntercept();
   }));
-  beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend) {
+  beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend, $state) {
     $httpBackend.whenGET('locales/de.json').respond(200, '');
     mockEvent = {
       "title": "mockTitle",
