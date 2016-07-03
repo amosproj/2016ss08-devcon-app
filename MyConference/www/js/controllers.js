@@ -1891,6 +1891,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.beforeSubmit = false;
     $scope.afterSubmit = false;
     $scope.firstLoadComplete = false;
+    voteList = [];
 
     interval = $interval(function () {
       backendService.getEventById($stateParams.eventId).then(
@@ -1904,6 +1905,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           } else {
             $scope.questionObject = currentQuestions[0];
             $scope.beforeSubmit = !$scope.afterSubmit;
+            voteList = currentQuestions[0].voted;
+            userName = backendService.currentUser.username;
+            if(voteList.indexOf(userName) != -1) {
+              $scope.afterSubmit = true;
+              $scope.beforeSubmit = false;
+            }
           }
           $scope.firstLoadComplete = true;
         });
@@ -1934,6 +1941,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           )}}, 7000);
       $scope.questionObject[result] += 1;
+      voteList.push(backendService.currentUser.username)
       backendService.updateEvent(thisEvent.id, "questions", thisEvent.questions).then(
         function (res) {
           $ionicLoading.hide();
