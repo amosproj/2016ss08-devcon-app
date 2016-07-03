@@ -757,13 +757,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     getBorderTimesOfEvent = function () {
       firstBeginTime = new Date($scope.event.begin);
-      lastEndTime = new Date("1969-12-31T23:00:00.000Z");
-      for (agendaNr in $scope.agendaList) {
-        endTime = new Date($scope.agendaList[agendaNr].end);
-        if (endTime > lastEndTime) {
-          lastEndTime = endTime;
-        }
-      }
+      lastEndTime = new Date($scope.event.end);
       return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
     }
 
