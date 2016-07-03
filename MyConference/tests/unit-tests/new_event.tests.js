@@ -14,7 +14,7 @@
  root directory along with this program.
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
-describe('LoginCtrl: ', function () {
+describe('New event: ', function () {
   var scope,
     backendServiceMock,
     ctrl,
@@ -92,24 +92,6 @@ describe('LoginCtrl: ', function () {
         expect(ionicPopupMock.alert).toHaveBeenCalledWith({
           title: 'Done!',
           template: "{{'Event' | translate}}" + ' "' + mockEvent.title + '" ' + "{{'created' | translate}}" + "."
-        })
-      })
-    })
-    describe('if an error occurs ', function () {
-      beforeEach(function () {
-        //simulate unsuccessful login
-        loginDfd.reject([]);
-        scope.$digest();
-      })
-      it('should call $translate service with "Error!" message', function () {
-        expect(translateMock).toHaveBeenCalledWith('Error!');
-      })
-      it('should call alert about unsuccessful creation', function () {
-        translateDfd.resolve('Error!');
-        scope.$digest();
-        expect(ionicPopupMock.alert).toHaveBeenCalledWith({
-          title: 'Error!',
-          template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
         })
       })
     })
