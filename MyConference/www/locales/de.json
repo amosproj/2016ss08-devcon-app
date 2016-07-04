@@ -59,6 +59,7 @@
   "Acquiring location!": "Laden!",
   "need both characters & number" : "Das Passwort muss beide Zeichen & Zahl enthalten.",
   "shorter than 20 characters":"Es sollte kürzer als 20 Zeichen sein",
+  "need at least 6 characters":"Es sollte mindestens 6 Zeichen sein",
   "Passwords do not match":"Passwörter stimmen nicht überein",
   "Description": "Beschreibung",
   "Enter your email": "Email eingeben",
