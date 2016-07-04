@@ -137,8 +137,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               $ionicPopup.alert({
                 title: res,
                 template: "{{'organizer is added' | translate}}"
-              }).then(function (res) {
-                $state.go('app.main')
               });
             });
         })
@@ -154,7 +152,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
     }
   })
-
 
 
   /*
