@@ -33,18 +33,7 @@ describe('New event: ', function () {
   beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend) {
     $httpBackend.whenGET('locales/de.json').respond(200, '');
     mockEvent = {
-      "title": "mockTitle",
-      "date": "2016-07-02T22:00:00.000Z",
-      "begin": "1970-01-01T18:52:00.000Z",
-      "end": "1970-01-01T19:52:00.000Z",
-      "participants": [
-        {
-          "name": "default",
-          "status": "joined",
-          "updated": "false"
-        }
-      ],
-      "questions": []
+      "title": "mockTitle"
     };
 
     eventDfd = $q.defer();
