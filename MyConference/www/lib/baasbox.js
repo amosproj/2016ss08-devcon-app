@@ -118,7 +118,7 @@ var BaasBox = (function () {
 //Get user by email
     getUsers: function (user) {
       return $.ajax({
-        url: BaasBox.endPoint + '/admin/user/' + user.email,
+        url: BaasBox.endPoint + '/user/' + user.email,
         method: 'GET'
       })
     },
