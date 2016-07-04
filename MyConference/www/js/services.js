@@ -169,6 +169,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
+ 
+  backend.createOrganizer = function (user) {
+    return BaasBox.save(user, "organizer")
+      .done(function (res) {
+        console.log("res ", res);
+        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
+        BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+      })
+      .fail(function (error) {
+        console.log("error ", error);
+      })
+  };
+
   /*
    Function for deleting an event
    */
