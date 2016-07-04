@@ -772,9 +772,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.isFeedbackAllowed = dateObj;
       return;
 
-      dateSplitted = dateObj.split(".");
-      dateSplitted[2] = dateSplitted[2].split(",")[0];
-      return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
+      if(dateObj.indexOf(".") == -1){
+        dateSplitted = dateObj.split("/");
+        dateSplitted[2] = dateSplitted[2].split(",")[0];
+        return [dateSplitted[2],dateSplitted[0],dateSplitted[1]];
+      } else {
+        dateSplitted = dateObj.split(".");
+        dateSplitted[2] = dateSplitted[2].split(",")[0];
+        return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
+      }
     }
 
     /*
