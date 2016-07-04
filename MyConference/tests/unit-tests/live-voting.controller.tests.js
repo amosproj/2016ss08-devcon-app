@@ -80,7 +80,7 @@ describe('LiveVotingCtrl: ', function () {
   }))
   // tests
   it('current event should be requested from backend', function () {
-    expect(backendServiceMock.getEventById).toHaveBeenCalledWith(stateParamsMock.eventId)
+    expect(backendServiceMock.getEventById).toHaveBeenCalledWith(666)
   })
 
   describe('if there is no current question to vote, ', function () {
