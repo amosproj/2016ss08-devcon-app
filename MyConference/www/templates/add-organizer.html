@@ -16,7 +16,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view title="Add Organizer">
   <ion-content  has-tabs="true" padding="true">
-    <form name="userForm" ng-submit="getUsers(user)" novalidate>
+    <form name="userForm" ng-submit="createOrganizer(user)" novalidate>
       <div class="list">
         <label class="item item-input">
           <input type="email" ng-model="user.email" placeholder="{{'Enter user email' | translate}}">
