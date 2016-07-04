@@ -115,7 +115,7 @@ var BaasBox = (function() {
       }
       return instance;
     },
-    //Get All users by email
+//Get user by email
     getUsers: function(user){
       return $.ajax({
         url: BaasBox.endPoint + '/admin/user/'  + user.email,

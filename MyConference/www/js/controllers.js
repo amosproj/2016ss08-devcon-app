@@ -115,7 +115,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
 
-  
+  /*
+   Controller for adding an organizer to the System. check if the user is already regestred by calling getUsers().
+   Calls createOrganizer service, shows a popup alert about successful addition of an organizer
+   and redirects to main view
+   */
   .controller('AddOrgCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
     $scope.createOrganizer = function (user) {
       var us = user;
@@ -133,6 +137,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               $ionicPopup.alert({
                 title: res,
                 template: "{{'organizer is added' | translate}}"
+              }).then(function (res) {
+                $state.go('app.main')
               });
             });
         })
@@ -1396,7 +1402,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               var me = credentials.username;
               console.log('current user is :', me);
               var length = res.length;
-      
+
               var x = false;
 
               for (var i = 0; i < length; i++) {

@@ -169,7 +169,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
- 
+  /*
+   Function for creating a new organizer
+   First saves a new document in "organizer" collection
+   Then grants read permission to registered and not registered users
+   */
   backend.createOrganizer = function (user) {
     return BaasBox.save(user, "organizer")
       .done(function (res) {
