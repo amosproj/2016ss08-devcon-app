@@ -768,6 +768,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Returns [day, month, year].
      */
     splitDateIntoParts = function(dateString) {
+      $scope.isFeedbackAllowed = dateString;
+      return;
+
       dateObj = new Date(dateString).toLocaleString();
 
       dateSplitted = dateObj.split(".");
@@ -784,6 +787,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = splitDateIntoParts($scope.event.date);
+      return;
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
