@@ -122,23 +122,30 @@ where `message` is a String and `users` is a list of usernames.
 
 ##### Steps:
 
-Step 1. Add iOS platform:
+Step 1. if iOS platform of ionic was added by mistake, remove it and reset the state
 ```bash
-$ ionic platform add ios
+$ sudo ionic platform rm ios
+$ sudo ionic state reset
 ```
 
-Step 2. Build iOS:
+Step 2. Build iOS with Cordova:
 ```bash
-$ ionic build ios
+$ sudo cordova platform add ios
+$ sudo cordova build
 ```
 
-Step 3. Install in iPhone:
+Step 3. Solve the permissioin problem:
+```bash
+$ sudo chmod -R 777 platforms/ios/
+```
+
+Step 4. Install in iPhone:
 * Plugin iPhone to computer with a cable
 * Open ../platforms/ios/MyConference.xcodeproj with Xcode
 * Choose device as plugged in device
 * Click Build button and wait installation process finish
 
-Step 4. Configure iPhone to run application:
+Step 5. Configure iPhone to run application:
 * Settings
 * General
 * Device Management
