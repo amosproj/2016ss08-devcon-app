@@ -1,6 +1,7 @@
 # Content
 1. Localization
 2. Push Notifications
+3. Build iOS installation
 
 # 1. Localization
 
@@ -112,3 +113,36 @@ For sending push notifications to a group of users, this backend service functio
 sendPushNotificationToUsers(message, users)
 ```
 where `message` is a String and `users` is a list of usernames.
+
+# 3. Build iOS installation
+
+##### Requirements:
+
+* Software: [Xcode](https://developer.apple.com/xcode/)
+
+##### Steps:
+
+Step 1. Add iOS platform:
+```bash
+$ ionic platform add ios
+```
+
+Step 2. Build iOS:
+```bash
+$ ionic build ios
+```
+
+Step 3. Install in iPhone:
+* Plugin iPhone to computer with a cable
+* Open ../platforms/ios/MyConference.xcodeproj with Xcode
+* Choose device as plugged in device
+* Click Build button and wait installation process finish
+
+Step 4. Configure iPhone to run application:
+* Settings
+* General
+* Device Management
+* Tap on the Developer account
+* Trust
+
+Now this app can be run on iPhone
