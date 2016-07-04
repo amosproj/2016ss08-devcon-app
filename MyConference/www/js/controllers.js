@@ -768,9 +768,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Returns [day, month, year].
      */
     splitDateIntoParts = function(dateString) {
-      $scope.isFeedbackAllowed = dateString;
-      return;
       dateObj = new Date(dateString).toLocaleString();
+      $scope.isFeedbackAllowed = dateObj;
+      return;
 
       dateSplitted = dateObj.split(".");
       dateSplitted[2] = dateSplitted[2].split(",")[0];
