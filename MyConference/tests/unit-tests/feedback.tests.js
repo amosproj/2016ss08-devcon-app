@@ -79,4 +79,64 @@ describe('Feedback', function () {
     fiveMinutesAfter = new Date(0, 0, 0, now.getHours(), now.getMinutes() + 5, now.getSeconds());
     fourHoursAfter = new Date(0, 0, 0, now.getHours() + 4, now.getMinutes(), now.getSeconds());
   }));
+
+  describe("isFeedbackAllowed with attended user who did not feedbacked", function () {
+    beforeEach(function () {
+      attendedDeferred.resolve(true);
+      alreadyFeedbackedDeferred.resolve(false);
+    });
+    it("should not display the Feedback button for future event", function () {
+      eventDeferred.resolve(
+        {
+          'data': {
+            "title": "test",
+            "date": inThreeDays,
+            "begin": oneHourBefore,
+            "end": fourHoursAfter
+          }
+        }
+      );
+      scope.$digest();
+      expect(scope.isFeedbackAllowed).toBe(false);
+    });
+
+    it("should display the Feedback button for current event", function () {
+      eventDeferred.resolve({
+        'data': {
+          "title": "test",
+          "date": today,
+          "begin": oneHourBefore,
+          "end": fiveMinutesAfter
+        }
+      });
+      scope.$digest();
+      expect(scope.isFeedbackAllowed).toBe(true);
+    });
+
+    it("should display the Feedback button for event that ended less than 48h ago", function () {
+      eventDeferred.resolve({
+        'data': {
+          "title": "test",
+          "date": twoDaysAgo,
+          "begin": oneHourBefore,
+          "end": fourHoursAfter
+        }
+      });
+      scope.$digest();
+      expect(scope.isFeedbackAllowed).toBe(true);
+    });
+
+    it("should not display the Feedback button for event that ended more than 48h ago", function () {
+      eventDeferred.resolve({
+        'data': {
+          "title": "test",
+          "date": twoDaysAgo,
+          "begin": threeHoursBefore,
+          "end": oneHourBefore
+        }
+      });
+      scope.$digest();
+      expect(scope.isFeedbackAllowed).toBe(false);
+    });
+  });
 });
