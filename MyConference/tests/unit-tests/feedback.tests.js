@@ -80,105 +80,154 @@ describe('Feedback', function () {
     fourHoursAfter = new Date(0, 0, 0, now.getHours() + 4, now.getMinutes(), now.getSeconds());
   }));
 
-  describe("isFeedbackAllowed with attended user who did not feedbacked", function () {
+  describe("isFeedbackAllowed", function () {
+    describe("with attended user who did not feedbacked", function () {
+      beforeEach(function () {
+        attendedDeferred.resolve(true);
+        alreadyFeedbackedDeferred.resolve(false);
+      });
+      it("should not display the Feedback button for future event", function () {
+        eventDeferred.resolve(
+          {
+            'data': {
+              "title": "test",
+              "date": inThreeDays.toISOString(),
+              "begin": oneHourBefore,
+              "end": fourHoursAfter
+            }
+          }
+        );
+        scope.$digest();
+        expect(scope.isFeedbackAllowed).toBe(false);
+      });
+
+      it("should display the Feedback button for current event", function () {
+        eventDeferred.resolve({
+          'data': {
+            "title": "test",
+            "date": today.toISOString(),
+            "begin": oneHourBefore,
+            "end": fiveMinutesAfter
+          }
+        });
+        scope.$digest();
+        expect(scope.isFeedbackAllowed).toBe(true);
+      });
+
+      it("should display the Feedback button for event that ended less than 48h ago", function () {
+        eventDeferred.resolve({
+          'data': {
+            "title": "test",
+            "date": twoDaysAgo.toISOString(),
+            "begin": oneHourBefore,
+            "end": fourHoursAfter
+          }
+        });
+        scope.$digest();
+        expect(scope.isFeedbackAllowed).toBe(true);
+      });
+
+      it("should not display the Feedback button for event that ended more than 48h ago", function () {
+        eventDeferred.resolve({
+          'data': {
+            "title": "test",
+            "date": twoDaysAgo.toISOString(),
+            "begin": threeHoursBefore,
+            "end": oneHourBefore
+          }
+        });
+        scope.$digest();
+        expect(scope.isFeedbackAllowed).toBe(false);
+      });
+    });
+
+    describe("with attended user who already feedbacked", function () {
+      beforeEach(function () {
+        attendedDeferred.resolve(true);
+        alreadyFeedbackedDeferred.resolve(true);
+      });
+      it("should not display the Feedback button for attended user who already feedbacked", function () {
+        eventDeferred.resolve(
+          {
+            'data': {
+              "title": "test",
+              "date": inThreeDays.toISOString(),
+              "begin": oneHourBefore,
+              "end": fourHoursAfter
+            }
+          }
+        );
+        scope.$digest();
+        expect(scope.isFeedbackAllowed).toBe(false);
+      });
+    });
+
+    describe("with not attended user", function () {
+      beforeEach(function () {
+        attendedDeferred.resolve(false);
+        alreadyFeedbackedDeferred.resolve(false);
+      });
+      it("should not display the Feedback button for unattended user", function () {
+        eventDeferred.resolve(
+          {
+            'data': {
+              "title": "test",
+              "date": inThreeDays.toISOString(),
+              "begin": oneHourBefore,
+              "end": fourHoursAfter
+            }
+          }
+        );
+        scope.$digest();
+        expect(scope.isFeedbackAllowed).toBe(false);
+      });
+    });
+  })
+
+  describe("areFeedbackResultsVisible", function () {
     beforeEach(function () {
       attendedDeferred.resolve(true);
       alreadyFeedbackedDeferred.resolve(false);
     });
-    it("should not display the Feedback button for future event", function () {
+    it("should not display the Feedback results button for future event", function () {
       eventDeferred.resolve(
         {
           'data': {
             "title": "test",
-            "date": inThreeDays.toISOString(),
+            "date": inThreeDays,
             "begin": oneHourBefore,
             "end": fourHoursAfter
           }
         }
       );
       scope.$digest();
-      expect(scope.isFeedbackAllowed).toBe(false);
+      expect(scope.areFeedbackResultsVisible).toBe(false);
     });
 
-    it("should display the Feedback button for current event", function () {
+    it("should not display the Feedback results button for current event", function () {
       eventDeferred.resolve({
         'data': {
           "title": "test",
-          "date": today.toISOString(),
+          "date": today,
           "begin": oneHourBefore,
           "end": fiveMinutesAfter
         }
       });
       scope.$digest();
-      expect(scope.isFeedbackAllowed).toBe(true);
+      expect(scope.areFeedbackResultsVisible).toBe(false);
     });
 
-    it("should display the Feedback button for event that ended less than 48h ago", function () {
+    it("should display the Feedback results button for event that ended", function () {
       eventDeferred.resolve({
         'data': {
           "title": "test",
-          "date": twoDaysAgo.toISOString(),
-          "begin": oneHourBefore,
-          "end": fourHoursAfter
-        }
-      });
-      scope.$digest();
-      expect(scope.isFeedbackAllowed).toBe(true);
-    });
-
-    it("should not display the Feedback button for event that ended more than 48h ago", function () {
-      eventDeferred.resolve({
-        'data': {
-          "title": "test",
-          "date": twoDaysAgo.toISOString(),
+          "date": today,
           "begin": threeHoursBefore,
           "end": oneHourBefore
         }
       });
       scope.$digest();
-      expect(scope.isFeedbackAllowed).toBe(false);
+      expect(scope.areFeedbackResultsVisible).toBe(true);
     });
-  });
-
-  describe("isFeedbackAllowed with attended user who already feedbacked", function () {
-    beforeEach(function () {
-      attendedDeferred.resolve(true);
-      alreadyFeedbackedDeferred.resolve(true);
-    });
-    it("should not display the Feedback button for attended user who already feedbacked", function () {
-      eventDeferred.resolve(
-        {
-          'data': {
-            "title": "test",
-            "date": inThreeDays.toISOString(),
-            "begin": oneHourBefore,
-            "end": fourHoursAfter
-          }
-        }
-      );
-      scope.$digest();
-      expect(scope.isFeedbackAllowed).toBe(false);
-    });
-  });
-
-  describe("isFeedbackAllowed with not attended user", function () {
-    beforeEach(function () {
-      attendedDeferred.resolve(false);
-      alreadyFeedbackedDeferred.resolve(false);
-    });
-    it("should not display the Feedback button for unattended user", function () {
-      eventDeferred.resolve(
-        {
-          'data': {
-            "title": "test",
-            "date": inThreeDays.toISOString(),
-            "begin": oneHourBefore,
-            "end": fourHoursAfter
-          }
-        }
-      );
-      scope.$digest();
-      expect(scope.isFeedbackAllowed).toBe(false);
-    });
-  });
+  })
 });
