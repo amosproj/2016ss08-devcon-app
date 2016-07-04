@@ -139,4 +139,25 @@ describe('Feedback', function () {
       expect(scope.isFeedbackAllowed).toBe(false);
     });
   });
+
+  describe("isFeedbackAllowed with attended user who already feedbacked", function () {
+    beforeEach(function () {
+      attendedDeferred.resolve(true);
+      alreadyFeedbackedDeferred.resolve(true);
+    });
+    it("should not display the Feedback button for attended user who already feedbacked", function () {
+      eventDeferred.resolve(
+        {
+          'data': {
+            "title": "test",
+            "date": inThreeDays,
+            "begin": oneHourBefore,
+            "end": fourHoursAfter
+          }
+        }
+      );
+      scope.$digest();
+      expect(scope.isFeedbackAllowed).toBe(false);
+    });
+  });
 });
