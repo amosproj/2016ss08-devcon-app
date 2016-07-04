@@ -68,5 +68,15 @@ describe('Feedback', function () {
       backendService: backendServiceMock,
       $stateParams: {eventId: 1}
     });
+
+    now = new Date(2016, 6, 4, 13, 22, 9);
+    jasmine.clock().mockDate(now);
+    twoDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 2, 0, 0, 0);
+    today = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+    inThreeDays = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 3, 0, 0, 0);
+    threeHoursBefore = new Date(0, 0, 0, now.getHours() - 3, now.getMinutes(), now.getSeconds());
+    oneHourBefore = new Date(0, 0, 0, now.getHours() - 1, now.getMinutes(), now.getSeconds());
+    fiveMinutesAfter = new Date(0, 0, 0, now.getHours(), now.getMinutes() + 5, now.getSeconds());
+    fourHoursAfter = new Date(0, 0, 0, now.getHours() + 4, now.getMinutes(), now.getSeconds());
   }));
 });
