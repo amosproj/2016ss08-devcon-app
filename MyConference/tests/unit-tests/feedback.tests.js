@@ -90,7 +90,7 @@ describe('Feedback', function () {
         {
           'data': {
             "title": "test",
-            "date": inThreeDays,
+            "date": inThreeDays.toISOString(),
             "begin": oneHourBefore,
             "end": fourHoursAfter
           }
@@ -104,7 +104,7 @@ describe('Feedback', function () {
       eventDeferred.resolve({
         'data': {
           "title": "test",
-          "date": today,
+          "date": today.toISOString(),
           "begin": oneHourBefore,
           "end": fiveMinutesAfter
         }
@@ -117,7 +117,7 @@ describe('Feedback', function () {
       eventDeferred.resolve({
         'data': {
           "title": "test",
-          "date": twoDaysAgo,
+          "date": twoDaysAgo.toISOString(),
           "begin": oneHourBefore,
           "end": fourHoursAfter
         }
@@ -130,7 +130,7 @@ describe('Feedback', function () {
       eventDeferred.resolve({
         'data': {
           "title": "test",
-          "date": twoDaysAgo,
+          "date": twoDaysAgo.toISOString(),
           "begin": threeHoursBefore,
           "end": oneHourBefore
         }
@@ -150,7 +150,7 @@ describe('Feedback', function () {
         {
           'data': {
             "title": "test",
-            "date": inThreeDays,
+            "date": inThreeDays.toISOString(),
             "begin": oneHourBefore,
             "end": fourHoursAfter
           }
@@ -171,7 +171,7 @@ describe('Feedback', function () {
         {
           'data': {
             "title": "test",
-            "date": inThreeDays,
+            "date": inThreeDays.toISOString(),
             "begin": oneHourBefore,
             "end": fourHoursAfter
           }
