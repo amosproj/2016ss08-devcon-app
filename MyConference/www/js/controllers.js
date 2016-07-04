@@ -821,6 +821,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       lastEndTime = borderTimes.lastEndTime;
 
       eventDateSplitted = splitDateIntoParts($scope.event.date);
+      return;
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
