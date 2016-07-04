@@ -115,38 +115,40 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
 
-  /*
-   Controller for adding Organizer
-   Calls getUsers service, ToDo  (change User Role to Administrator)
-   */
-
-  .controller('AddOrgCtrl', function ($scope, $state, backendService, $ionicPopup, $translate) {
-    $scope.getUsers = function (user) {
-      backendService.getUsers(user).then(function (res) {
-        var user = res.data;
-        var email = user.visibleByTheUser.email;
-        var role = user.user.roles;
+  
+  .controller('AddOrgCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
+    $scope.createOrganizer = function (user) {
+      var us = user;
+      backendService.getUsers(us).then(function (res) {
+        var user1 = res.data;
+        var id = user1.id;
+        var email = user1.visibleByTheUser.email;
+        var gName = user1.visibleByRegisteredUsers.gName;
+        var name = user1.visibleByRegisteredUsers.name;
         console.log(email);
-        console.log(role);
-        if (user = email){
-         /* ToDo  (change User Role to Administrator) */
-          $ionicPopup.alert({
-            title: 'Hallo ' + user,
-            template: 'this user is registred'
-          })
-        }
-      },function (err) {
-        $translate("Error!").then(
+        console.log(gName, ' ', name);
+        backendService.createOrganizer(user).then(function (res) {
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'organizer is added' | translate}}"
+              });
+            });
+        })
+      }, function (err) {
+        $translate('Error!').then(
           function (res) {
             $ionicPopup.alert({
-              title: ' User Not found',
-              template: 'this user is not registred'
-            })
+              title: res,
+              template: "{{'this user is not registered.' | translate}}"
+            });
           }
         );
       });
     }
   })
+
 
 
   /*
