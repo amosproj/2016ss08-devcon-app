@@ -169,36 +169,36 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-  /*
-   Function for creating a new organizer
-   First saves a new document in "organizer" collection
-   Then grants read permission to registered and not registered users
-   */
-  backend.createOrganizer = function (user) {
-    return BaasBox.save(user, "organizer")
-      .done(function (res) {
-        console.log("res ", res);
-        BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-        BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
-      })
-      .fail(function (error) {
-        console.log("error ", error);
-      })
-  };
+    /*
+     Function for creating a new organizer
+     First saves a new document in "organizer" collection
+     Then grants read permission to registered and not registered users
+     */
+    backend.createOrganizer = function (user) {
+      return BaasBox.save(user, "organizer")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
 
-  /*
-   Function for deleting an event
-   */
-  backend.deleteEvent = function (eventId) {
-    //return
-    BaasBox.deleteObject(eventId, "events")
-      .done(function (res) {
-        console.log(res);
-      })
-      .fail(function (err) {
-        console.log("Delete error ", err);
-      });
-  };
+    /*
+     Function for deleting an event
+     */
+    backend.deleteEvent = function (eventId) {
+      //return
+      BaasBox.deleteObject(eventId, "events")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
 
     /*
      Function for adding an agenda talk to an event
@@ -265,34 +265,34 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       })
     };
 
-  /*
-   Function for updating an event
-   Can get one or three arguments
-   If function is called only with one argument (event object) the whole event is updated
-   If there are 3 arguments only one defined field of the event is updated with the given value
-   Returns a promise.
-   */
-  backend.updateEvent = function (event, fieldToUpdate, value) {
-    if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
-      return BaasBox.save(event, "events")
-        .done(function (res) {
-          console.log("res ", res);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
-        })
-        .fail(function (error) {
-          console.log("error ", error);
-        })
-    } else {
-      return BaasBox.updateField(event, "events", fieldToUpdate, value)
-        .done(function (res) {
-          console.log("Event updated ", res);
-        })
-        .fail(function (error) {
-          console.log("Event update error ", error);
-        })
-    }
-  };
+    /*
+     Function for updating an event
+     Can get one or three arguments
+     If function is called only with one argument (event object) the whole event is updated
+     If there are 3 arguments only one defined field of the event is updated with the given value
+     Returns a promise.
+     */
+    backend.updateEvent = function (event, fieldToUpdate, value) {
+      if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
+        return BaasBox.save(event, "events")
+          .done(function (res) {
+            console.log("res ", res);
+            BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
+            BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+          })
+          .fail(function (error) {
+            console.log("error ", error);
+          })
+      } else {
+        return BaasBox.updateField(event, "events", fieldToUpdate, value)
+          .done(function (res) {
+            console.log("Event updated ", res);
+          })
+          .fail(function (error) {
+            console.log("Event update error ", error);
+          })
+      }
+    };
     /*
      Function for updating an agenda
      */
@@ -578,16 +578,16 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-      Function for checking if current user is stored as attended at the event.
-      Returns a promise
+     Function for checking if current user is stored as attended at the event.
+     Returns a promise
      */
     backend.isCurrentUserAttendedForEvent = function (eventId) {
       return backend.isUserAttendedForEvent(BaasBox.getCurrentUser(), eventId)
     };
 
     /*
-      Abstract function for checking if an user has a given status as participant of an event.
-      Returns a promise.
+     Abstract function for checking if an user has a given status as participant of an event.
+     Returns a promise.
      */
     hasUserRightStatusInEvent = function (user, eventId, expectedStatus) {
       var deferred = $q.defer();
@@ -621,21 +621,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
-  /*
-   Function for getting a user by his email
-   returns a promise
-   */
+    /*
+     Function for getting a user by his email
+     returns a promise
+     */
 
-  backend.getUsers = function (user) {
-    return BaasBox.getUsers(user)
-      .done(function (res) {
+    backend.getUsers = function (user) {
+      return BaasBox.getUsers(user)
+        .done(function (res) {
 
-        console.log(res);
-      })
-      .fail(function (err) {
-        console.log("get user error ", err);
-      });
-  };
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("get user error ", err);
+        });
+    };
     /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
@@ -732,7 +732,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         "users": users,
         "message": message
       };
-      console.log(users,message)
+      console.log(users, message)
       return BaasBox.sendPushNotification(params);
     }
 
@@ -776,13 +776,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-      TODO in Sprint 11
-    */
-    backend.isCurrentUserOrganizer = function(){
+     TODO in Sprint 11
+     */
+    backend.isCurrentUserOrganizer = function () {
       return true;
     }
 
     return backend;
   }
-
 );

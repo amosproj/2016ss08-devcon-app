@@ -388,16 +388,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
-        $ionicLoading.hide();
-        $translate('Error!').then(
-          function (res2) {
-            var alertPopup = $ionicPopup.alert({
-              title: res2,
-              template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
-            });
-          }
-        )}}, 6000);
+        if (!$scope.hidden) {
+          $ionicLoading.hide();
+          $translate('Error!').then(
+            function (res2) {
+              var alertPopup = $ionicPopup.alert({
+                title: res2,
+                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+              });
+            }
+          )
+        }
+      }, 6000);
       backendService.createEvent(ev).then(function (res) {
         $ionicLoading.hide();
         $scope.hidden = true;
@@ -479,7 +481,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -488,7 +490,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 9000);
+          )
+        }
+      }, 9000);
       var formData = new FormData();
       formData.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
@@ -547,7 +551,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -556,7 +560,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       backendService.addCurrentUserToEvent($scope.event.id).then(
         function (res) {
           $ionicLoading.hide();
@@ -593,7 +599,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -602,7 +608,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       backendService.removeCurrentUserFromEvent($scope.event.id).then(
         function (res) {
           $ionicLoading.hide();
@@ -661,7 +669,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                       location: $scope.event.location
                     })
                   } else {
-                    thirdPromise = $translate("See you on $date at $time!", {date: dateFormatted, time: $scope.event.time})
+                    thirdPromise = $translate("See you on $date at $time!", {
+                      date: dateFormatted,
+                      time: $scope.event.time
+                    })
                   }
                 } else {
                   if ($scope.event.location) {
@@ -729,9 +740,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       )
     };
     /*
-    function for delete Event
-    delete related agenda and files as well
-    */
+     function for delete Event
+     delete related agenda and files as well
+     */
     $scope.deleteEvent = function () {
       $translate('Confirmation needed').then(
         function (res3) {
@@ -762,7 +773,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
           });
         })
-      }
+    }
     /*
      Function that returns the first begin time of all talks and the last end time of all talks.
      Should be simplified once we store the start time of the event itself.
@@ -796,10 +807,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
-            console.log("res "+res);
+            console.log("res " + res);
             $scope.isFeedbackAllowed = res;
           }, function (err) {
-            console.log("err "+err)
+            console.log("err " + err)
             $scope.isFeedbackAllowed = false
           }
         )
@@ -865,7 +876,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     });
                     $scope.hidden = false;
                     $timeout(function () {
-                      if(!$scope.hidden){
+                      if (!$scope.hidden) {
                         $ionicLoading.hide();
                         $translate('Error!').then(
                           function (res2) {
@@ -874,7 +885,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                               template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
                             });
                           }
-                        )}}, 12000);
+                        )
+                      }
+                    }, 12000);
                     createCSV($scope.event.participants.length - 1, 'email')
                   }
                 },
@@ -892,7 +905,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     });
                     $scope.hidden = false;
                     $timeout(function () {
-                      if(!$scope.hidden){
+                      if (!$scope.hidden) {
                         $ionicLoading.hide();
                         $translate('Error!').then(
                           function (res2) {
@@ -901,7 +914,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                               template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
                             });
                           }
-                        )}}, 12000);
+                        )
+                      }
+                    }, 12000);
                     createCSV($scope.event.participants.length - 1, 'download')
                   }
                 },
@@ -1019,7 +1034,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1028,7 +1043,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       backendService.addingAgenda(ag, $stateParams.eventId).then(function (re) {
         $ionicLoading.hide();
         $scope.hidden = true;
@@ -1141,7 +1158,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         });
         $scope.hidden = false;
         $timeout(function () {
-          if(!$scope.hidden){
+          if (!$scope.hidden) {
             $ionicLoading.hide();
             $translate('Error!').then(
               function (res2) {
@@ -1150,7 +1167,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
                 });
               }
-            )}}, 7000);
+            )
+          }
+        }, 7000);
         backendService.updateEvent(ev).then(function (re) {
           $ionicLoading.hide();
           $scope.hidden = true;
@@ -1270,7 +1289,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1279,7 +1298,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 9000);
+          )
+        }
+      }, 9000);
       var formDataSpeaker = new FormData();
       formDataSpeaker.append('file', $('input[type=file]')[0].files[0]);
       backendService.uploadFileAgenda(formDataSpeaker, agendaId).then(function (res) {
@@ -1350,7 +1371,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1359,7 +1380,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       backendService.createAccount(user).then(function (re) {
         $ionicLoading.hide();
         $scope.hidden = true;
@@ -1397,7 +1420,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         function (res) {
           backendService.applySettingsForCurrentUser();
           backendService.getEvents().then(function (res) {
-            $ionicLoading.hide();
+              $ionicLoading.hide();
               $scope.event = res['data'];
               var me = credentials.username;
               console.log('current user is :', me);
@@ -1530,7 +1553,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               });
               $scope.hidden = false;
               $timeout(function () {
-                if(!$scope.hidden){
+                if (!$scope.hidden) {
                   $ionicLoading.hide();
                   $translate('Error!').then(
                     function (res2) {
@@ -1539,7 +1562,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                         template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
                       });
                     }
-                  )}}, 7000);
+                  )
+                }
+              }, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
@@ -1617,7 +1642,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1626,7 +1651,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       for (talkNr in $scope.talks) {
         ratingObject = $scope.ratingObjects[$scope.talks[talkNr].topic];
         backendService.addFeedbackToTalk($scope.talks[talkNr].id, ratingObject.rating, ratingObject.comment)
@@ -1766,7 +1793,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1775,9 +1802,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       backendService.updateUserProfile({"visibleByTheUser": {"email": user.email}}).then(function (re) {
-        backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}}).then(function (ress) {
+        backendService.updateUserProfile({
+          "visibleByRegisteredUsers": {
+            "name": user.name,
+            "gName": user.gName
+          }
+        }).then(function (ress) {
           $ionicLoading.hide();
           $scope.hidden = true;
           $translate('Done!').then(
@@ -1853,7 +1887,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1862,7 +1896,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       backendService.addingQuestion(que, $stateParams.eventId).then(function (re) {
         $ionicLoading.hide();
         $scope.hidden = true;
@@ -1922,7 +1958,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
       $scope.hidden = false;
       $timeout(function () {
-        if(!$scope.hidden){
+        if (!$scope.hidden) {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res2) {
@@ -1931,7 +1967,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
               });
             }
-          )}}, 7000);
+          )
+        }
+      }, 7000);
       $scope.questionObject[result] += 1;
       backendService.updateEvent(thisEvent.id, "questions", thisEvent.questions).then(
         function (res) {
