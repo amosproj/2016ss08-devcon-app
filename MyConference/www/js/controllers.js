@@ -1054,14 +1054,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.showAddingAgenda = function () {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
-    //retrieve agenda by condition
-    backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
-      $scope.agendaList = res;
-      isFeedbackAllowed();
-      areFeedbackResultsVisible();
-    }, function (error) {
-      console.log("Error by retrieving the event", error)
-    })
 
     $scope.showRoute = function () {
       if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
