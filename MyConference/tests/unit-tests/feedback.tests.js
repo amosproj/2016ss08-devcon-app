@@ -160,4 +160,25 @@ describe('Feedback', function () {
       expect(scope.isFeedbackAllowed).toBe(false);
     });
   });
+
+  describe("isFeedbackAllowed with not attended user", function () {
+    beforeEach(function () {
+      attendedDeferred.resolve(false);
+      alreadyFeedbackedDeferred.resolve(false);
+    });
+    it("should not display the Feedback button for unattended user", function () {
+      eventDeferred.resolve(
+        {
+          'data': {
+            "title": "test",
+            "date": inThreeDays,
+            "begin": oneHourBefore,
+            "end": fourHoursAfter
+          }
+        }
+      );
+      scope.$digest();
+      expect(scope.isFeedbackAllowed).toBe(false);
+    });
+  });
 });
