@@ -82,7 +82,10 @@ describe('LiveVotingCtrl: ', function () {
   it('current event should be requested from backend', function () {
     expect(backendServiceMock.getEventById).toHaveBeenCalledWith(666)
   })
-
+  /*
+   beforeSubmit = true: enables ion-radio for choosing the question and submit button
+   afterSubmit = true: enables ion-list with voting results
+   */
   describe('if there is no current question to vote, ', function () {
     beforeEach(function () {
       eventDfd.resolve(eventWithoutCurrentQuestionMock)
@@ -98,12 +101,11 @@ describe('LiveVotingCtrl: ', function () {
       eventDfd.resolve(eventWithQuestionVotedMock)
       scope.$digest();
     })
-   it('radio button for choosing an answer and submit button should be unavailable for the user', function () {
+    it('radio button for choosing an answer and submit button should be unavailable for the user, but he can see voting results', function () {
       expect(scope.beforeSubmit).toEqual(false);
       expect(scope.afterSubmit).toEqual(true);
     })
   })
-
   describe('if user have not voted for the current question, ', function () {
     beforeEach(function () {
       eventDfd.resolve(eventWithoutQuestionVotedMock)
@@ -115,6 +117,7 @@ describe('LiveVotingCtrl: ', function () {
     })
     describe('submit function: ', function () {
       beforeEach(function () {
+        // question is answered as "yes"
         scope.submit('yes');
       })
       it('should increase value of the quantity of the particular answer', function () {
@@ -141,5 +144,4 @@ describe('LiveVotingCtrl: ', function () {
       })
     })
   })
-
 })
