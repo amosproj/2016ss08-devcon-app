@@ -44,7 +44,7 @@ describe('LoginCtrl: ', function () {
     backendServiceMock = {
       login: jasmine.createSpy('login spy').and.returnValue(loginDfd.promise),
       logout: jasmine.createSpy('logout spy').and.returnValue(loginDfd.promise),
-      applySettingsForCurrentUser: jasmine.createSpy('logout spy'),
+      applySettingsForCurrentUser: function () {},
       getEvents: jasmine.createSpy('getEvents spy').and.returnValue(eventDfd.promise)
     }
     ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert'])
