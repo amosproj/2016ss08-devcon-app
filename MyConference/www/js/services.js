@@ -22,7 +22,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     var REMEMBER_LOGIN_KEY = "baasbox-remember-login";
 
     var backend = {};
-    backend.currentUser;
+    backend.currentUser = '';
     backend.loginStatus = false;
     /*
      Function for establishing connection to the backend
@@ -136,6 +136,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
+          backend.currentUser = '';
           backend.changeLoginStatus(false);
           console.log(res);
         })

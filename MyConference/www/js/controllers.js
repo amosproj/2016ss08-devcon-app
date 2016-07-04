@@ -15,14 +15,14 @@
  If not, see http://www.gnu.org/licenses/agpl-3.0.html.
  */
 angular.module('starter.controllers', ['services', 'ngCordova'])
-  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate) {
-
+  .controller('AppCtrl', function ($scope, $ionicModal, $timeout, backendService, $translate, tmhDynamicLocale) {
     // With the new view caching in Ionic, Controllers are only called
     // when they are recreated or on app start, instead of every page change.
     // To listen for when this page is active (for example, to refresh data),
     // listen for the $ionicView.enter event:
     //$scope.$on('$ionicView.enter', function(e) {
     //});
+    tmhDynamicLocale.set("de");
     // Form data for the login modal
     $scope.loginData = {};
     // Create the login modal that we will use later
@@ -43,11 +43,12 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.changeLanguage = function () {
       if ($scope.languageSwitched) {
         $translate.use("de");
+        tmhDynamicLocale.set("de");
       } else {
         $translate.use("en");
+        tmhDynamicLocale.set("en");
       }
       $scope.languageSwitched = !$scope.languageSwitched;
-      console.log($scope.languageSwitched);
     };
     $scope.isLoggedIn = false;
     $scope.$on('user:loginState', function (event, data) {
@@ -291,6 +292,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Provides the filter methods for previous and next events.
    */
   .controller('MainCtrl', function ($scope, $state, $ionicPopup, backendService) {
+    $scope.todaySeen = true;
+    $scope.nextSeen = false;
+    $scope.previousSeen = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     var today = new Date();
     /*
@@ -380,6 +384,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
@@ -417,9 +422,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       //retrieve agenda by condition
       backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
         $scope.agendaList = res;
-        $scope.isFeedbackAllowed = isFeedbackAllowed();
-        $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
-        $scope.isReminderAllowed = isReminderAllowed();
+        isFeedbackAllowed();
+        areFeedbackResultsVisible();
+        isReminderAllowed();
       }, function (error) {
         console.log("Error by retrieving the event", error)
       })
@@ -531,7 +536,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             }
             arrayOfOrganiserNames().then(function (arr) {
               cUser = backendService.currentUser;
-              if(typeof cUser !== 'undefined') {
+              if(typeof cUser !== 'undefined' && cUser != '') {
                 $translate('New participant $name $gName is registered for $event', {
                   name: cUser.visibleByRegisteredUsers.name,
                   gName: cUser.visibleByRegisteredUsers.gName,
@@ -635,7 +640,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           secondPromise.then(
             function (firstSentence) {
               if ($scope.event.date) {
-                dateFormatted = $filter('date')($scope.event.date, "dd.MM.yy");
+                dateFormatted = $filter('date')($scope.event.date, shortDate);
                 if ($scope.event.time) {
                   if ($scope.event.location) {
                     thirdPromise = $translate("See you on $date at $time, $location!", {
@@ -752,27 +757,33 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     getBorderTimesOfEvent = function () {
       firstBeginTime = new Date($scope.event.begin);
-      lastEndTime = new Date("1969-12-31T23:00:00.000Z");
-      for (agendaNr in $scope.agendaList) {
-        endTime = new Date($scope.agendaList[agendaNr].end);
-        if (endTime > lastEndTime) {
-          lastEndTime = endTime;
-        }
-      }
+      lastEndTime = new Date($scope.event.end);
       return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
     }
 
     /*
+     Function for splitting a date into its parts.
+     Gets a datestring like the ones stored in the backend.
+     Is used for getting right date with corrected timezone.
+     Returns [day, month, year].
+     */
+    splitDateIntoParts = function(dateString) {
+      dateObj = new Date(dateString).toLocaleString();
+
+      dateSplitted = dateObj.split(".");
+      dateSplitted[2] = dateSplitted[2].split(",")[0];
+      return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
+    }
+
+    /*
      Function that determines if now is between the first agenda talk and not more than 48h after the last.
-     Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
       borderTimes = getBorderTimesOfEvent();
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = $scope.event.date.split("-");
-      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+      eventDateSplitted = splitDateIntoParts($scope.event.date);
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
@@ -802,14 +813,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
      */
     areFeedbackResultsVisible = function () {
-      if ($scope.agendaList.length == 0) {
-        return true;
-      }
       borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = $scope.event.date.split("-");
-      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+      eventDateSplitted = splitDateIntoParts($scope.event.date);
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
@@ -828,9 +835,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       now = new Date();
 
       if (backendService.isCurrentUserOrganizer()) {
-        return now < dateOfEvent;
+        $scope.isReminderAllowed = now < dateOfEvent;
       } else {
-        return false;
+        $scope.isReminderAllowed = false;
       }
     };
 
@@ -1050,8 +1057,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     //retrieve agenda by condition
     backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
       $scope.agendaList = res;
-      $scope.isFeedbackAllowed = isFeedbackAllowed();
-      $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
+      isFeedbackAllowed();
+      areFeedbackResultsVisible();
     }, function (error) {
       console.log("Error by retrieving the event", error)
     })
@@ -1312,8 +1319,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    "default" user means "not registered" user
    */
   .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
-    backendService.fetchCurrentUser().then(function (res) {
-      if (res['data']['user'].name == "default") {
+      if (typeof backendService.currentUser === 'undefined' || backendService.currentUser == '') {
         backendService.logout();
       } else {
         $translate('Error!').then(
@@ -1327,7 +1333,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           }
         );
       }
-    });
     $scope.createAccount = function (user) {
       $ionicLoading.show({
         content: 'Loading',
@@ -1370,7 +1375,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             function (res2) {
               var alertPopup = $ionicPopup.alert({
                 title: res2,
-                template: "{{'This mail adress is already in use.' | translate}}"
+                template: "{{'This mail address is already in use.' | translate}}"
               });
             }
           )
