@@ -930,7 +930,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             if (action === 'download') {
               $ionicLoading.hide();
               $scope.hidden = true;
-              $scope.download(storage + $scope.event.title + "-participants-list.csv")
+                cordova.plugins.fileOpener2.open(
+                  storage + $scope.event.title + '-participants-list.csv',
+                  'text/csv'
+                );
             } else {
               sendEmail(storage + $scope.event.title + "-participants-list.csv")
             }
