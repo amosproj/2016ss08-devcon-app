@@ -45,6 +45,10 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         <input type="time" ng-model="event.begin" value="{{event.begin | date: 'shortTime'}}">
       </label>
       <label class="item item-input">
+        <span class="input-label fixed">{{ 'End' | translate }}:</span>
+        <input type="time" ng-model="event.end" value="{{event.end | date: 'shortTime'}}">
+      </label>
+      <label class="item item-input">
         <textarea rows="5" placeholder="{{'Description' | translate }}" ng-model="event.descr"></textarea>
       </label>
       <button type="submit" class="button button-block button-positive">{{ 'Submit' | translate }}</button>
