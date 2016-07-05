@@ -422,9 +422,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       //retrieve agenda by condition
       backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
         $scope.agendaList = res;
-        $scope.isFeedbackAllowed = isFeedbackAllowed();
-        $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
-        $scope.isReminderAllowed = isReminderAllowed();
+        isFeedbackAllowed();
+        areFeedbackResultsVisible();
+        isReminderAllowed();
       }, function (error) {
         console.log("Error by retrieving the event", error)
       })
@@ -762,26 +762,52 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
 
     /*
+     Function for splitting a date into its parts.
+     Gets a datestring like the ones stored in the backend.
+     Is used for getting right date with corrected timezone.
+     Returns [day, month, year].
+     */
+    splitDateIntoParts = function(dateString) {
+      dateObj = new Date(dateString).toLocaleString();
+
+      if(dateObj.indexOf(".") == -1){
+        dateSplitted = dateObj.split("/");
+        dateSplitted[2] = dateSplitted[2].split(",")[0];
+        return [dateSplitted[2],dateSplitted[0],dateSplitted[1]];
+      } else {
+        dateSplitted = dateObj.split(".");
+        dateSplitted[2] = dateSplitted[2].split(",")[0];
+        return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
+      }
+    }
+
+    /*
      Function that determines if now is between the first agenda talk and not more than 48h after the last.
-     Finds the first beginnig and the last ending time of the talks first.
      */
     isFeedbackAllowed = function () {
       borderTimes = getBorderTimesOfEvent();
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = $scope.event.date.split("-");
-      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+      eventDateSplitted = splitDateIntoParts($scope.event.date);
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
-            console.log("res "+res);
-            $scope.isFeedbackAllowed = res;
+            if(res == true){
+              backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
+                function (resAlreadyGiven) {
+                  $scope.isFeedbackAllowed = !resAlreadyGiven;
+                }, function (err) {
+                  $scope.isFeedbackAllowed = false;
+                }
+              )
+            } else {
+              $scope.isFeedbackAllowed = false;
+            }
           }, function (err) {
-            console.log("err "+err)
             $scope.isFeedbackAllowed = false
           }
         )
@@ -793,14 +819,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
      */
     areFeedbackResultsVisible = function () {
-      if ($scope.agendaList.length == 0) {
-        return true;
-      }
       borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = $scope.event.date.split("-");
-      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+      eventDateSplitted = splitDateIntoParts($scope.event.date);
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
@@ -819,9 +841,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       now = new Date();
 
       if (backendService.isCurrentUserOrganizer()) {
-        return now < dateOfEvent;
+        $scope.isReminderAllowed = now < dateOfEvent;
       } else {
-        return false;
+        $scope.isReminderAllowed = false;
       }
     };
 
@@ -1038,14 +1060,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.showAddingAgenda = function () {
       $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
     };
-    //retrieve agenda by condition
-    backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
-      $scope.agendaList = res;
-      $scope.isFeedbackAllowed = isFeedbackAllowed();
-      $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
-    }, function (error) {
-      console.log("Error by retrieving the event", error)
-    })
 
     $scope.showRoute = function () {
       if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
@@ -1639,18 +1653,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
       backendService.addFeedbackToEvent($stateParams.eventId, ratingArray).then(
         function (res) {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          $translate('Done!').then(
-            function (res2) {
-              $ionicPopup.alert({
-                title: res2,
-                template: "{{'Feedback submitted. Thank you!' | translate}}"
-              }).then(function (res3) {
-                $ionicHistory.goBack();
-              });
+          backendService.addCurrentUserAsFeedbackerToEvent($stateParams.eventId).then(
+            function (res) {
+              $ionicLoading.hide();
+              $scope.hidden = true;
+              $translate('Done!').then(
+                function (res2) {
+                  $ionicPopup.alert({
+                    title: res2,
+                    template: "{{'Feedback submitted. Thank you!' | translate}}"
+                  }).then(function (res3) {
+                    $ionicHistory.goBack();
+                  });
+                }
+              );
             }
-          );
+          )
         }
       )
     }
