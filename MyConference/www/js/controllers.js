@@ -914,7 +914,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               }
               csv += line + '\n';
             }
-            csvFileName = $scope.event.title.split(' ').join('-') + '-participants-list.csv'
+            csvFileName = $scope.event.title.split(' ').join('-').toLowerCase() + '-participants-list.csv'
             storage = ionic.Platform.isIOS() ? cordova.file.documentsDirectory : cordova.file.externalRootDirectory;
             $cordovaFile.writeFile(storage, csvFileName, csv, true)
               .then(function (success) {
