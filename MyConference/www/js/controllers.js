@@ -840,7 +840,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                         )
                       }
                     }, 12000);
-                    createCSV($scope.event.participants.length - 1, 'email')
+                    createCSV('email')
                   }
                 },
                 {
@@ -869,7 +869,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                         )
                       }
                     }, 12000);
-                    createCSV($scope.event.participants.length - 1, 'download')
+                    createCSV('download')
                   }
                 },
                 {
@@ -882,25 +882,34 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         })
       })
     }
-    $scope.arr = [];
     /*
      Recursive function for creating CSV file with event participants data
      gets integer for iterations and String object action as a parameter
      if action is 'download' new created CSV file is downloaded to the users device
      otherwise it is sent by email to the users email address
      */
-    function createCSV(i, action) {
-      if (i < 0) {
-        $scope.arr = $filter('orderBy')($scope.arr, 'name');
+    function createCSV(action) {
+      arr = [];
+        backendService.getUsers().then(function (res) {
+          users = $scope.event.participants;
+          for(var i in users) {
+            userr = $filter('filter')(res['data'], {user: {name: users[i].name}})
+            var obj = userr[0].visibleByRegisteredUsers;
+            obj.email = userr[0].user.name;
+            obj.status = users[i].status;
+            arr.push(obj);
+          }
+
+        arr = $filter('orderBy')(arr, 'name');
         $translate('Name').then(function (name) {
           $translate('Given name').then(function (gName) {
             csv = name + ',' + gName + ',E-mail,Status\n';
-            for (var i = 0; i < $scope.arr.length; i++) {
+            for (var i = 0; i < arr.length; i++) {
               var line = '';
-              for (var ind in $scope.arr[i]) {
-                if (typeof $scope.arr[i][ind] !== 'object') {
+              for (var ind in arr[i]) {
+                if (typeof arr[i][ind] !== 'object') {
                   if (line != '') line += ','
-                  line += $scope.arr[i][ind];
+                  line += arr[i][ind];
                 }
               }
               csv += line + '\n';
@@ -915,22 +924,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             if (action === 'download') {
                 openFile(storage + $scope.event.title + "-participants-list.csv", 'text/csv')
             } else {
-              sendEmail(storage + $scope.event.title + "-participants-list.csv")
+                sendEmail(storage + $scope.event.title + "-participants-list.csv")
             }
-            $scope.arr = [];
           })
         })
-      } else {
-        var user = $scope.event.participants[i];
-        console.log("User is", user, "i is " + i)
-        backendService.getUser(user.name).then(function (res) {
-          var obj = res['data']['visibleByRegisteredUsers'];
-          obj.email = res['data']['user'].name;
-          obj.status = user.status;
-          $scope.arr.push(obj);
-          createCSV(i - 1, action);
-        })
-      }
+      })
     }
 
     //Function to open a file
