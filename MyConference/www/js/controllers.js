@@ -920,7 +920,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               }
               csv += line + '\n';
             }
-            $cordovaFile.writeFile(cordova.file.externalRootDirectory, $scope.event.title + "-participants-list.csv", csv, true)
+            storage = ionic.Platform.isIOS() ? cordova.file.documentsDirectory : cordova.file.externalRootDirectory;
+            $cordovaFile.writeFile(storage, $scope.event.title + "-participants-list.csv", csv, true)
               .then(function (success) {
                 console.log("File is created", success)
               }, function (error) {
@@ -929,9 +930,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             if (action === 'download') {
               $ionicLoading.hide();
               $scope.hidden = true;
-              $scope.download(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+              $scope.download(storage + $scope.event.title + "-participants-list.csv")
             } else {
-              sendEmail(cordova.file.externalRootDirectory + $scope.event.title + "-participants-list.csv")
+              sendEmail(storage + $scope.event.title + "-participants-list.csv")
             }
             $scope.arr = [];
           })
