@@ -30,6 +30,7 @@
     "cordova-plugin-file",
     "cordova-plugin-geolocation",
     "cordova-plugin-email-composer",
+    "cordova-plugin-file-opener2",
     {
       "variables": {
         "SENDER_ID": "amos-ss16-proj8"
