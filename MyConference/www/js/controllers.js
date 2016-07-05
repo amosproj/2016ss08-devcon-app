@@ -125,11 +125,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var us = user;
       backendService.getUsers(us).then(function (res) {
         var user1 = res.data;
-        var id = user1.id;
-        var email = user1.visibleByTheUser.email;
         var gName = user1.visibleByRegisteredUsers.gName;
         var name = user1.visibleByRegisteredUsers.name;
-        console.log(email);
         console.log(gName, ' ', name);
         backendService.createOrganizer(user).then(function (res) {
           $translate('Done!').then(
