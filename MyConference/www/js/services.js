@@ -710,6 +710,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+    Funtion for getting list of all users
+     */
+  backend.getUsers = function () {
+    return BaasBox.fetchUsers()
+      .done(function(res) {
+        console.log("res ", res['data']);
+      })
+      .fail(function(error) {
+        console.log("error ", error);
+      })
+  }
+
+    /*
      Function for getting a user by his username
      returns a promise
      */
