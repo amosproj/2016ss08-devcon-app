@@ -945,7 +945,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         console.log("User is", user, "i is " + i)
         backendService.getUser(user.name).then(function (res) {
           var obj = res['data']['visibleByRegisteredUsers'];
-          obj.email = res['data']['visibleByTheUser'].email;
+          obj.email = res['data']['user'].name;
           obj.status = user.status;
           $scope.arr.push(obj);
           createCSV(i - 1, action);
