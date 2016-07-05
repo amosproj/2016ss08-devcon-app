@@ -289,6 +289,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         question.no = 0;
         question.dontKnow = 0;
         question.current = false;
+        question.voted = [];
         event.questions.push(question);
         return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
