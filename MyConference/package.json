@@ -15,6 +15,7 @@
     "cordova-lib": "6.2.0",
     "gulp-util": "^2.2.14",
     "karma": "^1.0.0",
+    "karma-chrome-launcher": "^1.0.1",
     "karma-jasmine": "^1.0.2",
     "shelljs": "^0.3.0"
   },
@@ -30,6 +31,7 @@
     "cordova-plugin-file",
     "cordova-plugin-geolocation",
     "cordova-plugin-email-composer",
+    "cordova-plugin-file-opener2",
     {
       "variables": {
         "SENDER_ID": "amos-ss16-proj8"
@@ -39,6 +41,5 @@
     }
   ],
   "cordovaPlatforms": [
-    "ios"
   ]
 }

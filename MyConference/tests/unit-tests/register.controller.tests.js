@@ -74,7 +74,7 @@ describe('RegisterCtrl: ', function () {
       scope.$digest();
       expect(ionicPopupMock.alert).toHaveBeenCalledWith({
         title: 'Done!',
-        template: "{{'Welcome' | translate}}" + ', ' + user.name
+        template: "{{'Welcome' | translate}}, blabla"
       })
     })
     it('should redirect to the main page', function () {

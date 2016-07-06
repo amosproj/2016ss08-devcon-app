@@ -27,7 +27,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       </ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "shortTime"}} - {{event.end | date: "shortTime"}}</ion-item>
 
-      <ion-item class="item item-icon-left"><i class="icon ion-map"></i> {{event.location || "t.b.a"}}</ion-item>
+      <ion-item class="item item-icon-left" > <i ng-click="showRoute()" class="icon ion-location " ></i> {{event.location || "t.b.a"}}</ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
       </ion-item>
       <p>
@@ -135,7 +135,6 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
             ng-show="areFeedbackResultsVisible">
       {{"Show feedback results" | translate}}
     </button>
-    <button ng-click="showRoute()" class="button button-bordered">{{'How to come to the event' | translate}}</button>
     <button ng-click="sendReminder()" class="button button-block button-positive" ng-show="isReminderAllowed">
       {{"Remind about event" | translate}}
     </button>

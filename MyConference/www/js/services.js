@@ -289,6 +289,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         question.no = 0;
         question.dontKnow = 0;
         question.current = false;
+        question.voted = [];
         event.questions.push(question);
         return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
@@ -554,6 +555,77 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+      Function for adding a user in the list of feedbackingUsers to avoid double feedback.
+      Expects to be called only when it's cleared that the user is not yet in the list.
+      Gets the id of the feedbacked event and the user object
+      Returns a promise.
+     */
+    backend.addUserAsFeedbackerToEvent = function(eventId, user){
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(
+        function (res) {
+          event = res.data;
+          if (event.hasOwnProperty("feedbackingUsers")){
+            event.feedbackingUsers.push(user.username);
+          } else {
+            event.feedbackingUsers = [user.username];
+          }
+          backend.updateEvent(eventId, "feedbackingUsers", event.feedbackingUsers).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err);
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        }
+      )
+      return deferred.promise;
+    };
+
+    /*
+     Function for adding the current user in the list of feedbackingUsers to avoid double feedback.
+     Expects to be called only when it's cleared that the user is not yet in the list.
+     Gets the id of the feedbacked event and calls addUserAsFeedbackerToEvent
+     Returns a promise.
+     */
+    backend.addCurrentUserAsFeedbackerToEvent = function(eventId){
+      return backend.addUserAsFeedbackerToEvent(eventId, BaasBox.getCurrentUser());
+    };
+
+    /*
+      Function for checking if a user has already given feedback
+      Gets the id of the feedbacked event and the user object
+      Returns a promise resolving to the boolean value
+     */
+    backend.hasUserAlreadyGivenFeedback = function(eventId, user){
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(
+        function (res) {
+          event = res.data;
+          if (event.hasOwnProperty("feedbackingUsers")){
+            deferred.resolve(event.feedbackingUsers.indexOf(user.username) != -1);
+          } else {
+            deferred.resolve(false);
+          }
+        }, function (err) {
+          deferred.reject(err);
+        }
+      )
+      return deferred.promise;
+    };
+
+    /*
+     Function for checking if the current user has already given feedback
+     Gets the id of the feedbacked event the user object
+     Returns a promise resolving to the boolean value
+     */
+    backend.hasCurrentUserAlreadyGivenFeedback = function(eventId){
+      return backend.hasUserAlreadyGivenFeedback(eventId, BaasBox.getCurrentUser());
+    }
+
+    /*
      Fucntion for removing a user from an event.
      Returns a promise.
      */
@@ -636,6 +708,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       };
       return deferred.promise
     };
+
+    /*
+    Funtion for getting list of all users
+     */
+  backend.getUsers = function () {
+    return BaasBox.fetchUsers()
+      .done(function(res) {
+        console.log("res ", res['data']);
+      })
+      .fail(function(error) {
+        console.log("error ", error);
+      })
+  }
 
     /*
      Function for getting a user by his username

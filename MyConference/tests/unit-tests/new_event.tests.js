@@ -21,7 +21,7 @@ describe('New event: ', function () {
     mockEvent,
     ionicPopupMock,
     translateMock,
-    loginDfd,
+    alertDfd,
     eventDfd,
     translateDfd;
   beforeEach(module('starter'));
@@ -33,31 +33,17 @@ describe('New event: ', function () {
   beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend) {
     $httpBackend.whenGET('locales/de.json').respond(200, '');
     mockEvent = {
-      "title": "mockTitle",
-      "date": "2016-07-02T22:00:00.000Z",
-      "begin": "1970-01-01T18:52:00.000Z",
-      "end": "1970-01-01T19:52:00.000Z",
-      "participants": [
-        {
-          "name": "default",
-          "status": "joined",
-          "updated": "false"
-        }
-      ],
-      "questions": []
-    }
+      "title": "mockTitle"
+    };
 
     eventDfd = $q.defer();
     translateDfd = $q.defer();
-    loginDfd = $q.defer();
     alertDfd = $q.defer();
     backendServiceMock = {
-      login: jasmine.createSpy('login spy').and.returnValue(loginDfd.promise),
-      logout: jasmine.createSpy('logout spy').and.returnValue(loginDfd.promise),
       createEvent: jasmine.createSpy('createEvent spy').and.returnValue(eventDfd.promise)
-    }
-    ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert'])
-    translateMock = jasmine.createSpy('$translate spy').and.returnValue(translateDfd.promise)
+    };
+    ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert']);
+    translateMock = jasmine.createSpy('$translate spy').and.returnValue(translateDfd.promise);
     scope = $rootScope.$new();
     ctrl = $controller('CreateEventCtrl', {
       $scope: scope,
@@ -71,21 +57,17 @@ describe('New event: ', function () {
   describe('createEvent function ', function () {
     it('should call backendService.createEvent function with the mock event', function () {
       expect(backendServiceMock.createEvent).toHaveBeenCalledWith(mockEvent);
-    })
+    });
     describe('if executed successfully ', function () {
       beforeEach(function () {
-        //simulate successful login
-        loginDfd.resolve([]);
+        eventDfd.resolve([]);
         scope.$digest();
-      })
+      });
       it('should call $translate service with "Done!" message', function () {
-        eventDfd.resolve([]);
-        scope.$digest();
         expect(translateMock).toHaveBeenCalledWith('Done!');
-      })
+      });
       it('should call alert about successful creation', function () {
-        ionicPopupMock.alert.and.returnValue(alertDfd.promise)
-        eventDfd.resolve([]);
+        ionicPopupMock.alert.and.returnValue(alertDfd.promise);
         scope.$digest();
         translateDfd.resolve('Done!');
         scope.$digest();
@@ -96,4 +78,4 @@ describe('New event: ', function () {
       })
     })
   })
-})
+});
