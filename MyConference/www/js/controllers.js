@@ -774,6 +774,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       borderTimes = getBorderTimesOfEvent();
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
+
       eventDateSplitted = splitDateIntoParts($scope.event.date);
       beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
       endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
@@ -781,10 +782,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
-            console.log("res " + res);
-            $scope.isFeedbackAllowed = res;
+            if(res == true){
+              backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
+                function (resAlreadyGiven) {
+                  $scope.isFeedbackAllowed = !resAlreadyGiven;
+                }, function (err) {
+                  $scope.isFeedbackAllowed = false;
+                }
+              )
+            } else {
+              $scope.isFeedbackAllowed = false;
+            }
           }, function (err) {
-            console.log("err " + err)
             $scope.isFeedbackAllowed = false
           }
         )
