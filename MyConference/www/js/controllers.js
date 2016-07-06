@@ -522,8 +522,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               console.log("in deferred")
               var d = new $.Deferred();
               organiserNames = []
-              for (var i in org.data) {
-                organiserNames.push(org.data[i].user.name)
+              for (var i in org) {
+                organiserNames.push(org[i].email)
               }
               d.resolve(organiserNames)
               return d.promise();
