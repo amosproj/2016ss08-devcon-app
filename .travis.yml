@@ -22,21 +22,17 @@ services:
 
 env:
   - TRAVIS_CI_BUILD=true
-before_install:  
+before_install: 
+- npm install -g npm
+- npm install karma --save-dev
+- npm install karma-jasmine --save-dev
+- npm install jasmine-core --save-dev
+- npm install -g karma-cli
+- npm install karma-chrome-launcher --save-dev
 - npm install -g bower
 - cd MyConference
 - bower install
 - bower install angular-mocks#1.5.3 --save-dev
-- cd ..
-- npm install karma --save-dev
-- npm install -g npm
-- npm install karma-jasmine --save-dev
-- npm install jasmine-core --save-dev
-- npm install -g karma-cli
-- npm install -g phantomjs
-- npm install karma-phantomjs-launcher
-- npm install karma-firefox-launcher first
-- npm install karma-chrome-launcher
 # Set execution rights
 before_script:
   - export DISPLAY=:99.0
