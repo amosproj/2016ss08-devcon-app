@@ -400,17 +400,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       //retrieve agenda by condition
       backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
         $scope.agendaList = res;
-<<<<<<< HEAD
-        $scope.isFeedbackAllowed = isFeedbackAllowed();
-        $scope.areFeedbackResultsVisible = areFeedbackResultsVisible();
-        $scope.isGeoButtonVisible = isGeoButtonVisible();
-        $scope.isReminderAllowed = isReminderAllowed();
-        console.log(isGeoButtonVisible());
-=======
+
+
         isFeedbackAllowed();
         areFeedbackResultsVisible();
+        $scope.isGeoButtonVisible = isGeoButtonVisible();
         isReminderAllowed();
->>>>>>> refs/remotes/origin/master
+        console.log(isGeoButtonVisible());
+
       }, function (error) {
         console.log("Error by retrieving the event", error)
       })
