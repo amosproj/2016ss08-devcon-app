@@ -401,10 +401,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
         $scope.agendaList = res;
 
-
         isFeedbackAllowed();
         areFeedbackResultsVisible();
-        $scope.isGeoButtonVisible = isGeoButtonVisible();
+        isGeoButtonVisible();
         isReminderAllowed();
         console.log(isGeoButtonVisible());
 
