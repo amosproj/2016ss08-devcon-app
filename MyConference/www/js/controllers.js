@@ -747,6 +747,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       lastEndTime = new Date($scope.event.end);
       return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
     }
+
     /*
      Function for splitting a date into its parts.
      Gets a datestring like the ones stored in the backend.
@@ -807,8 +808,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     areFeedbackResultsVisible = function () {
       borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
-      eventDateSplitted = $scope.event.date.split("-");
-      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+
+      eventDateSplitted = splitDateIntoParts($scope.event.date);
       endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
