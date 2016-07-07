@@ -922,6 +922,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
   /*
    Function for loading list of organizer with paramter, which is email / username of current user
    */
+  backend.checkOrganizerExistence = function(userEmail) {
+    return BaasBox.checkOrganizerWithParams(userEmail, {where: "email=?"});
+  }
+
+  /*
+   Function for loading list of organizer with paramter, which is email / username of current user
+   */
   backend.checkOrganizerWithParams = function() {
     return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
   }
