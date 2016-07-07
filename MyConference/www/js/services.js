@@ -923,6 +923,38 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
+    backend.getSupportContact = function () {
+      var deferred = $q.defer();
+      BaasBox.loadCollection("support").then(
+        function(res){
+          if(res.length > 0){
+            deferred.resolve(res[0]);
+          } else {
+            deferred.reject("No support mail adress defined.");
+          }
+        }, function(err){
+          deferred.reject(err);
+        }
+      );
+      return deferred.promise;
+    }
+
+    backend.getSupportContactById = function (contactId) {
+      var deferred = $q.defer();
+      BaasBox.loadObject("support", contactId).then(
+        function(res){
+          deferred.resolve(res.data);
+        }, function(err){
+          deferred.reject(err);
+        }
+      );
+      return deferred.promise;
+    }
+
+    backend.setSupportMailadressById = function (contactId, mailadress) {
+      return BaasBox.updateField(contactId, "support", "mailadress", mailadress)
+    }
+
      return backend;
     }
 );
