@@ -923,6 +923,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
+    /*
+      Function for getting the support contact.
+      Support contact is the first (and normally only) entry in he support collection.
+      Returns a promise.
+     */
     backend.getSupportContact = function () {
       var deferred = $q.defer();
       BaasBox.loadCollection("support").then(
@@ -939,6 +944,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return deferred.promise;
     }
 
+    /*
+      Set the support contact.
+      First gets the support contact, then updates the mail adress.
+      If no contact is defined, a new one is created.
+      Finally, it grants access rights for all registered users to it.
+      Returns a promise.
+     */
     backend.setSupportContact = function (mailadress) {
       var deferred = $q.defer();
       backend.getSupportContact().then(
