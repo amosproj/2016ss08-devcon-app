@@ -808,22 +808,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
     /*
      Function for splitting a date into its parts.
-     Gets a datestring like the ones stored in the backend.
+     Gets a datestring like the ones stored in the backend (in UTC).
      Is used for getting right date with corrected timezone.
      Returns [day, month, year].
      */
-    splitDateIntoParts = function(dateString) {
-      dateObj = new Date(dateString).toLocaleString();
-
-      if(dateObj.indexOf(".") == -1){
-        dateSplitted = dateObj.split("/");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[0],dateSplitted[1]];
-      } else {
-        dateSplitted = dateObj.split(".");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
-      }
+    splitEventDateIntoPartsWithCorrectingTimezone = function(dateString) {
+      dateObj = new Date(dateString);
+      dateSplitted = [dateObj.getDate(), dateObj.getMonth()+1, dateObj.getFullYear()]
+      return dateSplitted;
     }
 
     /*
@@ -834,9 +826,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      beginDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDatePlus48h = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
@@ -867,8 +859,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
         $scope.areFeedbackResultsVisible = true;
