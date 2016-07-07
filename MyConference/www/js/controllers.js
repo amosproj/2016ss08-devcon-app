@@ -314,6 +314,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      This method is used for filter after prevoius events in the main view
      */
     $scope.previousEvents = function (item) {
+      if(item.date == undefined){
+        return true;
+      }
       var itemDate = new Date(item.date);
       return today < itemDate;
     };
