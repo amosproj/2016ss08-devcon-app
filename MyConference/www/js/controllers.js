@@ -117,7 +117,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-   Controller for adding an organizer to the System. check if the user is already regestred by calling getUsers().
+   Controller for adding an organizer to the System. check if the user is already regestred by calling getUserEmail().
    Calls createOrganizer service, shows a popup alert about successful addition of an organizer
    and redirects to main view
    */
@@ -135,7 +135,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             );
           }else{
             var us = user;
-            backendService.getUsers(us).then(function (res) {
+            backendService.getUserEmail(us).then(function (res) {
               var user1 = res.data;
               var gName = user1.visibleByRegisteredUsers.gName;
               var name = user1.visibleByRegisteredUsers.name;
