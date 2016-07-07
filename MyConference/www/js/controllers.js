@@ -2052,6 +2052,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     }
   })
   .controller('ContactCtrl', function ($scope, backendService) {
+    $scope.mailAdressAvailable = false;
+    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    backendService.getSupportContact().then(
+      function (res) {
+        $scope.contact = res;
+        $scope.mailAdressAvailable = true;
+      }
+    );
   })
   .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
     }
