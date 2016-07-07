@@ -1517,7 +1517,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                   });
                   credentials.password = "";
                   credentials.username = "";
-
                 }
               )
             }

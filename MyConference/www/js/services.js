@@ -312,34 +312,34 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       })
     };
 
-    /*
-     Function for updating an event
-     Can get one or three arguments
-     If function is called only with one argument (event object) the whole event is updated
-     If there are 3 arguments only one defined field of the event is updated with the given value
-     Returns a promise.
-     */
-    backend.updateEvent = function (event, fieldToUpdate, value) {
-      if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
-        return BaasBox.save(event, "events")
-          .done(function (res) {
-            console.log("res ", res);
-            BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-            BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
-          })
-          .fail(function (error) {
-            console.log("error ", error);
-          })
-      } else {
-        return BaasBox.updateField(event, "events", fieldToUpdate, value)
-          .done(function (res) {
-            console.log("Event updated ", res);
-          })
-          .fail(function (error) {
-            console.log("Event update error ", error);
-          })
-      }
-    };
+   /*
+    Function for updating an event
+    Can get one or three arguments
+    If function is called only with one argument (event object) the whole event is updated
+    If there are 3 arguments only one defined field of the event is updated with the given value
+    Returns a promise.
+    */
+  backend.updateEvent = function (event, fieldToUpdate, value) {
+     if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
+       return BaasBox.save(event, "events")
+         .done(function (res) {
+           console.log("res ", res);
+           BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
+           BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+         })
+         .fail(function (error) {
+           console.log("error ", error);
+         })
+     } else {
+       return BaasBox.updateField(event, "events", fieldToUpdate, value)
+         .done(function (res) {
+           console.log("Event updated ", res);
+         })
+         .fail(function (error) {
+           console.log("Event update error ", error);
+         })
+     }
+   };
     /*
      Function for updating an agenda
      */
@@ -696,16 +696,16 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-     Function for checking if current user is stored as attended at the event.
-     Returns a promise
+      Function for checking if current user is stored as attended at the event.
+      Returns a promise
      */
     backend.isCurrentUserAttendedForEvent = function (eventId) {
       return backend.isUserAttendedForEvent(BaasBox.getCurrentUser(), eventId)
     };
 
     /*
-     Abstract function for checking if an user has a given status as participant of an event.
-     Returns a promise.
+      Abstract function for checking if an user has a given status as participant of an event.
+      Returns a promise.
      */
     hasUserRightStatusInEvent = function (user, eventId, expectedStatus) {
       var deferred = $q.defer();
@@ -923,7 +923,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
-      return backend;
+     return backend;
     }
-
-  );
+);
