@@ -952,7 +952,17 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     }
 
     backend.setSupportMailadressById = function (contactId, mailadress) {
-      return BaasBox.updateField(contactId, "support", "mailadress", mailadress)
+      var deferred = $q.defer();
+      BaasBox.updateField(contactId, "support", "mailadress", mailadress).then(
+        function(res){
+          BaasBox.grantUserAccessToObject("support", contactId, BaasBox.ALL_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("support", contactId, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+          deferred.resolve();
+        }, function(err){
+          deferred.reject(err);
+        }
+      )
+      return deferred.promise;
     }
 
      return backend;
