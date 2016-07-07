@@ -123,31 +123,44 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    */
   .controller('AddOrgCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
     $scope.createOrganizer = function (user) {
-      var us = user;
-      backendService.getUsers(us).then(function (res) {
-        var user1 = res.data;
-        var gName = user1.visibleByRegisteredUsers.gName;
-        var name = user1.visibleByRegisteredUsers.name;
-        console.log(gName, ' ', name);
-        backendService.createOrganizer(user).then(function (res) {
-          $translate('Done!').then(
-            function (res) {
-              $ionicPopup.alert({
-                title: res,
-                template: "{{'organizer is added' | translate}}"
-              });
-            });
-        })
-      }, function (err) {
-        $translate('Error!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'this user is not registered.' | translate}}"
+      backendService.checkOrganizerExistence(user.email).then(function (resone){
+          if(resone.length != 0){
+            $translate('Error!').then(
+              function (res) {
+                $ionicPopup.alert({
+                  title: res,
+                  template: "{{'This user has already added as an organizer' | translate}}" //translate
+                });
+              }
+            );
+          }else{
+            var us = user;
+            backendService.getUsers(us).then(function (res) {
+              var user1 = res.data;
+              var gName = user1.visibleByRegisteredUsers.gName;
+              var name = user1.visibleByRegisteredUsers.name;
+              console.log(gName, ' ', name);
+              backendService.createOrganizer(user).then(function (res) {
+                $translate('Done!').then(
+                  function (res) {
+                    $ionicPopup.alert({
+                      title: res,
+                      template: "{{'Organizer is added' | translate}}"
+                    });
+                  });
+              })
+            }, function (err) {
+              $translate('Error!').then(
+                function (res) {
+                  $ionicPopup.alert({
+                    title: res,
+                    template: "{{'There is no user with this username' | translate}}"
+                  });
+                }
+              );
             });
           }
-        );
-      });
+      })
     }
   })
 
@@ -308,12 +321,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.todaySeen = true;
     $scope.nextSeen = false;
     $scope.previousSeen = false;
-    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    backendService.checkOrganizerWithParams().then(function (res) {
+      var organizerListArray = res.length;
+      $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
+    });
     var today = new Date();
     /*
      This method is used for filter after prevoius events in the main view
      */
     $scope.previousEvents = function (item) {
+      if(item.date == undefined){
+        return true;
+      }
       var itemDate = new Date(item.date);
       return today < itemDate;
     };
@@ -397,7 +416,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $cordovaFileOpener2, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    backendService.checkOrganizerWithParams().then(function (res) {
+      var organizerListArray = res.length;
+      $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
+    });
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
@@ -546,8 +568,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               console.log("in deferred")
               var d = new $.Deferred();
               organiserNames = []
-              for (var i in org.data) {
-                organiserNames.push(org.data[i].user.name)
+              for (var i in org) {
+                organiserNames.push(org[i].email)
               }
               d.resolve(organiserNames)
               return d.promise();
@@ -1122,7 +1144,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    can delete talk, edit talk information
    */
   .controller('AgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
-    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    backendService.checkOrganizerWithParams().then(function (res) {
+      var organizerListArray = res.length;
+      $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
+    });
     $scope.upload = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
@@ -1161,17 +1186,22 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EditEventCtrl', function ($scope, $state, $stateParams, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
     $scope.coordinates = false;
     $scope.showDate = true;
-    $scope.showTime = true;
+    $scope.showBegin = true;
+    $scope.showEnd = true;
     $scope.showTypeDate = function(){
       $scope.showDate = false;
     }
-    $scope.showTypeTime = function(){
-      $scope.showTime = false;
+    $scope.showTypeBegin = function(){
+      $scope.showBegin = false;
+    }
+    $scope.showTypeEnd = function(){
+      $scope.showEnd = false;
     }
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data']
       var usedDate = $scope.event.date;
       var usedBegin = $scope.event.begin;
+      var usedEnd = $scope.event.end;
       var id = $scope.event.id;
       $scope.updateEvent = function (ev) {
         $ionicLoading.show({
@@ -1199,11 +1229,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           if(ev.begin != null){
             usedBegin = ev.begin;
           }
+          if(ev.end != null){
+            usedEnd = ev.end;
+          }
           if(ev.date != null){
             usedDate = ev.date;
           }
           backendService.updateEvent($stateParams.eventId, "date", usedDate);
           backendService.updateEvent($stateParams.eventId, "begin", usedBegin);
+          backendService.updateEvent($stateParams.eventId, "end", usedEnd);
             $ionicLoading.hide();
           $scope.hidden = true;
           backendService.SetStatusTrue(id);
