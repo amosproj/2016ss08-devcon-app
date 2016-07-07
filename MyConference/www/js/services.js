@@ -939,26 +939,20 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return deferred.promise;
     }
 
-    backend.getSupportContactById = function (contactId) {
+    backend.setSupportContact = function (mailadress) {
       var deferred = $q.defer();
-      BaasBox.loadObject("support", contactId).then(
-        function(res){
-          deferred.resolve(res.data);
-        }, function(err){
-          deferred.reject(err);
-        }
-      );
-      return deferred.promise;
-    }
-
-    backend.setSupportMailadressById = function (contactId, mailadress) {
-      var deferred = $q.defer();
-      BaasBox.updateField(contactId, "support", "mailadress", mailadress).then(
-        function(res){
-          BaasBox.grantUserAccessToObject("support", contactId, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("support", contactId, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
-          deferred.resolve();
-        }, function(err){
+      backend.getSupportContact().then(
+        function (contact) {
+          BaasBox.updateField(contact.id, "support", "mailadress", mailadress).then(
+            function(res){
+              BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
+              BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+              deferred.resolve();
+            }, function(err){
+              deferred.reject(err);
+            }
+          )
+        }, function (err) {
           deferred.reject(err);
         }
       )

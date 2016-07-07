@@ -2062,15 +2062,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     );
   })
   .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
-    backendService.getSupportContactById($stateParams.contactId).then(
+    backendService.getSupportContact().then(
       function (res) {
         $scope.contact = res;
-        console.log($scope.contact)
       }
     );
 
+    // Function that is called by submitting the edit-contact-form
     $scope.updateContact = function (newContact) {
-      backendService.setSupportMailadressById($stateParams.contactId, newContact.mailadress).then(
+      backendService.setSupportContact(newContact.mailadress).then(
         function (res) {
           $translate("Done!").then(
             function (de) {
