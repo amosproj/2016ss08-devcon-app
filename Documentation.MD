@@ -1,15 +1,19 @@
 # Content
-1. Instruction for ng-translate
+1. Localization
+2. Push Notifications
+3. Build iOS installation
 
-# Instruction for ng-translate
+# 1. Localization
+
+## 1.1 ng-translate
 
 We are using the library ng-translate for the support of different languages in our app. This file explains how to use it.
 
-## General
+### General
 We develop our app in english, so you type everything in english. Then you use the function translate for telling the system to translate it.
 In the locales-files the translations are defined.
 
-## Usage of translate
+### Usage of translate
 
 Everywhere you use a text that should be translated automatically, you have to use the function translate. There are different ways to do so.
 
@@ -60,9 +64,92 @@ backendService.fetchCurrentUser().then(function (res) {
 });
 ```
 
-## Locale file
+### Locale file
 In the directory www/locales the different language files are stored.
 
 Every file consists of a single json array defining the word pairs.
 
 Add a new translation by adding a new entry in a new line (make sure to add a colon).
+
+## 1.2 angular-i18n
+
+For formatting time and date right for the selected language, the following formats have to be used:
+
+| format        | example German           | example English        |
+| ------------- |--------------------------| -----------------------|
+| shortTime     | 21:37                    | 9:37 PM                |
+| shortDate     | 07.07.16                 | 7/7/16                 |
+| fullDate      | Donnerstag, 7. Juli 2016 | Thursday, July 7, 2016 |
+See the full list [here](https://docs.angularjs.org/api/ng/filter/date).
+
+Use it like that:
+```javascript
+$filter('date')($scope.event.date, shortDate);
+```
+or like
+```html
+<ion-item> {{(event.date | date: "shortDate")}} </ion-item>
+```
+# 2. Push Notifications
+
+For push notifications, the BaasBox-backend is used. It connects to the [Google Cloud Messaging Service](https://developers.google.com/cloud-messaging/) (GCM). In the app, the [Phonegap Push Plugin](https://github.com/phonegap/phonegap-plugin-push) is used.
+
+For setting up, the project id of GCM has to be entered in the BaasBox console.
+
+The user's device has to be registered to Baasbox to enable push notifications. Therefore the device id token is needen, which is received by the Phonegap Push Plugin while starting up the app and is stored in the local storage (app.js):
+```javascript
+push.on('registration', function (data) {
+          var oldRegistrationId = localStorage.getItem('registrationId');
+          if (oldRegistrationId !== data.registrationId) {
+            // Save new registration ID
+            localStorage.setItem('registrationId', data.registrationId);
+          }
+        });
+```
+When enabling or disabling push notifications for a user, the service functions are reading this stored content and call the BaasBox-API for that.
+
+For sending push notifications to a group of users, this backend service function can be used:
+```javascript
+sendPushNotificationToUsers(message, users)
+```
+where `message` is a String and `users` is a list of usernames.
+
+# 3. Build iOS installation
+
+##### Requirements:
+
+* Software: [Xcode](https://developer.apple.com/xcode/)
+
+##### Steps:
+
+Step 1. if iOS platform of ionic was added by mistake, remove it and reset the state
+```bash
+$ sudo ionic platform rm ios
+$ sudo ionic state reset
+```
+
+Step 2. Build iOS with Cordova:
+```bash
+$ sudo cordova platform add ios
+$ sudo cordova build
+```
+
+Step 3. Solve the permissioin problem:
+```bash
+$ sudo chmod -R 777 platforms/ios/
+```
+
+Step 4. Install in iPhone:
+* Plugin iPhone to computer with a cable
+* Open ../platforms/ios/MyConference.xcodeproj with Xcode
+* Choose device as plugged in device
+* Click Build button and wait installation process finish
+
+Step 5. Configure iPhone to run application:
+* Settings
+* General
+* Device Management
+* Tap on the Developer account
+* Trust
+
+Now this app can be run on iPhone

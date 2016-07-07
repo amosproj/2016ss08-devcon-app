@@ -5,17 +5,17 @@
  * Released under the Apache license
  */
 
-var BaasBox = (function() {
+var BaasBox = (function () {
 
   var instance;
   var user;
   var endPoint;
-  var COOKIE_KEY = "baasbox-cookie";
+  var SESSION_STORAGE_KEY = "baasbox-session";
 
   // check if the user is using Zepto, otherwise the standard jQuery ajaxSetup function is executed
   if (window.Zepto) {
     $.ajaxSettings.global = true;
-    $.ajaxSettings.beforeSend = function(r, settings) {
+    $.ajaxSettings.beforeSend = function (r, settings) {
       if (BaasBox.getCurrentUser()) {
         r.setRequestHeader('X-BB-SESSION', BaasBox.getCurrentUser().token);
       }
@@ -24,7 +24,7 @@ var BaasBox = (function() {
   } else {
     $.ajaxSetup({
       global: true,
-      beforeSend: function(r, settings) {
+      beforeSend: function (r, settings) {
         if (BaasBox.getCurrentUser()) {
           r.setRequestHeader('X-BB-SESSION', BaasBox.getCurrentUser().token);
         }
@@ -43,39 +43,26 @@ var BaasBox = (function() {
       return;
     }
     this.user = userObject;
-    // if the user is using Zepto, then local storage must be used (if supported by the current browser)
-    if (window.Zepto && window.localStorage) {
-      window.localStorage.setItem(COOKIE_KEY, JSON.stringify(this.user));
-    } else {
-      $.cookie(COOKIE_KEY, JSON.stringify(this.user));
-    }
+    window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(this.user));
   }
 
+
   function getCurrentUser() {
-    // if the user is using Zepto, then local storage must be used (if supported by the current browser)
-    if (window.Zepto && window.localStorage) {
-      if (localStorage.getItem(COOKIE_KEY)) {
-        this.user = JSON.parse(localStorage.getItem(COOKIE_KEY));
-      }
-    } else {
-      if ($.cookie(COOKIE_KEY)) {
-        this.user = JSON.parse($.cookie(COOKIE_KEY));
-      }
-    }
+    this.user = JSON.parse(window.localStorage.getItem(SESSION_STORAGE_KEY));
     return this.user;
   }
 
   function buildDeferred() {
     var dfd = new $.Deferred();
     var promise = {};
-    promise.success = function(fn) {
-      promise.then(function(data) {
+    promise.success = function (fn) {
+      promise.then(function (data) {
         fn(data);
       });
       return promise;
     };
-    promise.error = function(fn) {
-      promise.then(null, function(error) {
+    promise.error = function (fn) {
+      promise.then(null, function (error) {
         fn(error);
       });
       return promise;
@@ -101,21 +88,28 @@ var BaasBox = (function() {
     REGISTERED_ROLE: "registered",
     ADMINISTRATOR_ROLE: "administrator",
 
-    isEmpty: function(ob) {
+    isEmpty: function (ob) {
       for (var i in ob) {
         return false;
       }
       return true;
     },
 
-    getInstance: function() {
+    getInstance: function () {
       if (!instance) {
         instance = createInstance();
       }
       return instance;
     },
+//Get user by email
+    getUsers: function (user) {
+      return $.ajax({
+        url: BaasBox.endPoint + '/user/' + user.email,
+        method: 'GET'
+      })
+    },
 
-    setEndPoint: function(endPointURL) {
+    setEndPoint: function (endPointURL) {
       var regexp = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
       if (regexp.test(endPointURL)) {
         this.endPoint = endPointURL;
@@ -124,11 +118,11 @@ var BaasBox = (function() {
       }
     },
 
-    endPoint: function() {
+    endPoint: function () {
       return this.endPoint;
     },
 
-    login: function(user, pass) {
+    login: function (user, pass) {
       var deferred = buildDeferred();
       var url = BaasBox.endPoint + '/login';
       var loginRequest = $.post(url, {
@@ -136,9 +130,9 @@ var BaasBox = (function() {
         password: pass,
         appcode: BaasBox.appcode
       })
-        .done(function(res) {
+        .done(function (res) {
           var roles = [];
-          $(res.data.user.roles).each(function(idx, r) {
+          $(res.data.user.roles).each(function (idx, r) {
             roles.push(r.name);
           });
           setCurrentUser({
@@ -152,14 +146,14 @@ var BaasBox = (function() {
           });
           deferred.resolve(getCurrentUser());
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         });
       return deferred.promise();
     },
 
     //delete account
-    deleteAccount: function(user){
+    deleteAccount: function (user) {
       return $.ajax({
         url: BaasBox.endPoint + '/admin/user/suspend/' + user,
         method: 'PUT'
@@ -169,9 +163,31 @@ var BaasBox = (function() {
     /*
      Function to load a collection of agendas, which have been created in the same event
      */
-    loadAgendaWithParams: function(collection, evId, params) {
+    loadAgendaWithParams: function (collection, evId, params) {
       var deferred = buildDeferred();
       var url = BaasBox.endPoint + '/document/' + collection + '?where=eventID%3D%3F&params=' + evId;
+      var req = $.ajax({
+        url: url,
+        method: 'GET',
+        timeout: BaasBox.timeout,
+        dataType: 'json',
+        data: params
+      })
+        .done(function (res) {
+          deferred.resolve(res['data']);
+        })
+        .fail(function (error) {
+          deferred.reject(error);
+        })
+      return deferred.promise();
+    },
+
+    /*
+     Function to load a collection of organizer with parameter, which is current user email / username
+     */
+    checkOrganizerWithParams: function(userEmail, params) {
+      var deferred = buildDeferred();
+      var url = BaasBox.endPoint + '/document/organizer?where=email%3D%3F&params=' + userEmail;
       var req = $.ajax({
         url: url,
         method: 'GET',
@@ -188,22 +204,18 @@ var BaasBox = (function() {
       return deferred.promise();
     },
 
-    logout: function(cb) {
+    logout: function (cb) {
       var deferred = buildDeferred();
       var u = getCurrentUser();
       if (u === null) {
-        return deferred.reject({"data" : "ok", "message" : "User already logged out"})
+        return deferred.reject({"data": "ok", "message": "User already logged out"})
       }
       var url = BaasBox.endPoint + '/logout';
       var req = $.post(url, {})
         .done(function (res) {
-          if(window.Zepto && window.localStorage) {
-            window.localStorage.removeItem(COOKIE_KEY);
-          } else {
-            $.cookie(COOKIE_KEY, null);
-          }
+          window.localStorage.removeItem(SESSION_STORAGE_KEY);
           setCurrentUser(null);
-          deferred.resolve({"data": "ok","message": "User logged out"})
+          deferred.resolve({"data": "ok", "message": "User logged out"})
             .fail(function (error) {
               deferred.reject(error)
             })
@@ -211,7 +223,7 @@ var BaasBox = (function() {
       return deferred.promise();
     },
 
-    signup: function(user, pass, acl) {
+    signup: function (user, pass, acl) {
       var deferred = buildDeferred();
       var url = BaasBox.endPoint + '/user';
       var postData = {username: user, password: pass}
@@ -229,7 +241,7 @@ var BaasBox = (function() {
       })
         .done(function (res) {
           var roles = [];
-          $(res.data.user.roles).each(function(idx, r) {
+          $(res.data.user.roles).each(function (idx, r) {
             roles.push(r.name);
           });
           setCurrentUser({
@@ -243,25 +255,29 @@ var BaasBox = (function() {
           });
           deferred.resolve(getCurrentUser());
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error)
         })
       return deferred.promise();
     },
 
-    getCurrentUser: function() {
+    getCurrentUser: function () {
       return getCurrentUser();
+    },
+
+    setCurrentUser: function (userObject) {
+      return setCurrentUser(userObject)
     },
 
     fetchCurrentUser: function () {
       return $.get(BaasBox.endPoint + '/me')
     },
 
-    createCollection: function(collection) {
+    createCollection: function (collection) {
       return $.post(BaasBox.endPoint + '/admin/collection/' + collection)
     },
 
-    deleteCollection: function(collection) {
+    deleteCollection: function (collection) {
       return $.ajax({
         url: BaasBox.endPoint + '/admin/collection/' + collection,
         method: 'DELETE'
@@ -271,7 +287,7 @@ var BaasBox = (function() {
     /*
      Function to load a collection of agendas, which have been created in the same event
      */
-    loadCollectionWithEventId: function(collection, evId, params) {
+    loadCollectionWithEventId: function (collection, evId, params) {
       var deferred = buildDeferred();
       var url = BaasBox.endPoint + '/document/' + collection + '?where=eventID%3D%3F&params=' + evId;
       var req = $.ajax({
@@ -281,16 +297,16 @@ var BaasBox = (function() {
         dataType: 'json',
         data: params
       })
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve(res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         })
       return deferred.promise();
     },
 
-    loadCollectionWithParams: function(collection, params) {
+    loadCollectionWithParams: function (collection, params) {
       var deferred = buildDeferred();
       var url = BaasBox.endPoint + '/document/' + collection;
       var req = $.ajax({
@@ -300,16 +316,16 @@ var BaasBox = (function() {
         dataType: 'json',
         data: params
       })
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve(res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         })
       return deferred.promise();
     },
 
-    loadCollection: function(collection) {
+    loadCollection: function (collection) {
       return BaasBox.loadCollectionWithParams(collection, {page: 0, recordsPerPage: BaasBox.pagelength});
     },
 
@@ -317,7 +333,7 @@ var BaasBox = (function() {
       return $.get(BaasBox.endPoint + '/document/' + collection + '/' + objectId)
     },
 
-    save: function(object, collection) {
+    save: function (object, collection) {
       var deferred = buildDeferred();
       var method = 'POST';
       var url = BaasBox.endPoint + '/document/' + collection;
@@ -333,16 +349,16 @@ var BaasBox = (function() {
         dataType: 'json',
         data: json
       })
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve(res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         })
       return deferred.promise();
     },
 
-    updateField: function(objectId, collection, fieldName, newValue) {
+    updateField: function (objectId, collection, fieldName, newValue) {
       var deferred = buildDeferred();
       url = BaasBox.endPoint + '/document/' + collection + '/' + objectId + '/.' + fieldName;
       var json = JSON.stringify({
@@ -355,10 +371,10 @@ var BaasBox = (function() {
         dataType: 'json',
         data: json
       })
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve(res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         })
       return deferred.promise();
@@ -368,7 +384,7 @@ var BaasBox = (function() {
      function to add eventID to agendas, which have been created in this event
      */
 
-    updateEventAgenda: function(object, evId) {
+    updateEventAgenda: function (object, evId) {
       var deferred = buildDeferred();
       url = BaasBox.endPoint + '/document/agenda/' + object.id + '/.' + 'eventID';
       var json = JSON.stringify({
@@ -381,16 +397,16 @@ var BaasBox = (function() {
         dataType: 'json',
         data: json
       })
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve(res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         })
       return deferred.promise();
     },
 
-    deleteObject: function(objectId, collection) {
+    deleteObject: function (objectId, collection) {
       return $.ajax({
         url: BaasBox.endPoint + '/document/' + collection + '/' + objectId,
         method: 'DELETE'
@@ -430,7 +446,7 @@ var BaasBox = (function() {
     },
 
     // only for json assets
-    loadAssetData: function(assetName) {
+    loadAssetData: function (assetName) {
       var deferred = buildDeferred();
       var url = BaasBox.endPoint + '/asset/' + assetName + '/data';
       var req = $.ajax({
@@ -439,16 +455,16 @@ var BaasBox = (function() {
         contentType: 'application/json',
         dataType: 'json'
       })
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve(res['data']);
         })
-        .fail(function(error) {
+        .fail(function (error) {
           deferred.reject(error);
         })
       return deferred.promise();
     },
 
-    getImageURI: function(name, params) {
+    getImageURI: function (name, params) {
       var deferred = buildDeferred();
       var uri = BaasBox.endPoint + '/asset/' + name;
       var r;
@@ -466,10 +482,10 @@ var BaasBox = (function() {
       p = {};
       p['X-BAASBOX-APPCODE'] = BaasBox.appcode;
       var req = $.get(uri, p)
-        .done(function(res) {
+        .done(function (res) {
           deferred.resolve({"data": this.url});
         })
-        .fail(function(error) {
+        .fail(function (error) {
           (error);
         });
       return deferred.promise();
@@ -513,12 +529,12 @@ var BaasBox = (function() {
       });
     },
 
-    resetPassword: function() {
+    resetPassword: function () {
       var user = getCurrentUser();
       return $.get(BaasBox.endPoint + '/user/' + user.username + '/password/reset');
     },
 
-    resetPasswordForUser: function(user) {
+    resetPasswordForUser: function (user) {
       return $.get(BaasBox.endPoint + '/user/' + user.email + '/password/reset');
     },
 
@@ -529,7 +545,7 @@ var BaasBox = (function() {
     unfollowUser: function (username) {
       return $.ajax({
         url: BaasBox.endPoint + '/follow/' + username,
-        method : 'DELETE'
+        method: 'DELETE'
       });
     },
 
@@ -555,7 +571,7 @@ var BaasBox = (function() {
       });
     },
 
-    sendPushNotification: function(params) {
+    sendPushNotification: function (params) {
       return $.ajax({
         url: BaasBox.endPoint + '/push/message',
         method: 'POST',
@@ -564,34 +580,34 @@ var BaasBox = (function() {
       })
     },
 
-    uploadFile: function(formData) {
+    uploadFile: function (formData) {
       return $.ajax({
         url: BaasBox.endPoint + '/file',
         type: 'POST',
-        data:  formData,
+        data: formData,
         mimeType: "multipart/form-data",
         contentType: false,
         cache: false,
-        processData:false
+        processData: false
       })
     },
 
-    fetchFile: function(fileId) {
+    fetchFile: function (fileId) {
       return $.get(BaasBox.endPoint + '/file/' + fileId + "?X-BB-SESSION=" + BaasBox.getCurrentUser().token)
     },
 
     getFileUrl: function (fileId) {
-      return ""+BaasBox.endPoint + '/file/' + fileId + "?download=true&X-BB-SESSION=" + BaasBox.getCurrentUser().token
+      return "" + BaasBox.endPoint + '/file/' + fileId + "?download=true&X-BB-SESSION=" + BaasBox.getCurrentUser().token
     },
 
-    deleteFile: function(fileId) {
+    deleteFile: function (fileId) {
       return $.ajax({
         url: BaasBox.endPoint + '/file/' + fileId,
-        method : 'DELETE'
+        method: 'DELETE'
       });
     },
 
-    fetchFileDetails: function(fileId) {
+    fetchFileDetails: function (fileId) {
       return $.get(BaasBox.endPoint + '/file/details/' + fileId)
     },
 
@@ -634,7 +650,7 @@ var BaasBox = (function() {
  * Released under the MIT license
  */
 
-(function(factory) {
+(function (factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as anonymous module.
     define(['jquery'], factory);
@@ -642,7 +658,7 @@ var BaasBox = (function() {
     // Browser globals.
     factory(jQuery);
   }
-}(function($) {
+}(function ($) {
 
   var pluses = /\+/g;
 
@@ -670,7 +686,8 @@ var BaasBox = (function() {
       // If we can't parse the cookie, ignore it, it's unusable.
       s = decodeURIComponent(s.replace(pluses, ' '));
       return config.json ? JSON.parse(s) : s;
-    } catch (e) {}
+    } catch (e) {
+    }
   }
 
   function read(s, converter) {
@@ -678,7 +695,7 @@ var BaasBox = (function() {
     return $.isFunction(converter) ? converter(value) : value;
   }
 
-  var config = $.cookie = function(key, value, options) {
+  var config = $.cookie = function (key, value, options) {
 
     // Write
     if (value !== undefined && !$.isFunction(value)) {
@@ -730,7 +747,7 @@ var BaasBox = (function() {
 
   config.defaults = {};
 
-  $.removeCookie = function(key, options) {
+  $.removeCookie = function (key, options) {
     if ($.cookie(key) === undefined) {
       return false;
     }
