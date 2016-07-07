@@ -783,9 +783,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      beginDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDatePlus48h = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
@@ -816,8 +816,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
         $scope.areFeedbackResultsVisible = true;
