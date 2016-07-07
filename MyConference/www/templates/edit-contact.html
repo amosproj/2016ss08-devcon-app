@@ -16,4 +16,13 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
   <ion-nav-title>{{"Edit contact" | translate}}</ion-nav-title>
+  <ion-content>
+    <form name="editForm" ng-submit="updateContact(contact)">
+      <label class="item item-input">
+        <span class = "input-label fixed">{{ 'Mail adress' | translate }}:</span>
+        <input type="text" ng-model="contact.mailadress" required>
+      </label>
+      <button type="submit" class="button button-block button-positive" ng-disabled="editForm.$invalid">{{ 'Submit' | translate }}</button>
+    </form>
+  </ion-content>s
 </ion-view>
