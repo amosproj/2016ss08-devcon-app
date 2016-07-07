@@ -215,19 +215,36 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-  /*
-   Function for deleting an event
-   */
-  backend.deleteEvent = function (eventId) {
-    //return
-    BaasBox.deleteObject(eventId, "events")
-      .done(function (res) {
-        console.log(res);
-      })
-      .fail(function (err) {
-        console.log("Delete error ", err);
-      });
-  };
+    /*
+     Function for creating a new organizer
+     First saves a new document in "organizer" collection
+     Then grants read permission to registered and not registered users
+     */
+    backend.createOrganizer = function (user) {
+      return BaasBox.save(user, "organizer")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.grantUserAccessToObject("organizer", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("organizer", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
+
+    /*
+     Function for deleting an event
+     */
+    backend.deleteEvent = function (eventId) {
+      //return
+      BaasBox.deleteObject(eventId, "events")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
 
     /*
      Function for adding an agenda talk to an event
@@ -736,18 +753,33 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
     /*
+     Function for getting a user by his email
+     returns a promise
+     */
+
+    backend.getUsers = function (user) {
+      return BaasBox.getUsers(user)
+        .done(function (res) {
+
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("get user error ", err);
+        });
+    }
+    /*
      Function for getting a list of organizers
      returns a promise
      */
-    backend.getOrganisers = function () {
-      return BaasBox.fetchAdministrators()
-        .done(function (res) {
-          console.log("res ", res['data']);
-        })
-        .fail(function (error) {
-          console.log("error ", error);
-        })
-    };
+      backend.getOrganisers = function () {
+        return BaasBox.fetchAdministrators()
+          .done(function (res) {
+            console.log("res ", res['data']);
+          })
+          .fail(function (error) {
+            console.log("error ", error);
+          })
+      };
     /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
@@ -844,7 +876,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         "users": users,
         "message": message
       };
-      console.log(users,message)
+      console.log(users, message)
       return BaasBox.sendPushNotification(params);
     }
 
@@ -887,14 +919,10 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-    /*
-      TODO in Sprint 11
-    */
     backend.isCurrentUserOrganizer = function(){
       return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
-    return backend;
-  }
-
+     return backend;
+    }
 );

@@ -117,6 +117,42 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
+   Controller for adding an organizer to the System. check if the user is already regestred by calling getUsers().
+   Calls createOrganizer service, shows a popup alert about successful addition of an organizer
+   and redirects to main view
+   */
+  .controller('AddOrgCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
+    $scope.createOrganizer = function (user) {
+      var us = user;
+      backendService.getUsers(us).then(function (res) {
+        var user1 = res.data;
+        var gName = user1.visibleByRegisteredUsers.gName;
+        var name = user1.visibleByRegisteredUsers.name;
+        console.log(gName, ' ', name);
+        backendService.createOrganizer(user).then(function (res) {
+          $translate('Done!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'organizer is added' | translate}}"
+              });
+            });
+        })
+      }, function (err) {
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'this user is not registered.' | translate}}"
+            });
+          }
+        );
+      });
+    }
+  })
+
+
+  /*
    Controller for getting Map view with current position
    and the difference between current position and event position using coordinates
    */
@@ -1455,16 +1491,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 const title = res[i].title;
                 const id = res[i].id;
                 var l = participants.length;
-                console.log('------------------>Event number :', i);
-                console.log('---There is', l, 'participants in this event : ', title, '---');
-                console.log('---------------------------------------------------------');
                 for (var j = 0; j < l; j++) {
                   var name = participants[j].name;
                   var status = participants[j].status;
                   var updated = participants[j].updated;
-                  console.log('-participant name   :', name);
-                  console.log('-participant status :', status);
-                  console.log('-participant updated :', updated);
                   var sta = "joined";
                   var upd = "true";
                   if (updated == upd && name == me && status == sta) {
@@ -1589,7 +1619,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                     }
                   )
                 }
-              }, 000);
+              }, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
