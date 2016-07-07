@@ -144,6 +144,6 @@
   "This mail address is already in use.": "Diese Mail-Adresse wurde bereits benutzt.",
   "Add Organizer": "Veranstalter hinzufügen",
   "Enter user email": "Eingeben Benutzername / Email",
-  "This user has already added as an organizer": "Dieser Benutzer wurde schon ein Veranstalter",
+  "This user has already been an organizer": "Dieser Benutzer wurde schon ein Veranstalter",
   "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
 }
