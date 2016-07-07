@@ -953,7 +953,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
             }
           )
         }, function (err) {
-          deferred.reject(err);
+          if(err == "No support mail adress defined."){
+            BaasBox.save({"mailadress":mailadress}, "support").then(
+              function(contact){
+                BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
+                BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+                deferred.resolve();
+              }, function(err){
+                deferred.reject(err);
+              }
+            );
+          } else {
+            deferred.reject(err);
+          }
         }
       )
       return deferred.promise;
