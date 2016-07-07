@@ -660,7 +660,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           secondPromise.then(
             function (firstSentence) {
               if ($scope.event.date) {
-                dateFormatted = $filter('date')($scope.event.date, shortDate);
+                dateFormatted = $filter('date')($scope.event.date, "shortDate");
                 if ($scope.event.time) {
                   if ($scope.event.location) {
                     thirdPromise = $translate("See you on $date at $time, $location!", {
