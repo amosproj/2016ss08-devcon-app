@@ -58,6 +58,11 @@
   "Add agenda": "Agenda hinzufügen",
   "Change agenda": "Agenda ändern",
   "Cancel": "Abbrechen",
+  "Acquiring location!": "Laden!",
+  "need both characters & number" : "Das Passwort muss beide Zeichen & Zahl enthalten.",
+  "shorter than 20 characters":"Es sollte kürzer als 20 Zeichen sein",
+  "need at least 6 characters":"Es sollte mindestens 6 Zeichen sein",
+  "Passwords do not match":"Passwörter stimmen nicht überein",
   "Description": "Beschreibung",
   "Enter your email": "Email eingeben",
   "Join event": "Für Event registrieren",
@@ -135,5 +140,8 @@
   "No events": "Keine Events",
   "An error occurred, please check your internet connection and try again": "Fehler aufgetreten, bitte Internetverbindung überprüfen und erneut versuchen",
   "Are you sure you want to delete this event?": "Sind Sie sicher, diese Veranstaltung zu löschen?",
-  "This Event Has Been Deleted.": "Diese Veranstaltung wurde gelöscht"
+  "This Event Has Been Deleted.": "Diese Veranstaltung wurde gelöscht",
+  "This mail address is already in use.": "Diese Mail-Adresse wurde bereits benutzt.",
+  "Add Organizer": "Veranstalter hinzufügen",
+  "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
 }

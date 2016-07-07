@@ -19,8 +19,10 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     // credentials for actions when user is not logged in
     var defaultUsername = "default";
     var defaultPassword = "123456";
+    var REMEMBER_LOGIN_KEY = "baasbox-remember-login";
+
     var backend = {};
-    backend.currentUser;
+    backend.currentUser = '';
     backend.loginStatus = false;
     /*
      Function for establishing connection to the backend
@@ -31,7 +33,30 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.connect = function () {
       BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
       BaasBox.appcode = "1234567890";
-      return backend.login(defaultUsername, defaultPassword);
+
+      var deferred = $q.defer()
+      backend.currentUser = JSON.parse(window.localStorage.getItem(REMEMBER_LOGIN_KEY));
+
+      if (backend.currentUser){
+        if (backend.currentUser.username == defaultUsername){
+          backend.changeLoginStatus(false);
+        } else {
+          BaasBox.setCurrentUser(backend.currentUser);
+          backend.changeLoginStatus(true);
+        }
+        deferred.resolve(backend.currentUser);
+      } else {
+        backend.changeLoginStatus(false);
+        backend.login(defaultUsername, defaultPassword).then(
+          function (res) {
+            backend.currentUser = res;
+            deferred.resolve(res);
+          }, function (err) {
+            deferred.reject(err);
+          }
+        );
+      }
+      return deferred.promise;
     };
     /*
      Function for getting list of events from backend
@@ -64,10 +89,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.signup(user.email, user.pass)
         .done(function (res) {
           console.log("signup ", res);
-          backend.login(user.email, user.pass);
-          backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
-          backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
-          backend.applySettingsForCurrentUser();
+          backend.login(user.email, user.pass).then(
+            function(res){
+              backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
+              backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
+              backend.applySettingsForCurrentUser();
+            }
+          );
         })
         .fail(function (error) {
           console.log("Signup error ", error);
@@ -81,9 +109,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.login(username, pass)
         .done(function (user) {
           if (username != defaultUsername) {
-            backend.loginStatus = true;
+            backend.changeLoginStatus(true);
             backend.currentUser = user;
-            $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
           }
           console.log("Logged in ", username);
         })
@@ -91,22 +118,41 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log(" Login error ", err);
         });
     };
+
+
+    backend.rememberLogin = function () {
+      window.localStorage.setItem(REMEMBER_LOGIN_KEY, JSON.stringify(BaasBox.getCurrentUser()));
+      console.log(window.localStorage.getItem(REMEMBER_LOGIN_KEY))
+    }
+
+
+
     /*
      Function for logout
      returns a promise
      */
     backend.logout = function () {
+      window.localStorage.removeItem(REMEMBER_LOGIN_KEY);
       backend.disablePushNotificationsForCurrentUser();
       return BaasBox.logout()
         .done(function (res) {
-          backend.loginStatus = false;
-          $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
+          backend.currentUser = '';
+          backend.changeLoginStatus(false);
           console.log(res);
         })
         .fail(function (error) {
           console.log("error ", error);
         })
     };
+
+    /* Function for changing the login status.
+      Triggers event for menu refresh.
+     */
+    backend.changeLoginStatus = function (newStatus) {
+      backend.loginStatus = newStatus;
+      $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
+    };
+
     /*
      Function for Reset
      returns a promise
@@ -260,6 +306,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         question.no = 0;
         question.dontKnow = 0;
         question.current = false;
+        question.voted = [];
         event.questions.push(question);
         return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
@@ -525,6 +572,77 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+      Function for adding a user in the list of feedbackingUsers to avoid double feedback.
+      Expects to be called only when it's cleared that the user is not yet in the list.
+      Gets the id of the feedbacked event and the user object
+      Returns a promise.
+     */
+    backend.addUserAsFeedbackerToEvent = function(eventId, user){
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(
+        function (res) {
+          event = res.data;
+          if (event.hasOwnProperty("feedbackingUsers")){
+            event.feedbackingUsers.push(user.username);
+          } else {
+            event.feedbackingUsers = [user.username];
+          }
+          backend.updateEvent(eventId, "feedbackingUsers", event.feedbackingUsers).then(
+            function (res) {
+              deferred.resolve(res);
+            }, function (err) {
+              deferred.reject(err);
+            }
+          )
+        }, function (err) {
+          deferred.reject(err)
+        }
+      )
+      return deferred.promise;
+    };
+
+    /*
+     Function for adding the current user in the list of feedbackingUsers to avoid double feedback.
+     Expects to be called only when it's cleared that the user is not yet in the list.
+     Gets the id of the feedbacked event and calls addUserAsFeedbackerToEvent
+     Returns a promise.
+     */
+    backend.addCurrentUserAsFeedbackerToEvent = function(eventId){
+      return backend.addUserAsFeedbackerToEvent(eventId, BaasBox.getCurrentUser());
+    };
+
+    /*
+      Function for checking if a user has already given feedback
+      Gets the id of the feedbacked event and the user object
+      Returns a promise resolving to the boolean value
+     */
+    backend.hasUserAlreadyGivenFeedback = function(eventId, user){
+      var deferred = $q.defer();
+      backend.getEventById(eventId).then(
+        function (res) {
+          event = res.data;
+          if (event.hasOwnProperty("feedbackingUsers")){
+            deferred.resolve(event.feedbackingUsers.indexOf(user.username) != -1);
+          } else {
+            deferred.resolve(false);
+          }
+        }, function (err) {
+          deferred.reject(err);
+        }
+      )
+      return deferred.promise;
+    };
+
+    /*
+     Function for checking if the current user has already given feedback
+     Gets the id of the feedbacked event the user object
+     Returns a promise resolving to the boolean value
+     */
+    backend.hasCurrentUserAlreadyGivenFeedback = function(eventId){
+      return backend.hasUserAlreadyGivenFeedback(eventId, BaasBox.getCurrentUser());
+    }
+
+    /*
      Fucntion for removing a user from an event.
      Returns a promise.
      */
@@ -609,6 +727,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
+    Funtion for getting list of all users
+     */
+  backend.getUsers = function () {
+    return BaasBox.fetchUsers()
+      .done(function(res) {
+        console.log("res ", res['data']);
+      })
+      .fail(function(error) {
+        console.log("error ", error);
+      })
+  }
+
+    /*
      Function for getting a user by his username
      returns a promise
      */
@@ -635,7 +766,20 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .fail(function (err) {
           console.log("get user error ", err);
         });
-    };
+    }
+    /*
+     Function for getting a list of organizers
+     returns a promise
+     */
+      backend.getOrganisers = function () {
+        return BaasBox.fetchAdministrators()
+          .done(function (res) {
+            console.log("res ", res['data']);
+          })
+          .fail(function (error) {
+            console.log("error ", error);
+          })
+      };
     /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
@@ -775,13 +919,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-    /*
-     TODO in Sprint 11
-     */
-    backend.isCurrentUserOrganizer = function () {
-      return true;
+    backend.isCurrentUserOrganizer = function(){
+      return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
     }
 
-    return backend;
-  }
-);
+      return backend;
+    }
+
+  );

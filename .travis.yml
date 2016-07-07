@@ -14,19 +14,39 @@
 
 sudo: required
 
+language: node_js
+node_js:
+- 1.0
 services: 
   - docker
 
 env:
   - TRAVIS_CI_BUILD=true
-
+before_install:  
+- npm install -g bower
+- cd MyConference
+- bower install
+- bower install angular-mocks#1.5.3 --save-dev
+- cd ..
+- npm install karma --save-dev
+- npm install -g npm
+- npm install karma-jasmine --save-dev
+- npm install jasmine-core --save-dev
+- npm install -g karma-cli
+- npm install -g phantomjs
+- npm install karma-phantomjs-launcher
+- npm install karma-firefox-launcher first
+- npm install karma-chrome-launcher
 # Set execution rights
 before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
   - chmod +x MyConference/docker/build
   - chmod +x deploy_script.sh
-  
+
 script:
   # Build .apk file and build docker image (inside docker container)
+  - karma start MyConference/tests/unit-tests.conf.js
   - travis_wait 30 docker run --rm -v $(pwd)/:/build -w /build -e TRAVIS_CI_BUILD clemenshuebner/amos-ss16-proj8-ionic-build:1.0 MyConference/docker/build
 
 # Deploy via script, only on master
