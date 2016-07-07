@@ -772,12 +772,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
       backend.getOrganisers = function () {
-        return BaasBox.fetchAdministrators()
-          .done(function (res) {
-            console.log("res ", res['data']);
-          })
-          .fail(function (error) {
-            console.log("error ", error);
+      return BaasBox.loadCollection("organizer")
+        .done(function (res) {
+          console.log("res ", res);
+        })
+        .fail(function (error) {
+          console.log("error ", error);
           })
       };
     /*
