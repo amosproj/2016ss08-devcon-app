@@ -763,22 +763,16 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
     /*
      Function for splitting a date into its parts.
-     Gets a datestring like the ones stored in the backend.
+     Gets a datestring like the ones stored in the backend (in UTC).
      Is used for getting right date with corrected timezone.
      Returns [day, month, year].
      */
-    splitDateIntoParts = function(dateString) {
-      dateObj = new Date(dateString).toLocaleString();
-
-      if(dateObj.indexOf(".") == -1){
-        dateSplitted = dateObj.split("/");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[0],dateSplitted[1]];
-      } else {
-        dateSplitted = dateObj.split(".");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
-      }
+    splitEventDateIntoPartsWithCorrectingTimezone = function(dateString) {
+      dateObj = new Date(dateString);
+      console.log("dateObj in split "+dateObj);
+      dateSplitted = [dateObj.getDate(), dateObj.getMonth()+1, dateObj.getFullYear()]
+      console.log("dateSplitted in split "+dateSplitted);
+      return dateSplitted;
     }
 
     /*
