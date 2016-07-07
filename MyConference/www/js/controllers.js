@@ -2062,6 +2062,30 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     );
   })
   .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
+    backendService.getSupportContactById($stateParams.contactId).then(
+      function (res) {
+        $scope.contact = res;
+        console.log($scope.contact)
+      }
+    );
+
+    $scope.updateContact = function (newContact) {
+      backendService.setSupportMailadressById($stateParams.contactId, newContact.mailadress).then(
+        function (res) {
+          $translate("Done!").then(
+            function (de) {
+              $ionicPopup.alert({
+                title: de,
+                template: "{{'Support contact is updated' | translate}}"
+              }).then(
+                function(res){
+                  $state.go('app.contact')
+                }
+              )
+            }
+          );
+        }
+      )
     }
 
   });
