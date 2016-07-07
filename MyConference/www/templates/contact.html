@@ -15,4 +15,12 @@ root directory along with this program.
 If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 -->
 <ion-view>
+  <ion-nav-title>{{"Contact" | translate}}</ion-nav-title>
+  <ion-nav-buttons side="right">
+    <a href="#/app/edit-contact/{{contact.id}}" ng-show="isOrganizer" class="button icon ion-edit" menu-toggle="right"></a>
+  </ion-nav-buttons>
+  <ion-content>
+    <a href="{{'mailto:'+contact.mailadress}}"><button class="button button-block button-positive" ng-show="mailAdressAvailable" translate>Send mail to support contact</button></a>
+    <ion-item ng-show="!mailAdressAvailable" translate>No support mail adress available.</ion-item>
+  </ion-content>s
 </ion-view>
