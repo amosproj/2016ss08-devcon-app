@@ -182,6 +182,28 @@ var BaasBox = (function () {
       return deferred.promise();
     },
 
+    /*
+     Function to load a collection of organizer with parameter, which is current user email / username
+     */
+    checkOrganizerWithParams: function(userEmail, params) {
+      var deferred = buildDeferred();
+      var url = BaasBox.endPoint + '/document/organizer?where=email%3D%3F&params=' + userEmail;
+      var req = $.ajax({
+        url: url,
+        method: 'GET',
+        timeout: BaasBox.timeout,
+        dataType: 'json',
+        data: params
+      })
+        .done(function(res) {
+          deferred.resolve(res['data']);
+        })
+        .fail(function(error) {
+          deferred.reject(error);
+        })
+      return deferred.promise();
+    },
+
     logout: function (cb) {
       var deferred = buildDeferred();
       var u = getCurrentUser();
