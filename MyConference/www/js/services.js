@@ -256,7 +256,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("res ", res);
           BaasBox.updateEventAgenda(res, evId);
           BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
         })
         .fail(function (error) {
           console.log("error ", error);
