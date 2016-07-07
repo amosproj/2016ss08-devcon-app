@@ -919,9 +919,28 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-    backend.isCurrentUserOrganizer = function(){
-      return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
+  /*
+   Function for loading list of organizer with paramter, which is email / username of current user
+   */
+  backend.checkOrganizerWithParams = function() {
+    return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
+  }
+
+  /*
+   Function for checking whether the current user is an organizer
+   */
+
+  backend.isCurrentUserOrganizer = function(organizerListArray) {
+    if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername){
+      return true;
     }
+    if(organizerListArray > 0) {
+      return true;
+    }
+    if(organizerListArray == 0) {
+      return false;
+    }
+  }
 
      return backend;
     }
