@@ -757,7 +757,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
 
-    backend.getUsers = function (user) {
+    backend.getUserEmail = function (user) {
       return BaasBox.getUsers(user)
         .done(function (res) {
 
