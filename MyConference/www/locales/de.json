@@ -145,4 +145,5 @@
   "Add Organizer": "Veranstalter hinzufügen",
   "Enter user email": "Eingeben Benutzername / Email",
   "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
+  "Contact": "Kontakt",
 }

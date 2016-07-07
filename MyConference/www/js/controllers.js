@@ -2050,4 +2050,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     }
+  })
+  .controller('ContactCtrl', function ($scope, backendService) {
+  })
+  .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
+    }
+
   });
