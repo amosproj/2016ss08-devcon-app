@@ -123,31 +123,44 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    */
   .controller('AddOrgCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
     $scope.createOrganizer = function (user) {
-      var us = user;
-      backendService.getUsers(us).then(function (res) {
-        var user1 = res.data;
-        var gName = user1.visibleByRegisteredUsers.gName;
-        var name = user1.visibleByRegisteredUsers.name;
-        console.log(gName, ' ', name);
-        backendService.createOrganizer(user).then(function (res) {
-          $translate('Done!').then(
-            function (res) {
-              $ionicPopup.alert({
-                title: res,
-                template: "{{'organizer is added' | translate}}"
-              });
-            });
-        })
-      }, function (err) {
-        $translate('Error!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'this user is not registered.' | translate}}"
+      backendService.checkOrganizerExistence(user.email).then(function (resone){
+          if(resone.length != 0){
+            $translate('Error!').then(
+              function (res) {
+                $ionicPopup.alert({
+                  title: res,
+                  template: "{{'This user has already added as an organizer' | translate}}" //translate
+                });
+              }
+            );
+          }else{
+            var us = user;
+            backendService.getUsers(us).then(function (res) {
+              var user1 = res.data;
+              var gName = user1.visibleByRegisteredUsers.gName;
+              var name = user1.visibleByRegisteredUsers.name;
+              console.log(gName, ' ', name);
+              backendService.createOrganizer(user).then(function (res) {
+                $translate('Done!').then(
+                  function (res) {
+                    $ionicPopup.alert({
+                      title: res,
+                      template: "{{'Organizer is added' | translate}}"
+                    });
+                  });
+              })
+            }, function (err) {
+              $translate('Error!').then(
+                function (res) {
+                  $ionicPopup.alert({
+                    title: res,
+                    template: "{{'There is no user with this username' | translate}}"
+                  });
+                }
+              );
             });
           }
-        );
-      });
+      })
     }
   })
 
