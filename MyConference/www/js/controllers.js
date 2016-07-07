@@ -769,9 +769,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     splitEventDateIntoPartsWithCorrectingTimezone = function(dateString) {
       dateObj = new Date(dateString);
-      console.log("dateObj in split "+dateObj);
       dateSplitted = [dateObj.getDate(), dateObj.getMonth()+1, dateObj.getFullYear()]
-      console.log("dateSplitted in split "+dateSplitted);
       return dateSplitted;
     }
 
