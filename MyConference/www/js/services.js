@@ -224,8 +224,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.save(user, "organizer")
         .done(function (res) {
           console.log("res ", res);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantUserAccessToObject("organizer", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("organizer", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
         })
         .fail(function (error) {
           console.log("error ", error);
