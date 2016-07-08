@@ -109,7 +109,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             title: res,
             template: "{{'An email has been sent to you with instructions on resetting your password.' | translate}}"
           }).then(function (res) {
-            $state.reload();
+            $state.go('app.login');
           });
         }
       );
