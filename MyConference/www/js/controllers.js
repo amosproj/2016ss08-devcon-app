@@ -1638,6 +1638,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 }
               }, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
+              backendService.checkOrganizerExistence(susUser).then(function(resobj){
+                var organizerId = resobj[0].id;
+                backendService.deleteOrganizer(organizerId);
+              })
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   $ionicLoading.hide();

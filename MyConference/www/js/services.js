@@ -232,6 +232,20 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
+  /*
+   Function for deleting an event
+   */
+  backend.deleteOrganizer = function (organizer) {
+    //return
+    BaasBox.deleteObject(organizer, "organizer")
+      .done(function (res) {
+        console.log(res);
+      })
+      .fail(function (err) {
+        console.log("Delete error ", err);
+      });
+  };
+
     /*
      Function for deleting an event
      */
