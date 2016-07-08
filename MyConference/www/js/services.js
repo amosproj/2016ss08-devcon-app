@@ -757,7 +757,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
 
-    backend.getUsers = function (user) {
+    backend.getUserEmail = function (user) {
       return BaasBox.getUsers(user)
         .done(function (res) {
 
@@ -772,12 +772,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      returns a promise
      */
       backend.getOrganisers = function () {
-        return BaasBox.fetchAdministrators()
-          .done(function (res) {
-            console.log("res ", res['data']);
-          })
-          .fail(function (error) {
-            console.log("error ", error);
+      return BaasBox.loadCollection("organizer")
+        .done(function (res) {
+          console.log("res ", res);
+        })
+        .fail(function (error) {
+          console.log("error ", error);
           })
       };
     /*
@@ -919,9 +919,35 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-    backend.isCurrentUserOrganizer = function(){
-      return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
+  /*
+   Function for loading list of organizer with paramter, which is email / username of current user
+   */
+  backend.checkOrganizerExistence = function(userEmail) {
+    return BaasBox.checkOrganizerWithParams(userEmail, {where: "email=?"});
+  }
+
+  /*
+   Function for loading list of organizer with paramter, which is email / username of current user
+   */
+  backend.checkOrganizerWithParams = function() {
+    return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
+  }
+
+  /*
+   Function for checking whether the current user is an organizer
+   */
+
+  backend.isCurrentUserOrganizer = function(organizerListArray) {
+    if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername){
+      return true;
     }
+    if(organizerListArray > 0) {
+      return true;
+    }
+    if(organizerListArray == 0) {
+      return false;
+    }
+  }
 
      return backend;
     }

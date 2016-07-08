@@ -30,8 +30,8 @@
   "Re-Enter Password": "Passwort wiederholen",
   "Remember me": "Login merken",
   "Forgot your password?": "Passwort vergessen?",
-  "organizer is added": "Veranstalter ist hinzugefügt",
-  "this user is not registered.": "dieser Benutzer ist nicht registriert",
+  "Organizer is added": "Veranstalter ist hinzugefügt",
+  "There is no user with this username": "es gibt keinen Benutzer mit dieser Name",
   "Log In": "Login",
   "Submit": "Absenden",
   "Register": "Registrieren",
@@ -145,5 +145,6 @@
   "Add Organizer": "Veranstalter hinzufügen",
   "Enter user email": "Eingeben Benutzername / Email",
   "You are not registered.": "Sie sind nicht registriert.",
+  "This user has already been an organizer": "Dieser Benutzer wurde schon ein Veranstalter",
   "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
 }
