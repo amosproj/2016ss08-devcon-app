@@ -141,6 +141,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               var name = user1.visibleByRegisteredUsers.name;
               console.log(gName, ' ', name);
               backendService.createOrganizer(user).then(function (res) {
+                var organizerEmail = res.email;
+                backendService.grantAllPermission(organizerEmail);
                 $translate('Done!').then(
                   function (res) {
                     $ionicPopup.alert({
