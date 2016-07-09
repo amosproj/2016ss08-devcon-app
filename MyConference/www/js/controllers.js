@@ -1192,7 +1192,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.showEnd = false;
     }
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
+      $scope.event = res['data'];
+      $scope.eventTitle = res['data'].title;
       var usedDate = $scope.event.date;
       var usedBegin = $scope.event.begin;
       var usedEnd = $scope.event.end;
