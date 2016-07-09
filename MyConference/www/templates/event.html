@@ -45,11 +45,11 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         </div>
         <label class="item item-input">
           <span class="input-label fixed">{{"Begin" | translate}}</span>
-          <input type="time" ng-model="ag.begin" required>
+          <input type="time" ng-model="ag.begin">
         </label>
         <label class="item item-input">
           <span class="input-label fixed">{{"End" | translate}}</span>
-          <input type="time" ng-model="ag.end" required>
+          <input type="time" ng-model="ag.end">
         </label>
         <label class="item item-input">
           <span class="input-label fixed">{{"Speaker" | translate}}</span>
@@ -76,8 +76,9 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       </form>
       <!-- button to show add new agenda -->
       <div class="item item-button-right">
+
         <br><a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced"
-               ng-show="isGeoButtonVisible()">{{ "I'm Here" | translate}}</a><br>
+               ng-show="isGeoButtonVisible">{{ "I'm Here" | translate}}</a><br>
       </div>
       <button class="button button-block button-positive" ng-show="!addingAgendaForm && isOrganizer && showSpeakers"
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}
@@ -117,10 +118,10 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
             class="button button-block button-positive">
       {{"Change agenda" | translate}}
     </button>
-    <button ng-click="joinEvent()" ng-show="!isCurrentUserRegistered" class="button button-block button-balanced">
+    <button ng-click="joinEvent()" ng-show="!isCurrentUserRegistered && !isOrganizer" class="button button-block button-balanced">
       {{"Join event" | translate}}
     </button>
-    <button ng-click="leaveEvent()" ng-show="isCurrentUserRegistered" class="button button-block button-assertive">
+    <button ng-click="leaveEvent()" ng-show="isCurrentUserRegistered  && !isOrganizer" class="button button-block button-assertive">
       {{"Leave event" | translate}}
     </button>
     <button ng-click="showAlert()" class="button button-block button-positive">

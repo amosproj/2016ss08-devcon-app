@@ -116,6 +116,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
           }
         }
       })
+      .state('app.add-organizer', {
+        cache: false,
+        url: '/add-organizer',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/add-organizer.html',
+            controller: 'AddOrgCtrl'
+          }
+        }
+      })
       .state('app.feedback', {
         cache: false,
         url: '/event/:eventId/feedback',

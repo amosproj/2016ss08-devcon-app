@@ -22,6 +22,8 @@ describe('LoginCtrl: ', function () {
     ionicPopupMock,
     translateMock,
     loginDfd,
+    logoutDfd,
+    userDfd,
     eventDfd,
     translateDfd,
     alertDfd;
@@ -38,13 +40,16 @@ describe('LoginCtrl: ', function () {
       password: 'blabla'
     }
     loginDfd = $q.defer();
+    logoutDfd = $q.defer();
+    userDfd = $q.defer();
     eventDfd = $q.defer();
     translateDfd = $q.defer();
     alertDfd = $q.defer();
     backendServiceMock = {
       login: jasmine.createSpy('login spy').and.returnValue(loginDfd.promise),
-      logout: jasmine.createSpy('logout spy').and.returnValue(loginDfd.promise),
+      logout: jasmine.createSpy('logout spy').and.returnValue(logoutDfd.promise),
       applySettingsForCurrentUser: function () {},
+      getUser: jasmine.createSpy('getUser spy').and.returnValue(userDfd.promise),
       getEvents: jasmine.createSpy('getEvents spy').and.returnValue(eventDfd.promise)
     }
     ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert'])
@@ -60,6 +65,19 @@ describe('LoginCtrl: ', function () {
   }));
   // tests
   describe('login function ', function () {
+    beforeEach(function () {
+      //simulate successful login
+      userDfd.resolve({
+        data: {
+          user: {
+            status: "blabla"
+          }
+        }
+      });
+      scope.$digest();
+      logoutDfd.resolve([]);
+      scope.$digest();
+    })
     it('should call backendService.login function with the credentials that was inputted by user', function () {
       expect(backendServiceMock.login).toHaveBeenCalledWith('blabla', 'blabla');
     })

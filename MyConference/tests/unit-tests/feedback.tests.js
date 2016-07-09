@@ -22,6 +22,7 @@ describe('Feedback', function () {
     attendedDeferred,
     resolveDeferred,
     eventDeferred,
+    checkOrganizerWithParamsDeferred,
     alreadyFeedbackedDeferred;
 
   beforeEach(module('starter'));
@@ -32,13 +33,14 @@ describe('Feedback', function () {
   }));
   beforeEach(inject(function ($rootScope, $controller, $q, $httpBackend) {
     $httpBackend.whenGET('locales/de.json').respond(200, '');
-
+    checkOrganizerWithParamsDeferred = $q.defer();
     attendedDeferred = $q.defer();
     alreadyFeedbackedDeferred = $q.defer();
     eventDeferred = $q.defer();
     resolveDeferred = $q.defer();
     resolveDeferred.resolve([]);
     backendServiceMock = {
+      checkOrganizerWithParams: jasmine.createSpy("checkOrganizerWithParams").and.returnValue(checkOrganizerWithParamsDeferred.promise),
       isCurrentUserOrganizer: jasmine.createSpy("isCurrentUserOrganizer").and.returnValue(resolveDeferred.promise),
       getEventById: jasmine.createSpy("getEventById").and.returnValue(eventDeferred.promise),
       isCurrentUserRegisteredForEvent: jasmine.createSpy("isCurrentUserRegisteredForEvent").and.returnValue(resolveDeferred.promise),

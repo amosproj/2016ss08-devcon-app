@@ -207,27 +207,54 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
         })
         .fail(function (error) {
           console.log("error ", error);
         })
     };
 
-  /*
-   Function for deleting an event
-   */
-  backend.deleteEvent = function (eventId) {
-    //return
-    BaasBox.deleteObject(eventId, "events")
-      .done(function (res) {
-        console.log(res);
-      })
-      .fail(function (err) {
-        console.log("Delete error ", err);
-      });
-  };
+    /*
+     Function for creating a new organizer
+     First saves a new document in "organizer" collection
+     Then grants read permission to registered and not registered users
+     */
+    backend.createOrganizer = function (user) {
+      return BaasBox.save(user, "organizer")
+        .done(function (res) {
+          console.log("res ", res);
+          BaasBox.grantUserAccessToObject("organizer", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("organizer", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("organizer", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    };
+
+    /*
+     Function for deleting an event
+     */
+    backend.deleteEvent = function (eventId) {
+      //return
+      BaasBox.deleteObject(eventId, "events")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
 
     /*
      Function for adding an agenda talk to an event
@@ -239,7 +266,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("res ", res);
           BaasBox.updateEventAgenda(res, evId);
           BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
         })
         .fail(function (error) {
           console.log("error ", error);
@@ -307,8 +339,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       return BaasBox.save(event, "events")
         .done(function (res) {
           console.log("res ", res);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE)
+          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
         })
         .fail(function (error) {
           console.log("error ", error);
@@ -327,9 +364,16 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for updating an agenda
      */
     backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
-      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
+      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value)
         .done(function (res) {
           console.log("Agenda updated ", res);
+          BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
         })
         .fail(function (error) {
           console.log("Agenda update error ", error);
@@ -349,8 +393,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (res) {
           console.log("res ", res);
           res = jQuery.parseJSON(res);
-          BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           backend.updateEvent(eventId, "fileId", res['data'].id)
         })
         .fail(function (error) {
@@ -371,8 +415,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (res) {
           console.log("res ", res);
           res = jQuery.parseJSON(res);
-          BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, "default");
-          BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           backend.updateAgenda(agendaId, "fileId", res['data'].id)
         })
         .fail(function (error) {
@@ -736,18 +780,33 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
     /*
+     Function for getting a user by his email
+     returns a promise
+     */
+
+    backend.getUserEmail = function (user) {
+      return BaasBox.getUsers(user)
+        .done(function (res) {
+
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("get user error ", err);
+        });
+    }
+    /*
      Function for getting a list of organizers
      returns a promise
      */
-    backend.getOrganisers = function () {
-      return BaasBox.fetchAdministrators()
+      backend.getOrganisers = function () {
+      return BaasBox.loadCollection("organizer")
         .done(function (res) {
-          console.log("res ", res['data']);
+          console.log("res ", res);
         })
         .fail(function (error) {
           console.log("error ", error);
-        })
-    };
+          })
+      };
     /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
@@ -844,7 +903,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         "users": users,
         "message": message
       };
-      console.log(users,message)
+      console.log(users, message)
       return BaasBox.sendPushNotification(params);
     }
 
@@ -887,14 +946,58 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-    /*
-      TODO in Sprint 11
-    */
-    backend.isCurrentUserOrganizer = function(){
-      return (typeof backend.currentUser !== 'undefined' && backend.currentUser.roles.indexOf('administrator') != -1);
-    }
-
-    return backend;
+  /*
+   Function for loading list of organizer with paramter, which is email / username of current user
+   */
+  backend.checkOrganizerExistence = function(userEmail) {
+    return BaasBox.checkOrganizerWithParams(userEmail, {where: "email=?"});
   }
 
+  /*
+   Function for loading list of organizer with paramter, which is email / username of current user
+   */
+  backend.checkOrganizerWithParams = function() {
+    return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
+  }
+
+  /*
+   Function for checking whether the current user is an organizer
+   */
+
+  backend.isCurrentUserOrganizer = function(organizerListArray) {
+    if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername){
+      return true;
+    }
+    if(organizerListArray > 0) {
+      return true;
+    }
+    if(organizerListArray == 0) {
+      return false;
+    }
+  }
+
+  /*
+    Function for granting ALL_PERMISSION to all documents to a user / new organizer
+    collection: events, agenda, organizer
+   */
+  backend.grantAllPermission = function(username) {
+    BaasBox.loadAllCollection("events").done(function (resevent) {
+      for(i = 0; i < resevent.length; i++){
+        BaasBox.grantUserAccessToObject("events", resevent[i].id, BaasBox.ALL_PERMISSION, username);
+      }
+    })
+    BaasBox.loadAllCollection("agenda").done(function (resagenda) {
+      for(i = 0; i < resagenda.length; i++){
+        BaasBox.grantUserAccessToObject("agenda", resagenda[i].id, BaasBox.ALL_PERMISSION, username);
+      }
+    })
+    BaasBox.loadAllCollection("organizer").done(function (resorg) {
+      for(i = 0; i < resorg.length; i++){
+        BaasBox.grantUserAccessToObject("organizer", resorg[i].id, BaasBox.ALL_PERMISSION, username);
+      }
+    })
+  }
+
+     return backend;
+    }
 );
