@@ -364,9 +364,16 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for updating an agenda
      */
     backend.updateAgenda = function (agendaId, fieldToUpdate, value) {
-      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value) //
+      BaasBox.updateField(agendaId, "agenda", fieldToUpdate, value)
         .done(function (res) {
           console.log("Agenda updated ", res);
+          BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
+          BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
         })
         .fail(function (error) {
           console.log("Agenda update error ", error);
