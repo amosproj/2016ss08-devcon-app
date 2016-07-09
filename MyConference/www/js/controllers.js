@@ -359,591 +359,601 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Contains functions for uploading and downloading a file
    */
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $cordovaFileOpener2, $filter, $timeout) {
-    $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
-    $scope.upload = false;
-    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
-    $scope.showSpeakers = false;
-    //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
-    // Is set later after loading the agenda
-    $scope.isFeedbackAllowed = false;
-    $scope.areFeedbackResultsVisible = false;
-    $scope.isReminderAllowed = false;
-    $scope.isGeoButtonVisible = false;
-    backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data'];
-      backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
-        function (res) {
-          $scope.isCurrentUserRegistered = res;
-          if (res === false) {
-            backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
-              function (res) {
-                $scope.isCurrentUserRegistered = res;
-              })
+      $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
+      $scope.upload = false;
+      $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+      $scope.showSpeakers = false;
+      //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
+      // Is set later after loading the agenda
+      $scope.isFeedbackAllowed = false;
+      $scope.areFeedbackResultsVisible = false;
+      $scope.isReminderAllowed = false;
+      $scope.isGeoButtonVisible = false;
+      backendService.getEventById($stateParams.eventId).then(function (res) {
+        $scope.event = res['data'];
+        backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
+          function (res) {
+            $scope.isCurrentUserRegistered = res;
+            if (res === false) {
+              backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
+                function (res) {
+                  $scope.isCurrentUserRegistered = res;
+                })
+            }
           }
+        );
+        if ($scope.agenda) {
+          backendService.getFileDetails(res['data'].fileId).then(function (file) {
+            $scope.filename = file['data'].fileName;
+            $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+          }, function (fileError) {
+            console.log("Error by getting file details")
+          })
         }
-      );
-      if ($scope.agenda) {
-        backendService.getFileDetails(res['data'].fileId).then(function (file) {
-          $scope.filename = file['data'].fileName;
-          $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
-        }, function (fileError) {
-          console.log("Error by getting file details")
+        /*
+         hide - show form after click on adding agenda
+         */
+        $scope.addingAgendaForm = false;
+        $scope.showAddingAgenda = function () {
+          $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+        };
+        //retrieve agenda by condition
+        backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
+          $scope.agendaList = res;
+
+          isFeedbackAllowed();
+          areFeedbackResultsVisible();
+          isGeoButtonVisible();
+          isReminderAllowed();
+
+
+        }, function (error) {
+          console.log("Error by retrieving the event", error)
+        })
+      }, function (error) {
+        console.log("Error by retrieving the event", error)
+      });
+      $(document).on("submit", "#uploadForm", function (e) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        $ionicLoading.show({
+          content: 'Loading',
+          animation: 'fade-in',
+          showBackdrop: true,
+          maxWidth: 200,
+          showDelay: 0
+        });
+        $scope.hidden = false;
+        $timeout(function () {
+          if (!$scope.hidden) {
+            $ionicLoading.hide();
+            $translate('Error!').then(
+              function (res2) {
+                var alertPopup = $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                });
+              }
+            )
+          }
+        }, 9000);
+        var formData = new FormData();
+        formData.append('file', $('input[type=file]')[0].files[0]);
+        backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
+          // if there was already an agenda file then delete it
+          if ($scope.agenda) {
+            backendService.deleteFile($stateParams.agenda);
+          }
+          $ionicLoading.hide();
+          $scope.hidden = true;
+          $translate('Done!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'File successfully uploaded' | translate}}"
+              }).then(function (res3) {
+                res = jQuery.parseJSON(res);
+                $state.go('app.transition', {
+                  to: 'app.event',
+                  data: {eventId: $stateParams.eventId, agenda: res['data'].id}
+                })
+              });
+            }
+          );
+        }, function (error) {
+          $ionicLoading.hide();
+          $scope.hidden = true;
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Error occurred by uploading a file' | translate}}"
+              });
+            }
+          );
+        })
+      });
+      $scope.download = function (url) {
+        $ionicPlatform.ready(function () {
+          $cordovaInAppBrowser.open(url, '_system')
+            .then(function (event) {
+              console.log("url successfully opened")
+            })
+            .catch(function (event) {
+              console.log("error by opening url")
+            });
+        });
+      };
+
+      //function for the Join-Event-Button
+      $scope.joinEvent = function () {
+        $ionicLoading.show({
+          content: 'Loading',
+          animation: 'fade-in',
+          showBackdrop: true,
+          maxWidth: 200,
+          showDelay: 0
+        });
+        $scope.hidden = false;
+        $timeout(function () {
+          if (!$scope.hidden) {
+            $ionicLoading.hide();
+            $translate('Error!').then(
+              function (res2) {
+                var alertPopup = $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                });
+              }
+            )
+          }
+        }, 7000);
+        backendService.addCurrentUserToEvent($scope.event.id).then(
+          function (res) {
+            backendService.getOrganisers().then(function (org) {
+              arrayOfOrganiserNames = function () {
+                console.log("in deferred")
+                var d = new $.Deferred();
+                organiserNames = []
+                for (var i in org.data) {
+                  organiserNames.push(org.data[i].user.name)
+                }
+                d.resolve(organiserNames)
+                return d.promise();
+              }
+              arrayOfOrganiserNames().then(function (arr) {
+                cUser = backendService.currentUser;
+                if (typeof cUser !== 'undefined' && cUser != '') {
+                  $translate('New participant $name $gName is registered for $event', {
+                    name: cUser.visibleByRegisteredUsers.name,
+                    gName: cUser.visibleByRegisteredUsers.gName,
+                    event: $scope.event.title
+                  }).then(function (msg) {
+                    backendService.sendPushNotificationToUsers(msg, arr)
+                  })
+                }
+              })
+            })
+            $ionicLoading.hide();
+            $scope.hidden = true;
+            $translate('Done!').then(
+              function (res2) {
+                $scope.isCurrentUserRegistered = true;
+                $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'We are happy to see you at' | translate}}" + " " + $scope.event.title + "!"
+                });
+              }
+            );
+          }, function (err) {
+            $ionicLoading.hide();
+            $translate('Error!').then(
+              function (res2) {
+                $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'Error while registration.' | translate}}"
+                });
+              }
+            );
+          });
+      };
+      //function for the Leave-Event-Button
+      $scope.leaveEvent = function () {
+        $ionicLoading.show({
+          content: 'Loading',
+          animation: 'fade-in',
+          showBackdrop: true,
+          maxWidth: 200,
+          showDelay: 0
+        });
+        $scope.hidden = false;
+        $timeout(function () {
+          if (!$scope.hidden) {
+            $ionicLoading.hide();
+            $translate('Error!').then(
+              function (res2) {
+                var alertPopup = $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                });
+              }
+            )
+          }
+        }, 7000);
+        backendService.removeCurrentUserFromEvent($scope.event.id).then(
+          function (res) {
+            $ionicLoading.hide();
+            $scope.hidden = true;
+            $translate('Done!').then(
+              function (res2) {
+                $scope.isCurrentUserRegistered = false;
+                $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'We are sad not seeing you at' | translate}}" + " " + $scope.event.title + "!"
+                });
+              }
+            );
+          }, function (err) {
+            $ionicLoading.hide();
+            $scope.hidden = true;
+            $translate('Error!').then(
+              function (res2) {
+                $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'Error while undoing registration.' | translate}}"
+                });
+              }
+            );
+          });
+      };
+      //function for the Remind-about-event-button
+      $scope.sendReminder = function () {
+        firstPromise = $translate("an event");
+        firstPromise.then(
+          function (anEventTranslation) {
+            if ($scope.event.date) {
+              daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
+              secondPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
+                {
+                  eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation),
+                  daysTillEvent: daysTillEvent
+                }
+              );
+            } else {
+              secondPromise = $translate("Senacor is happy to remind you that $eventName is coming.",
+                {
+                  eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation)
+                }
+              );
+            }
+            secondPromise.then(
+              function (firstSentence) {
+                if ($scope.event.date) {
+                  dateFormatted = $filter('date')($scope.event.date, shortDate);
+                  if ($scope.event.time) {
+                    if ($scope.event.location) {
+                      thirdPromise = $translate("See you on $date at $time, $location!", {
+                        date: dateFormatted,
+                        time: $scope.event.time,
+                        location: $scope.event.location
+                      })
+                    } else {
+                      thirdPromise = $translate("See you on $date at $time!", {
+                        date: dateFormatted,
+                        time: $scope.event.time
+                      })
+                    }
+                  } else {
+                    if ($scope.event.location) {
+                      thirdPromise = $translate("See you on $date at $location!", {
+                        date: dateFormatted,
+                        location: $scope.event.location
+                      })
+                    } else {
+                      thirdPromise = $translate("See you on $date!", {date: dateFormatted})
+                    }
+                  }
+                } else {
+                  if ($scope.event.time) {
+                    if ($scope.event.location) {
+                      thirdPromise = $translate("See you on at $time, $location!", {
+                        time: $scope.event.time,
+                        location: $scope.event.location
+                      })
+                    } else {
+                      thirdPromise = $translate("See you at $time!", {time: $scope.event.time})
+                    }
+                  } else {
+                    if ($scope.event.location) {
+                      thirdPromise = $translate("See you at $location!", {location: $scope.event.location})
+                    } else {
+                      thirdPromise = $translate("See you!")
+                    }
+                  }
+                }
+                thirdPromise.then(
+                  function (secondSentence) {
+                    message = firstSentence + " " + secondSentence;
+                    backendService.getEventById($stateParams.eventId).then(
+                      function (res) {
+                        $scope.event = res['data'];
+                        users = $scope.event.participants.map(function (participant) {
+                          if (participant.status == "joined") {
+                            return participant.name;
+                          }
+                        });
+                        users = users.filter(function (user) {
+                          return user != null;
+                        });
+                        backendService.sendPushNotificationToUsers(message, users).then(
+                          function (res) {
+                            $translate("Done!").then(
+                              function (res) {
+                                $ionicPopup.alert({
+                                  title: res,
+                                  template: "{{'The push notification was sent successfully.' | translate}}"
+                                });
+                              }
+                            );
+                          },
+                          function (err) {
+                            console.log(err)
+                          }
+                        );
+                      });
+                  }
+                )
+              }
+            );
+          }
+        )
+      };
+      /*
+       function for delete Event
+       delete related agenda and files as well
+       */
+      $scope.deleteEvent = function () {
+        $translate('Confirmation needed').then(
+          function (res3) {
+            var confirmPopup = $ionicPopup.confirm({
+              title: res3,
+              template: "{{'Are you sure you want to delete this event?' | translate}}"
+            });
+            confirmPopup.then(function (res) {
+              if (res) {
+                backendService.getEventById($stateParams.eventId).then(function (res) {
+                  backendService.deleteFile(res['data'].fileId);
+                  for (agendaNr in $scope.agendaList) {
+                    backendService.deleteAgenda($scope.agendaList[agendaNr].id);
+                  }
+                  backendService.deleteEvent($stateParams.eventId)
+                });
+                $translate('Done!').then(
+                  function (res4) {
+                    var alertPopup = $ionicPopup.alert({
+                      title: res4,
+                      template: "{{'This Event Has Been Deleted.' | translate}}"
+                    });
+                    alertPopup.then(function (re) {
+                      $state.go('app.main');
+                    });
+                  })
+              } else {
+              }
+            });
+          })
+      }
+      /*
+       Function that returns the first begin time of all talks and the last end time of all talks.
+       Should be simplified once we store the start time of the event itself.
+       */
+      getBorderTimesOfEvent = function () {
+        firstBeginTime = new Date($scope.event.begin);
+        lastEndTime = new Date($scope.event.end);
+        return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
+      }
+
+      /*
+       Function for splitting a date into its parts.
+       Gets a datestring like the ones stored in the backend.
+       Is used for getting right date with corrected timezone.
+       Returns [day, month, year].
+       */
+      splitDateIntoParts = function (dateString) {
+        dateObj = new Date(dateString).toLocaleString();
+
+        if (dateObj.indexOf(".") == -1) {
+          dateSplitted = dateObj.split("/");
+          dateSplitted[2] = dateSplitted[2].split(",")[0];
+          return [dateSplitted[2], dateSplitted[0], dateSplitted[1]];
+        } else {
+          dateSplitted = dateObj.split(".");
+          dateSplitted[2] = dateSplitted[2].split(",")[0];
+          return [dateSplitted[2], dateSplitted[1], dateSplitted[0]];
+        }
+      }
+
+      /*
+       Function that determines if now is between the first agenda talk and not more than 48h after the last.
+       */
+      isFeedbackAllowed = function () {
+        borderTimes = getBorderTimesOfEvent();
+        firstBeginTime = borderTimes.firstBeginTime;
+        lastEndTime = borderTimes.lastEndTime;
+
+        eventDateSplitted = splitDateIntoParts($scope.event.date);
+        beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+        endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
+        now = new Date();
+        if (now >= beginDate && now <= endDatePlus48h) {
+          backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
+            function (res) {
+              if (res == true) {
+                backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
+                  function (resAlreadyGiven) {
+                    $scope.isFeedbackAllowed = !resAlreadyGiven;
+                  }, function (err) {
+                    $scope.isFeedbackAllowed = false;
+                  }
+                )
+              } else {
+                $scope.isFeedbackAllowed = false;
+              }
+            }, function (err) {
+              $scope.isFeedbackAllowed = false
+            }
+          )
+        } else {
+          $scope.isFeedbackAllowed = false;
+        }
+      }
+      /*
+       Function that determines if now is between the event Begin and event End time.
+       .
+       */
+
+      isGeoButtonVisible = function () {
+        borderTimes = getBorderTimesOfEvent();
+        firstBeginTime = borderTimes.firstBeginTime;
+        lastEndTime = borderTimes.lastEndTime;
+
+        eventDateSplitted = splitDateIntoParts($scope.event.date);
+        eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
+        beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+        endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+        now = new Date();
+        if (now >= beginDate && now <= endDate) {
+          backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
+            function (res) {
+              if (res == true) {
+                $scope.isGeoButtonVisible = true;
+              } else {
+                $scope.isGeoButtonVisible = false;
+
+              }
+            }
+          )
+        } else {
+          $scope.isGeoButtonVisible = false;
+        }
+
+      };
+      /*
+       Function that determines if now is after the last talk (what means the results of the feedback can be seen).
+       */
+      areFeedbackResultsVisible = function () {
+        borderTimes = getBorderTimesOfEvent();
+        lastEndTime = borderTimes.lastEndTime;
+
+        eventDateSplitted = splitDateIntoParts($scope.event.date);
+        endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+        now = new Date();
+        if (now >= endDate) {
+          $scope.areFeedbackResultsVisible = true;
+        } else {
+          $scope.areFeedbackResultsVisible = false;
+        }
+      };
+      /*
+       Function that determines if user is organizer and
+       now is before the begin of the event (so reminders are allowed).
+       */
+      isReminderAllowed = function () {
+        dateOfEvent = new Date($scope.event.date);
+        now = new Date();
+        if (backendService.isCurrentUserOrganizer()) {
+          $scope.isReminderAllowed = now < dateOfEvent;
+        } else {
+          $scope.isReminderAllowed = false;
+        }
+      };
+      // function to get an alert with 3 possible actions to choose
+      $scope.showAlert = function () {
+        $translate('Send Email').then(function (send) {
+          $translate('Download').then(function (down) {
+            $translate('Cancel').then(function (cancel) {
+              $ionicPopup.show({
+                scope: $scope,
+                buttons: [
+                  {
+                    text: send,
+                    type: 'button-positive',
+                    onTap: function (e) {
+                      e.preventDefault();
+                      $ionicLoading.show({
+                        content: 'Loading',
+                        animation: 'fade-in',
+                        showBackdrop: true,
+                        maxWidth: 200,
+                        showDelay: 0
+                      });
+                      $scope.hidden = false;
+                      $timeout(function () {
+                        if (!$scope.hidden) {
+                          $ionicLoading.hide();
+                          $translate('Error!').then(
+                            function (res2) {
+                              var alertPopup = $ionicPopup.alert({
+                                title: res2,
+                                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                              });
+                            }
+                          )
+                        }
+                      }, 12000);
+                      createCSV('email')
+                    }
+                  },
+                  {
+                    text: down,
+                    type: 'button-positive',
+                    onTap: function (e) {
+                      e.preventDefault();
+                      $ionicLoading.show({
+                        content: 'Loading',
+                        animation: 'fade-in',
+                        showBackdrop: true,
+                        maxWidth: 200,
+                        showDelay: 0
+                      });
+                      $scope.hidden = false;
+                      $timeout(function () {
+                        if (!$scope.hidden) {
+                          $ionicLoading.hide();
+                          $translate('Error!').then(
+                            function (res2) {
+                              var alertPopup = $ionicPopup.alert({
+                                title: res2,
+                                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                              });
+                            }
+                          )
+                        }
+                      }, 12000);
+                      createCSV('download')
+                    }
+                  },
+                  {
+                    text: cancel,
+                    type: 'button-assertive'
+                  }
+                ]
+              });
+            })
+          })
         })
       }
       /*
-       hide - show form after click on adding agenda
+       Recursive function for creating CSV file with event participants data
+       gets integer for iterations and String object action as a parameter
+       if action is 'download' new created CSV file is downloaded to the users device
+       otherwise it is sent by email to the users email address
        */
-      $scope.addingAgendaForm = false;
-      $scope.showAddingAgenda = function () {
-        $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
-      };
-      //retrieve agenda by condition
-      backendService.loadAgendaWithParams($stateParams.eventId).then(function (res) {
-        $scope.agendaList = res;
-
-        isFeedbackAllowed();
-        areFeedbackResultsVisible();
-        isGeoButtonVisible();
-        isReminderAllowed();
-        console.log(isGeoButtonVisible());
-
-      }, function (error) {
-        console.log("Error by retrieving the event", error)
-      })
-    }, function (error) {
-      console.log("Error by retrieving the event", error)
-    });
-    $(document).on("submit", "#uploadForm", function (e) {
-      e.preventDefault();
-      e.stopImmediatePropagation();
-      $ionicLoading.show({
-        content: 'Loading',
-        animation: 'fade-in',
-        showBackdrop: true,
-        maxWidth: 200,
-        showDelay: 0
-      });
-      $scope.hidden = false;
-      $timeout(function () {
-        if (!$scope.hidden) {
-          $ionicLoading.hide();
-          $translate('Error!').then(
-            function (res2) {
-              var alertPopup = $ionicPopup.alert({
-                title: res2,
-                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
-              });
-            }
-          )
-        }
-      }, 9000);
-      var formData = new FormData();
-      formData.append('file', $('input[type=file]')[0].files[0]);
-      backendService.uploadFile(formData, $stateParams.eventId).then(function (res) {
-        // if there was already an agenda file then delete it
-        if ($scope.agenda) {
-          backendService.deleteFile($stateParams.agenda);
-        }
-        $ionicLoading.hide();
-        $scope.hidden = true;
-        $translate('Done!').then(
-          function (res2) {
-            $ionicPopup.alert({
-              title: res2,
-              template: "{{'File successfully uploaded' | translate}}"
-            }).then(function (res3) {
-              res = jQuery.parseJSON(res);
-              $state.go('app.transition', {
-                to: 'app.event',
-                data: {eventId: $stateParams.eventId, agenda: res['data'].id}
-              })
-            });
-          }
-        );
-      }, function (error) {
-        $ionicLoading.hide();
-        $scope.hidden = true;
-        $translate('Error!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Error occurred by uploading a file' | translate}}"
-            });
-          }
-        );
-      })
-    });
-    $scope.download = function (url) {
-      $ionicPlatform.ready(function () {
-        $cordovaInAppBrowser.open(url, '_system')
-          .then(function (event) {
-            console.log("url successfully opened")
-          })
-          .catch(function (event) {
-            console.log("error by opening url")
-          });
-      });
-    };
-
-    //function for the Join-Event-Button
-    $scope.joinEvent = function () {
-      $ionicLoading.show({
-        content: 'Loading',
-        animation: 'fade-in',
-        showBackdrop: true,
-        maxWidth: 200,
-        showDelay: 0
-      });
-      $scope.hidden = false;
-      $timeout(function () {
-        if (!$scope.hidden) {
-          $ionicLoading.hide();
-          $translate('Error!').then(
-            function (res2) {
-              var alertPopup = $ionicPopup.alert({
-                title: res2,
-                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
-              });
-            }
-          )
-        }
-      }, 7000);
-      backendService.addCurrentUserToEvent($scope.event.id).then(
-        function (res) {
-          backendService.getOrganisers().then(function (org) {
-            arrayOfOrganiserNames = function () {
-              console.log("in deferred")
-              var d = new $.Deferred();
-              organiserNames = []
-              for (var i in org.data) {
-                organiserNames.push(org.data[i].user.name)
-              }
-              d.resolve(organiserNames)
-              return d.promise();
-            }
-            arrayOfOrganiserNames().then(function (arr) {
-              cUser = backendService.currentUser;
-              if (typeof cUser !== 'undefined' && cUser != '') {
-                $translate('New participant $name $gName is registered for $event', {
-                  name: cUser.visibleByRegisteredUsers.name,
-                  gName: cUser.visibleByRegisteredUsers.gName,
-                  event: $scope.event.title
-                }).then(function (msg) {
-                  backendService.sendPushNotificationToUsers(msg, arr)
-                })
-              }
-            })
-          })
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          $translate('Done!').then(
-            function (res2) {
-              $scope.isCurrentUserRegistered = true;
-              $ionicPopup.alert({
-                title: res2,
-                template: "{{'We are happy to see you at' | translate}}" + " " + $scope.event.title + "!"
-              });
-            }
-          );
-        }, function (err) {
-          $ionicLoading.hide();
-          $translate('Error!').then(
-            function (res2) {
-              $ionicPopup.alert({
-                title: res2,
-                template: "{{'Error while registration.' | translate}}"
-              });
-            }
-          );
-        });
-    };
-    //function for the Leave-Event-Button
-    $scope.leaveEvent = function () {
-      $ionicLoading.show({
-        content: 'Loading',
-        animation: 'fade-in',
-        showBackdrop: true,
-        maxWidth: 200,
-        showDelay: 0
-      });
-      $scope.hidden = false;
-      $timeout(function () {
-        if (!$scope.hidden) {
-          $ionicLoading.hide();
-          $translate('Error!').then(
-            function (res2) {
-              var alertPopup = $ionicPopup.alert({
-                title: res2,
-                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
-              });
-            }
-          )
-        }
-      }, 7000);
-      backendService.removeCurrentUserFromEvent($scope.event.id).then(
-        function (res) {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          $translate('Done!').then(
-            function (res2) {
-              $scope.isCurrentUserRegistered = false;
-              $ionicPopup.alert({
-                title: res2,
-                template: "{{'We are sad not seeing you at' | translate}}" + " " + $scope.event.title + "!"
-              });
-            }
-          );
-        }, function (err) {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          $translate('Error!').then(
-            function (res2) {
-              $ionicPopup.alert({
-                title: res2,
-                template: "{{'Error while undoing registration.' | translate}}"
-              });
-            }
-          );
-        });
-    };
-    //function for the Remind-about-event-button
-    $scope.sendReminder = function () {
-      firstPromise = $translate("an event");
-      firstPromise.then(
-        function (anEventTranslation) {
-          if ($scope.event.date) {
-            daysTillEvent = $scope.event.date ? Math.ceil(((new Date($scope.event.date)) - (new Date())) / (1000 * 60 * 60 * 24)) : 0;
-            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming in $daysTillEvent days.",
-              {
-                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation),
-                daysTillEvent: daysTillEvent
-              }
-            );
-          } else {
-            secondPromise = $translate("Senacor is happy to remind you that $eventName is coming.",
-              {
-                eventName: ($scope.event.title.length > 0 ? $scope.event.title : anEventTranslation)
-              }
-            );
-          }
-          secondPromise.then(
-            function (firstSentence) {
-              if ($scope.event.date) {
-                dateFormatted = $filter('date')($scope.event.date, shortDate);
-                if ($scope.event.time) {
-                  if ($scope.event.location) {
-                    thirdPromise = $translate("See you on $date at $time, $location!", {
-                      date: dateFormatted,
-                      time: $scope.event.time,
-                      location: $scope.event.location
-                    })
-                  } else {
-                    thirdPromise = $translate("See you on $date at $time!", {
-                      date: dateFormatted,
-                      time: $scope.event.time
-                    })
-                  }
-                } else {
-                  if ($scope.event.location) {
-                    thirdPromise = $translate("See you on $date at $location!", {
-                      date: dateFormatted,
-                      location: $scope.event.location
-                    })
-                  } else {
-                    thirdPromise = $translate("See you on $date!", {date: dateFormatted})
-                  }
-                }
-              } else {
-                if ($scope.event.time) {
-                  if ($scope.event.location) {
-                    thirdPromise = $translate("See you on at $time, $location!", {
-                      time: $scope.event.time,
-                      location: $scope.event.location
-                    })
-                  } else {
-                    thirdPromise = $translate("See you at $time!", {time: $scope.event.time})
-                  }
-                } else {
-                  if ($scope.event.location) {
-                    thirdPromise = $translate("See you at $location!", {location: $scope.event.location})
-                  } else {
-                    thirdPromise = $translate("See you!")
-                  }
-                }
-              }
-              thirdPromise.then(
-                function (secondSentence) {
-                  message = firstSentence + " " + secondSentence;
-                  backendService.getEventById($stateParams.eventId).then(
-                    function (res) {
-                      $scope.event = res['data'];
-                      users = $scope.event.participants.map(function (participant) {
-                        if (participant.status == "joined") {
-                          return participant.name;
-                        }
-                      });
-                      users = users.filter(function (user) {
-                        return user != null;
-                      });
-                      backendService.sendPushNotificationToUsers(message, users).then(
-                        function (res) {
-                          $translate("Done!").then(
-                            function (res) {
-                              $ionicPopup.alert({
-                                title: res,
-                                template: "{{'The push notification was sent successfully.' | translate}}"
-                              });
-                            }
-                          );
-                        },
-                        function (err) {
-                          console.log(err)
-                        }
-                      );
-                    });
-                }
-              )
-            }
-          );
-        }
-      )
-    };
-    /*
-     function for delete Event
-     delete related agenda and files as well
-     */
-    $scope.deleteEvent = function () {
-      $translate('Confirmation needed').then(
-        function (res3) {
-          var confirmPopup = $ionicPopup.confirm({
-            title: res3,
-            template: "{{'Are you sure you want to delete this event?' | translate}}"
-          });
-          confirmPopup.then(function (res) {
-            if (res) {
-              backendService.getEventById($stateParams.eventId).then(function (res) {
-                backendService.deleteFile(res['data'].fileId);
-                for (agendaNr in $scope.agendaList) {
-                  backendService.deleteAgenda($scope.agendaList[agendaNr].id);
-                }
-                backendService.deleteEvent($stateParams.eventId)
-              });
-              $translate('Done!').then(
-                function (res4) {
-                  var alertPopup = $ionicPopup.alert({
-                    title: res4,
-                    template: "{{'This Event Has Been Deleted.' | translate}}"
-                  });
-                  alertPopup.then(function (re) {
-                    $state.go('app.main');
-                  });
-                })
-            } else {
-            }
-          });
-        })
-    }
-    /*
-     Function that returns the first begin time of all talks and the last end time of all talks.
-     Should be simplified once we store the start time of the event itself.
-     */
-    getBorderTimesOfEvent = function () {
-      firstBeginTime = new Date($scope.event.begin);
-      lastEndTime = new Date($scope.event.end);
-      return {firstBeginTime: firstBeginTime, lastEndTime: lastEndTime};
-    }
-
-    /*
-     Function for splitting a date into its parts.
-     Gets a datestring like the ones stored in the backend.
-     Is used for getting right date with corrected timezone.
-     Returns [day, month, year].
-     */
-    splitDateIntoParts = function(dateString) {
-      dateObj = new Date(dateString).toLocaleString();
-
-      if(dateObj.indexOf(".") == -1){
-        dateSplitted = dateObj.split("/");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[0],dateSplitted[1]];
-      } else {
-        dateSplitted = dateObj.split(".");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
-      }
-    }
-
-    /*
-     Function that determines if now is between the first agenda talk and not more than 48h after the last.
-     */
-    isFeedbackAllowed = function () {
-      borderTimes = getBorderTimesOfEvent();
-      firstBeginTime = borderTimes.firstBeginTime;
-      lastEndTime = borderTimes.lastEndTime;
-
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
-      now = new Date();
-      if (now >= beginDate && now <= endDatePlus48h) {
-        backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
-          function (res) {
-            if(res == true){
-              backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
-                function (resAlreadyGiven) {
-                  $scope.isFeedbackAllowed = !resAlreadyGiven;
-                }, function (err) {
-                  $scope.isFeedbackAllowed = false;
-                }
-              )
-            } else {
-              $scope.isFeedbackAllowed = false;
-            }
-          }, function (err) {
-            $scope.isFeedbackAllowed = false
-          }
-        )
-      } else {
-        $scope.isFeedbackAllowed = false;
-      }
-    }
-    /*
-     Function that determines if now is between the event Begin and event End time.
-   .
-     */
-
-    isGeoButtonVisible = function () {
-      borderTimes = getBorderTimesOfEvent();
-      firstBeginTime = borderTimes.firstBeginTime;
-      lastEndTime = borderTimes.lastEndTime;
-      date = $scope.event.date;
-      eventDateSplitted = $scope.event.date.split("-");
-      eventDateSplitted[2] = eventDateSplitted[2].split("T")[0];
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours() + 24 , firstBeginTime.getMinutes(), 0, 0);
-      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 24 , lastEndTime.getMinutes(), 0, 0);
-      now = new Date();
-      if (now >= beginDate && now <= endDate) {
-        $scope.isGeoButtonVisible = true;
-      } else {
-        $scope.isGeoButtonVisible = false;
-      }
-    };
-    /*
-     Function that determines if now is after the last talk (what means the results of the feedback can be seen).
-     */
-    areFeedbackResultsVisible = function () {
-      borderTimes = getBorderTimesOfEvent();
-      lastEndTime = borderTimes.lastEndTime;
-
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
-      now = new Date();
-      if (now >= endDate) {
-        $scope.areFeedbackResultsVisible = true;
-      } else {
-        $scope.areFeedbackResultsVisible = false;
-      }
-    };
-    /*
-     Function that determines if user is organizer and
-     now is before the begin of the event (so reminders are allowed).
-     */
-    isReminderAllowed = function () {
-      dateOfEvent = new Date($scope.event.date);
-      now = new Date();
-      if (backendService.isCurrentUserOrganizer()) {
-        $scope.isReminderAllowed = now < dateOfEvent;
-      } else {
-        $scope.isReminderAllowed = false;
-      }
-    };
-    // function to get an alert with 3 possible actions to choose
-    $scope.showAlert = function () {
-      $translate('Send Email').then(function (send) {
-        $translate('Download').then(function (down) {
-          $translate('Cancel').then(function (cancel) {
-            $ionicPopup.show({
-              scope: $scope,
-              buttons: [
-                {
-                  text: send,
-                  type: 'button-positive',
-                  onTap: function (e) {
-                    e.preventDefault();
-                    $ionicLoading.show({
-                      content: 'Loading',
-                      animation: 'fade-in',
-                      showBackdrop: true,
-                      maxWidth: 200,
-                      showDelay: 0
-                    });
-                    $scope.hidden = false;
-                    $timeout(function () {
-                      if (!$scope.hidden) {
-                        $ionicLoading.hide();
-                        $translate('Error!').then(
-                          function (res2) {
-                            var alertPopup = $ionicPopup.alert({
-                              title: res2,
-                              template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
-                            });
-                          }
-                        )
-                      }
-                    }, 12000);
-                    createCSV('email')
-                  }
-                },
-                {
-                  text: down,
-                  type: 'button-positive',
-                  onTap: function (e) {
-                    e.preventDefault();
-                    $ionicLoading.show({
-                      content: 'Loading',
-                      animation: 'fade-in',
-                      showBackdrop: true,
-                      maxWidth: 200,
-                      showDelay: 0
-                    });
-                    $scope.hidden = false;
-                    $timeout(function () {
-                      if (!$scope.hidden) {
-                        $ionicLoading.hide();
-                        $translate('Error!').then(
-                          function (res2) {
-                            var alertPopup = $ionicPopup.alert({
-                              title: res2,
-                              template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
-                            });
-                          }
-                        )
-                      }
-                    }, 12000);
-                    createCSV('download')
-                  }
-                },
-                {
-                  text: cancel,
-                  type: 'button-assertive'
-                }
-              ]
-            });
-          })
-        })
-      })
-    }
-    /*
-     Recursive function for creating CSV file with event participants data
-     gets integer for iterations and String object action as a parameter
-     if action is 'download' new created CSV file is downloaded to the users device
-     otherwise it is sent by email to the users email address
-     */
-    function createCSV(action) {
-      arr = [];
+      function createCSV(action) {
+        arr = [];
         backendService.getUsers().then(function (res) {
           users = $scope.event.participants;
-          for(var i in users) {
+          for (var i in users) {
             userr = $filter('filter')(res['data'], {user: {name: users[i].name}})
             var obj = userr[0].visibleByRegisteredUsers;
             obj.email = userr[0].user.name;
@@ -951,161 +961,162 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             arr.push(obj);
           }
 
-        arr = $filter('orderBy')(arr, 'name');
-        $translate('Name').then(function (name) {
-          $translate('Given name').then(function (gName) {
-            csv = name + ',' + gName + ',E-mail,Status\n';
-            for (var i = 0; i < arr.length; i++) {
-              var line = '';
-              for (var ind in arr[i]) {
-                if (typeof arr[i][ind] !== 'object') {
-                  if (line != '') line += ','
-                  line += arr[i][ind];
-                }
-              }
-              csv += line + '\n';
-            }
-            csvFileName = $scope.event.title.split(' ').join('-').toLowerCase() + '-participants-list.csv'
-            storage = ionic.Platform.isIOS() ? cordova.file.documentsDirectory : cordova.file.externalRootDirectory;
-            $cordovaFile.writeFile(storage, csvFileName, csv, true)
-              .then(function (success) {
-                console.log("File is created", success)
-              }, function (error) {
-                console.log("Error by writing a file", error);
-              });
-            if (action === 'download') {
-                openFile(storage + csvFileName, 'text/csv')
-            } else {
-                sendEmail(storage + csvFileName)
-            }
-          })
-        })
-      })
-    }
-
-    //Function to open a file
-    function openFile (file, type) {
-      $ionicPlatform.ready(function () {
-        $cordovaFileOpener2.open(
-          file,
-          type
-        ).then(function () {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          // file opened successfully
-        }, function (err) {
-          $ionicLoading.hide();
-          $scope.hidden = true;
-          // An error occurred. Show a message to the user
-        });
-      });
-    }
-
-    //Function for sending file to the users email address
-    function sendEmail(file) {
-      $ionicPlatform.ready(function () {
-        backendService.fetchCurrentUser().then(function (res) {
-          $translate('Participants list').then(function (list) {
-            $translate('Participants list for the event').then(function (listForEvent) {
-              $cordovaEmailComposer.isAvailable().then(function (available) {
-                var email = {
-                  to: res['data']['visibleByTheUser'].email,
-                  attachments: [file],
-                  subject: $scope.event.title + ' ' + list,
-                  body: listForEvent + ': ' + $scope.event.title,
-                  isHtml: true
-                };
-                $cordovaEmailComposer.open(email).then(null, function () {
-                  // email is sent or cancelled
-                });
-                $ionicLoading.hide();
-                $scope.hidden = true;
-              }, function (notAvailable) {
-                $translate('Error!').then(
-                  function (res2) {
-                    $ionicPopup.alert({
-                      title: res2,
-                      template: "{{'You dont have an installed mail app on your device' | translate}}"
-                    });
+          arr = $filter('orderBy')(arr, 'name');
+          $translate('Name').then(function (name) {
+            $translate('Given name').then(function (gName) {
+              csv = name + ',' + gName + ',E-mail,Status\n';
+              for (var i = 0; i < arr.length; i++) {
+                var line = '';
+                for (var ind in arr[i]) {
+                  if (typeof arr[i][ind] !== 'object') {
+                    if (line != '') line += ','
+                    line += arr[i][ind];
                   }
-                );
-                $ionicLoading.hide();
-                $scope.hidden = true;
-              });
+                }
+                csv += line + '\n';
+              }
+              csvFileName = $scope.event.title.split(' ').join('-').toLowerCase() + '-participants-list.csv'
+              storage = ionic.Platform.isIOS() ? cordova.file.documentsDirectory : cordova.file.externalRootDirectory;
+              $cordovaFile.writeFile(storage, csvFileName, csv, true)
+                .then(function (success) {
+                  console.log("File is created", success)
+                }, function (error) {
+                  console.log("Error by writing a file", error);
+                });
+              if (action === 'download') {
+                openFile(storage + csvFileName, 'text/csv')
+              } else {
+                sendEmail(storage + csvFileName)
+              }
             })
           })
-        }, false);
-      })
-    }
+        })
+      }
 
-    /*
-     function for adding a new agenda in agenda collection
-     in the new agenda object, the ID of the event, in which this agenda has been created
-     is stored
-     */
-    $scope.addingAgenda = function (ag) {
-      $ionicLoading.show({
-        content: 'Loading',
-        animation: 'fade-in',
-        showBackdrop: true,
-        maxWidth: 200,
-        showDelay: 0
-      });
-      $scope.hidden = false;
-      $timeout(function () {
-        if (!$scope.hidden) {
+      //Function to open a file
+      function openFile(file, type) {
+        $ionicPlatform.ready(function () {
+          $cordovaFileOpener2.open(
+            file,
+            type
+          ).then(function () {
+            $ionicLoading.hide();
+            $scope.hidden = true;
+            // file opened successfully
+          }, function (err) {
+            $ionicLoading.hide();
+            $scope.hidden = true;
+            // An error occurred. Show a message to the user
+          });
+        });
+      }
+
+      //Function for sending file to the users email address
+      function sendEmail(file) {
+        $ionicPlatform.ready(function () {
+          backendService.fetchCurrentUser().then(function (res) {
+            $translate('Participants list').then(function (list) {
+              $translate('Participants list for the event').then(function (listForEvent) {
+                $cordovaEmailComposer.isAvailable().then(function (available) {
+                  var email = {
+                    to: res['data']['visibleByTheUser'].email,
+                    attachments: [file],
+                    subject: $scope.event.title + ' ' + list,
+                    body: listForEvent + ': ' + $scope.event.title,
+                    isHtml: true
+                  };
+                  $cordovaEmailComposer.open(email).then(null, function () {
+                    // email is sent or cancelled
+                  });
+                  $ionicLoading.hide();
+                  $scope.hidden = true;
+                }, function (notAvailable) {
+                  $translate('Error!').then(
+                    function (res2) {
+                      $ionicPopup.alert({
+                        title: res2,
+                        template: "{{'You dont have an installed mail app on your device' | translate}}"
+                      });
+                    }
+                  );
+                  $ionicLoading.hide();
+                  $scope.hidden = true;
+                });
+              })
+            })
+          }, false);
+        })
+      }
+
+      /*
+       function for adding a new agenda in agenda collection
+       in the new agenda object, the ID of the event, in which this agenda has been created
+       is stored
+       */
+      $scope.addingAgenda = function (ag) {
+        $ionicLoading.show({
+          content: 'Loading',
+          animation: 'fade-in',
+          showBackdrop: true,
+          maxWidth: 200,
+          showDelay: 0
+        });
+        $scope.hidden = false;
+        $timeout(function () {
+          if (!$scope.hidden) {
+            $ionicLoading.hide();
+            $translate('Error!').then(
+              function (res2) {
+                var alertPopup = $ionicPopup.alert({
+                  title: res2,
+                  template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                });
+              }
+            )
+          }
+        }, 7000);
+        backendService.addingAgenda(ag, $stateParams.eventId).then(function (re) {
           $ionicLoading.hide();
-          $translate('Error!').then(
+          $scope.hidden = true;
+          $translate('Done!').then(
             function (res2) {
               var alertPopup = $ionicPopup.alert({
                 title: res2,
-                template: "{{'An error occurred, please check your internet connection and try again' | translate}}"
+                template: "{{'New Talk Session is added' | translate}}"
+              });
+              alertPopup.then(function (res) {
+                $state.go('app.transition', {
+                  to: 'app.event',
+                  data: {eventId: $stateParams.eventId}
+                })
               });
             }
-          )
+          );
+        })
+      };
+      /*
+       hide - show form after click on adding agenda 
+       */
+      $scope.addingAgendaForm = false;
+      $scope.showAddingAgenda = function () {
+        $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
+      };
+      $scope.showRoute = function () {
+        if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
+          $translate('Error!').then(
+            function (res) {
+              $ionicPopup.alert({
+                title: res,
+                template: "{{'Address is not defined yet, please try it later' | translate}}"
+              });
+            }
+          );
+        } else {
+          $scope.download('https://www.google.com/maps/place/' + $scope.event.location);
         }
-      }, 7000);
-      backendService.addingAgenda(ag, $stateParams.eventId).then(function (re) {
-        $ionicLoading.hide();
-        $scope.hidden = true;
-        $translate('Done!').then(
-          function (res2) {
-            var alertPopup = $ionicPopup.alert({
-              title: res2,
-              template: "{{'New Talk Session is added' | translate}}"
-            });
-            alertPopup.then(function (res) {
-              $state.go('app.transition', {
-                to: 'app.event',
-                data: {eventId: $stateParams.eventId}
-              })
-            });
-          }
-        );
-      })
-    };
-    /*
-     hide - show form after click on adding agenda 
-     */
-    $scope.addingAgendaForm = false;
-    $scope.showAddingAgenda = function () {
-      $scope.addingAgendaForm = $scope.addingAgendaForm ? false : true;
-    };
-    $scope.showRoute = function () {
-      if (typeof $scope.event.location === 'undefined' || $scope.event.location === "") {
-        $translate('Error!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'Address is not defined yet, please try it later' | translate}}"
-            });
-          }
-        );
-      } else {
-        $scope.download('https://www.google.com/maps/place/' + $scope.event.location);
       }
     }
-  })
+  )
 
   /*
    Controller for speaker / agenda page with more detail about the speaker, topic
@@ -1152,10 +1163,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.coordinates = false;
     $scope.showDate = true;
     $scope.showTime = true;
-    $scope.showTypeDate = function(){
+    $scope.showTypeDate = function () {
       $scope.showDate = false;
     }
-    $scope.showTypeTime = function(){
+    $scope.showTypeTime = function () {
       $scope.showTime = false;
     }
     backendService.getEventById($stateParams.eventId).then(function (res) {
@@ -1186,15 +1197,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           }
         }, 7000);
         backendService.updateEvent(ev).then(function (re) {
-          if(ev.begin != null){
+          if (ev.begin != null) {
             usedBegin = ev.begin;
           }
-          if(ev.date != null){
+          if (ev.date != null) {
             usedDate = ev.date;
           }
           backendService.updateEvent($stateParams.eventId, "date", usedDate);
           backendService.updateEvent($stateParams.eventId, "begin", usedBegin);
-            $ionicLoading.hide();
+          $ionicLoading.hide();
           $scope.hidden = true;
           backendService.SetStatusTrue(id);
           console.log('user status {updated : true}');
@@ -1237,10 +1248,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.showBegin = true;
     $scope.showEnd = true;
-    $scope.showTypeBegin = function(){
+    $scope.showTypeBegin = function () {
       $scope.showBegin = false;
     }
-    $scope.showTypeEnd = function(){
+    $scope.showTypeEnd = function () {
       $scope.showEnd = false;
     }
     $scope.updateAgenda = function (ag) {
