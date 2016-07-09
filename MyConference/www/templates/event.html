@@ -25,9 +25,13 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-icon-left"><i class="icon ion-calendar"></i> {{(event.date | date: "fullDate") ||
         "t.b.a"}}
       </ion-item>
-      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "shortTime"}} - {{event.end | date: "shortTime"}}</ion-item>
+      <ion-item class="item item-icon-left"><i class="icon ion-clock"></i> {{event.begin | date: "shortTime"}} -
+        {{event.end | date: "shortTime"}}
+      </ion-item>
 
-      <ion-item class="item item-icon-left" > <i ng-click="showRoute()" class="icon ion-location " ></i> {{event.location || "t.b.a"}}</ion-item>
+      <ion-item class="item item-icon-left"><i ng-click="showRoute()" class="icon ion-location "></i> {{event.location
+        || "t.b.a"}}
+      </ion-item>
       <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> {{"Description" | translate}}
       </ion-item>
       <p>
@@ -73,7 +77,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <!-- button to show add new agenda -->
       <div class="item item-button-right">
         <br><a href="#/app/my-position/{{event.id}}" class="button icon-left ion-location button-balanced"
-               ng-show="isGeoButtonVisible">{{ "I'm Here" |   translate}}</a><br>
+               ng-show="isGeoButtonVisible()">{{ "I'm Here" | translate}}</a><br>
       </div>
       <button class="button button-block button-positive" ng-show="!addingAgendaForm && isOrganizer && showSpeakers"
               ng-click="showAddingAgenda()">{{"Add New Talk Session" | translate}}
@@ -91,7 +95,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
           </div>
         </a>
       </div>
-      <p  ng-click="showSpeakers = !showSpeakers" class="item item-icon-left item-icon-right">
+      <p ng-click="showSpeakers = !showSpeakers" class="item item-icon-left item-icon-right">
         <i class="icon ion-ios-list-outline"></i>
         AGENDA
         <i ng-class="{'icon ion-chevron-right': !showSpeakers, 'icon ion-chevron-up': showSpeakers}"></i>
@@ -122,7 +126,8 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
     <button ng-click="showAlert()" class="button button-block button-positive">
       {{"Participants list" | translate}}
     </button>
-    <a href="#app/choose-question/{{event.id}}" ng-show="isOrganizer" class="button button-block button-positive">{{"Choose current question" | translate}}</a>
+    <a href="#app/choose-question/{{event.id}}" ng-show="isOrganizer" class="button button-block button-positive">{{"Choose
+      current question" | translate}}</a>
     <button ui-sref="app.feedback({eventId: event.id})" class="button button-block button-positive"
             ng-show="isFeedbackAllowed">
       {{"Feedback" | translate}}
