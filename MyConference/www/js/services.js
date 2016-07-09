@@ -966,12 +966,15 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
 
   backend.isCurrentUserOrganizer = function(organizerListArray) {
     if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername){
+      $rootScope.$broadcast('user:organizerState', true);
       return true;
     }
     if(organizerListArray > 0) {
+      $rootScope.$broadcast('user:organizerState', false);
       return true;
     }
     if(organizerListArray == 0) {
+      $rootScope.$broadcast('user:organizerState', false);
       return false;
     }
   }
