@@ -1482,7 +1482,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Goes to Main Page if success, stays on login form but deletes password if error. 
    */
   .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate, $ionicLoading, $timeout) {
-    backendService.logout();
     $scope.login = function (credentials, rememberLoginEnabled) {
       $ionicLoading.show({
         content: 'Loading',
@@ -1491,76 +1490,106 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         maxWidth: 200,
         showDelay: 0
       });
-      backendService.login(credentials.username, credentials.password).then(
-        function (res) {
-          if (rememberLoginEnabled) {
-            backendService.rememberLogin();
-          }
-          backendService.applySettingsForCurrentUser();
-          backendService.getEvents().then(function (res) {
-              $ionicLoading.hide();
-              $scope.event = res['data'];
-              var me = credentials.username;
-              var length = res.length;
-              var x = false;
-              for (var i = 0; i < length; i++) {
-                var participants = res[i].participants;
-                const title = res[i].title;
-                const id = res[i].id;
-                var l = participants.length;
-                for (var j = 0; j < l; j++) {
-                  var name = participants[j].name;
-                  var status = participants[j].status;
-                  var updated = participants[j].updated;
-                  var sta = "joined";
-                  var upd = "true";
-                  if (updated == upd && name == me && status == sta) {
-                    x = true;
-                    /* updated the Current user in the Participant list of the Events set {updated = false} */
-                    backendService.SetStatusFalse(id);
-                    console.log('user status {updated : false}');
+      backendService.getUser(credentials.username).then(function (r) {
+        userr = r.data.user;
+        if(userr.status != "SUSPENDED") {
+          backendService.logout().then(function (lg) {
+            backendService.login(credentials.username, credentials.password).then(
+              function (res) {
+                if (rememberLoginEnabled) {
+                  backendService.rememberLogin();
+                }
+                backendService.applySettingsForCurrentUser();
+                backendService.getEvents().then(function (res) {
+                    $ionicLoading.hide();
+                    $scope.event = res['data'];
+                    var me = credentials.username;
+                    var length = res.length;
+                    var x = false;
+                    for (var i = 0; i < length; i++) {
+                      var participants = res[i].participants;
+                      const title = res[i].title;
+                      const id = res[i].id;
+                      var l = participants.length;
+                      for (var j = 0; j < l; j++) {
+                        var name = participants[j].name;
+                        var status = participants[j].status;
+                        var updated = participants[j].updated;
+                        var sta = "joined";
+                        var upd = "true";
+                        if (updated == upd && name == me && status == sta) {
+                          x = true;
+                          /* updated the Current user in the Participant list of the Events set {updated = false} */
+                          backendService.SetStatusFalse(id);
+                          console.log('user status {updated : false}');
+                          $translate('Done!').then(
+                            function (result) {
+                              $ionicPopup.alert({
+                                title: result,
+                                template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'updated' | translate}}" + "."
+                              })
+                            }
+                          )
+                        } else {
+                          x = false
+                        }
+                        console.log(x);
+                      }
+                    }
                     $translate('Done!').then(
                       function (result) {
                         $ionicPopup.alert({
                           title: result,
-                          template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'updated' | translate}}" + "."
-                        })
+                          template: "{{'Login successful.' | translate}}"
+                        }).then(function (re) {
+                          $state.go('app.main');
+                        });
+                        credentials.password = "";
+                        credentials.username = "";
                       }
                     )
-                  } else {
-                    x = false
                   }
-                  console.log(x);
-                }
+                )
+              },
+              function (err) {
+                $ionicLoading.hide();
+                $translate('Error!').then(
+                  function (res) {
+                    $ionicPopup.alert({
+                      title: res,
+                      template: "{{'Username and password did not match.' | translate}}"
+                    });
+                    credentials.password = "";
+                  }
+                );
               }
-              $translate('Done!').then(
-                function (result) {
-                  $ionicPopup.alert({
-                    title: result,
-                    template: "{{'Login successful.' | translate}}"
-                  }).then(function (re) {
-                    $state.go('app.main');
-                  });
-                  credentials.password = "";
-                  credentials.username = "";
-                }
-              )
-            }
-          )
-        },
-        function (err) {
+            )
+          })
+        }else{
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res) {
               $ionicPopup.alert({
                 title: res,
-                template: "{{'Username and password did not match.' | translate}}"
+                template: "{{'You are not registered.' | translate}}"
               });
               credentials.password = "";
             }
           );
         }
-      )
+      }, function (er) {
+        $ionicLoading.hide();
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'You are not registered.' | translate}}"
+            });
+            credentials.password = "";
+          }
+        );
+      })
+
     };
   })
   /* 
