@@ -145,5 +145,6 @@
   "Add Organizer": "Veranstalter hinzufügen",
   "Enter user email": "Eingeben Benutzername / Email",
   "This user has already added as an organizer": "Dieser Benutzer wurde schon ein Veranstalter",
+  "You are not registered.": "Sie sind nicht registriert.",
   "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
 }
