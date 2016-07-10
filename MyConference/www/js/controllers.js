@@ -350,7 +350,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.todaysEvents = function (item) {
       var itemDate = new Date(item.date);
-      return itemDate.getDay() == today.getDay() &&
+      return itemDate.getDate() == today.getDate() &&
         itemDate.getMonth() == today.getMonth() &&
         itemDate.getFullYear() == today.getFullYear();
     };
