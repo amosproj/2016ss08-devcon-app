@@ -901,6 +901,24 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     }
 
+    areOrganizerAllowedToEdit = function () {
+      borderTimes = getBorderTimesOfEvent();
+      firstBeginTime = borderTimes.firstBeginTime;
+      lastEndTime = borderTimes.lastEndTime;
+
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() , lastEndTime.getMinutes(), 0, 0);
+      now = new Date();
+      if (now <= endDate ) {
+
+        $scope.areOrganizerAllowedToEdit = true;
+      } else {
+        $scope.areOrganizerAllowedToEdit = false;
+      }
+
+    };
+
+
     /*
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
      */
@@ -1721,7 +1739,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               backendService.checkOrganizerExistence(susUser).then(function(resobj){
                 var organizerId = resobj[0].id;
                 backendService.deleteOrganizer(organizerId);
-              }) 
+              })
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   $ionicLoading.hide();
