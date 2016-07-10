@@ -58,7 +58,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     });
     $scope.isOrganizer = false;
     $scope.$on('user:organizerState', function (event, data) {
-        $scope.isOrganizer = backendService.organizerStatus;
+      $scope.isOrganizer = backendService.organizerStatus;
     })
   })
 
@@ -422,13 +422,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $cordovaFileOpener2, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-    var  defaultUsername = "default";
+    var defaultUsername = "default";
     backendService.checkOrganizerWithParams().then(function (res) {
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
 
     });
-    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername){
+    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername) {
       $scope.areCurrenUserAdmin = true;
 
     } else {
@@ -922,7 +922,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
       endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      if (now <= endDate && $scope.isOrganizer == true ) {
+      if (now <= endDate && $scope.isOrganizer == true) {
 
         $scope.areOrganizerAllowedToEdit = true;
       } else {
@@ -1496,17 +1496,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if (res['data']['user'].name == "default") {
         backendService.logout();
       } else {
-      $translate('Error!').then(
-        function (res2) {
-          $ionicPopup.alert({
-            title: res2,
-            template: "{{'You are already logged in' | translate}}"
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
-    }})
+        $translate('Error!').then(
+          function (res2) {
+            $ionicPopup.alert({
+              title: res2,
+              template: "{{'You are already logged in' | translate}}"
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        );
+      }
+    })
     $scope.createAccount = function (user) {
       $ionicLoading.show({
         content: 'Loading',
@@ -1749,7 +1750,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 }
               }, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
-              backendService.checkOrganizerExistence(susUser).then(function(resobj){
+              backendService.checkOrganizerExistence(susUser).then(function (resobj) {
                 var organizerId = resobj[0].id;
                 backendService.deleteOrganizer(organizerId);
               })
@@ -2193,7 +2194,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     );
 
-    $scope.openMailProgram = function(mailAdress) {
+    $scope.openMailProgram = function (mailAdress) {
       $cordovaEmailComposer.isAvailable().then(
         function (available) {
           var email = {
@@ -2231,7 +2232,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 title: de,
                 template: "{{'Support contact is updated' | translate}}"
               }).then(
-                function(res){
+                function (res) {
                   $state.go('app.contact')
                 }
               )
