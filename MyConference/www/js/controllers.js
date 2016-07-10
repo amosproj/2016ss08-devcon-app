@@ -432,6 +432,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
     $scope.isGeoButtonVisible = false;
+    $scope.areOrganizerAllowedToEdit = false;
     $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
