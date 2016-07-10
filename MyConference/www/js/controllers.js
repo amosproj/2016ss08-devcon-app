@@ -422,6 +422,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $cordovaFileOpener2, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
+    var defaultUsername = "default";
     backendService.checkOrganizerWithParams().then(function (res) {
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
