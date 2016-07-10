@@ -426,6 +426,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     backendService.checkOrganizerWithParams().then(function (res) {
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
+      console.log('isOrganizer',  $scope.isOrganizer);
     });
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
