@@ -433,6 +433,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     } else {
       $scope.areCurentUserAdmin = false;
     }
+    console.log('admin',  $scope.areCurentUserAdmin);
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
