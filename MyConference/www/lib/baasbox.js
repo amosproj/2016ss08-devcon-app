@@ -329,6 +329,13 @@ var BaasBox = (function () {
       return BaasBox.loadCollectionWithParams(collection, {page: 0, recordsPerPage: BaasBox.pagelength});
     },
 
+    /*
+    Load all documents in a collection
+     */
+    loadAllCollection: function (collection) {
+      return BaasBox.loadCollectionWithParams(collection);
+    },
+
     loadObject: function (collection, objectId) {
       return $.get(BaasBox.endPoint + '/document/' + collection + '/' + objectId)
     },

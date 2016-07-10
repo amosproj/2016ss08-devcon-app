@@ -290,6 +290,26 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
             controller: 'SettingsCtrl'
           }
         }
+      })
+      .state('app.contact', {
+        cache: false,
+        url: '/contact',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/contact.html',
+            controller: 'ContactCtrl'
+          }
+        }
+      })
+      .state('app.edit-contact', {
+        cache: false,
+        url: '/edit-contact/:contactId',
+        views: {
+          'menuContent': {
+            templateUrl: 'templates/edit-contact.html',
+            controller: 'EditContactCtrl'
+          }
+        }
       });
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/app/start');
