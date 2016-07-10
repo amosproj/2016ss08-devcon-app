@@ -35,7 +35,10 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item menu-close href="#/app/main">
         <div translate>Overview</div>
       </ion-item>
-      <ion-item menu-close href="#/app/my-account">
+      <ion-item menu-close href="#/app/login" ng-show="!isLoggedIn">
+        <div translate>My Account</div>
+      </ion-item>
+      <ion-item menu-close href="#/app/my-account" ng-show="isLoggedIn">
         <div translate>My Account</div>
       </ion-item>
       <ion-item menu-close href="#/app/settings" ng-show="isLoggedIn">
