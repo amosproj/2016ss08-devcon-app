@@ -144,7 +144,14 @@
   "This mail address is already in use.": "Diese Mail-Adresse wurde bereits benutzt.",
   "Add Organizer": "Veranstalter hinzufügen",
   "Enter user email": "Eingeben Benutzername / Email",
-  "This user has already added as an organizer": "Dieser Benutzer wurde schon ein Veranstalter",
-  "You are not registered.": "Sie sind nicht registriert.",
-  "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert"
+  "New participant $name $gName is registered for $event": "Neuer Teilnehmer {{name}} {{gName}} hat sich für {{event}} registriert",
+  "This user has already been an organizer": "Dieser Benutzer wurde schon ein Veranstalter",
+  "Contact": "Kontakt",
+  "Mail adress": "Mailadresse",
+  "Edit contact": "Kontakt bearbeiten",
+  "Send mail to support contact": "Mail an Support senden",
+  "No support mail adress available.": "Keine Support-Mailadresse verfügbar.",
+  "Support contact is updated": "Support-Kontakt aktualisiert.",
+  "You dont have an installed mail app on your device": "Keine Mail-Anwendung auf dem Gerät gefunden",
+  "You are not registered.": "Sie sind nicht registriert."
 }
