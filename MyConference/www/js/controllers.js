@@ -915,7 +915,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       } else {
         $scope.areOrganizerAllowedToEdit = false;
       }
-
+      console.log('areOrganizerAllowedToEdit',  $scope.areOrganizerAllowedToEdit);
     };
 
 
