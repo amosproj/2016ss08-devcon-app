@@ -467,6 +467,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         isFeedbackAllowed();
         areFeedbackResultsVisible();
         isGeoButtonVisible();
+        areOrganizerAllowedToEdit();
         isReminderAllowed();
       }, function (error) {
         console.log("Error by retrieving the event", error)
