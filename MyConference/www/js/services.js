@@ -395,6 +395,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           res = jQuery.parseJSON(res);
           BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
           backend.updateEvent(eventId, "fileId", res['data'].id)
         })
         .fail(function (error) {
@@ -417,6 +422,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           res = jQuery.parseJSON(res);
           BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+            for(i = 0; i < orgcol.length; i++){
+              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+            }
+          })
           backend.updateAgenda(agendaId, "fileId", res['data'].id)
         })
         .fail(function (error) {
@@ -1010,19 +1020,29 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         function (contact) {
           BaasBox.updateField(contact.id, "support", "mailadress", mailadress).then(
             function(res){
-              BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
-              BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+              BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, "default");
+              BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+              BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+                for(i = 0; i < orgcol.length; i++){
+                  BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+                }
+              })
               deferred.resolve();
             }, function(err){
               deferred.reject(err);
             }
           )
         }, function (err) {
-          if(err == "No support mail adress defined."){
+          if(err == "No support mail address defined."){
             BaasBox.save({"mailadress":mailadress}, "support").then(
               function(contact){
-                BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
-                BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+                BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, "default");
+                BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+                BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+                  for(i = 0; i < orgcol.length; i++){
+                    BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+                  }
+                })
                 deferred.resolve();
               }, function(err){
                 deferred.reject(err);
