@@ -1464,7 +1464,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    "default" user means "not registered" user
    */
   .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
-    if (typeof backendService.currentUser === 'undefined' || backendService.currentUser == '') {
+    if (typeof backendService.currentUser !== 'undefined' || backendService.currentUser != '') {
       backendService.logout();
     } else {
       $translate('Error!').then(
