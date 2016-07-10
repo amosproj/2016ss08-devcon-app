@@ -428,7 +428,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
 
     });
-    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername) {
+    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername ) {
       $scope.areCurrenUserAdmin = true;
 
     } else {
