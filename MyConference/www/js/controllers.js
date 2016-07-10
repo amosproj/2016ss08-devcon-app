@@ -909,7 +909,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
       endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      if (now <= endDate ) {
+      if (now <= endDate && $scope.isOrganizer == true ) {
 
         $scope.areOrganizerAllowedToEdit = true;
       } else {
