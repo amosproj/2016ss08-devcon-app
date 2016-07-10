@@ -900,7 +900,9 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.isGeoButtonVisible = false;
       }
     }
-
+    /*
+     Function that determines if now is before 48 hours after end of the event, organizer is allowed only today, (after 48 hours) and upcoming event to updating.
+     */
     areOrganizerAllowedToEdit = function () {
       borderTimes = getBorderTimesOfEvent();
       firstBeginTime = borderTimes.firstBeginTime;
