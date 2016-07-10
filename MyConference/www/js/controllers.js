@@ -56,6 +56,13 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.isLoggedIn = backendService.loginStatus;
       console.log("Login event processed: " + backendService.loginStatus)
     });
+    $scope.isOrganizer = false;
+    $scope.$on('user:organizerState', function (event, data) {
+      backendService.checkOrganizerWithParams().then(function (res) {
+        var organizerListArray = res.length;
+        $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
+      });
+    })
   })
 
   /*
