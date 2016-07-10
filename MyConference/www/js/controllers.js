@@ -2142,4 +2142,62 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         );
       })
     }
+  })
+  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, backendService) {
+    $scope.mailAdressAvailable = false;
+    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    backendService.getSupportContact().then(
+      function (res) {
+        $scope.contact = res;
+        $scope.mailAdressAvailable = true;
+      }
+    );
+
+    $scope.openMailProgram = function(mailAdress) {
+      $cordovaEmailComposer.isAvailable().then(
+        function (available) {
+          var email = {
+            to: $scope.contact.mailadress
+          };
+          $cordovaEmailComposer.open(email);
+        }, function (notAvailable) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'You dont have an installed mail app on your device' | translate}}"
+              });
+            }
+          );
+        }
+      );
+      console.log("#7")
+    }
+  })
+  .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
+    backendService.getSupportContact().then(
+      function (res) {
+        $scope.contact = res;
+      }
+    );
+
+    // Function that is called by submitting the edit-contact-form
+    $scope.updateContact = function (newContact) {
+      backendService.setSupportContact(newContact.mailadress).then(
+        function (res) {
+          $translate("Done!").then(
+            function (de) {
+              $ionicPopup.alert({
+                title: de,
+                template: "{{'Support contact is updated' | translate}}"
+              }).then(
+                function(res){
+                  $state.go('app.contact')
+                }
+              )
+            }
+          );
+        }
+      )
+    }
   });

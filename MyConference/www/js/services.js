@@ -976,6 +976,65 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     }
   }
 
+    /*
+      Function for getting the support contact.
+      Support contact is the first (and normally only) entry in he support collection.
+      Returns a promise.
+     */
+    backend.getSupportContact = function () {
+      var deferred = $q.defer();
+      BaasBox.loadCollection("support").then(
+        function(res){
+          if(res.length > 0){
+            deferred.resolve(res[0]);
+          } else {
+            deferred.reject("No support mail adress defined.");
+          }
+        }, function(err){
+          deferred.reject(err);
+        }
+      );
+      return deferred.promise;
+    }
+
+    /*
+      Set the support contact.
+      First gets the support contact, then updates the mail adress.
+      If no contact is defined, a new one is created.
+      Finally, it grants access rights for all registered users to it.
+      Returns a promise.
+     */
+    backend.setSupportContact = function (mailadress) {
+      var deferred = $q.defer();
+      backend.getSupportContact().then(
+        function (contact) {
+          BaasBox.updateField(contact.id, "support", "mailadress", mailadress).then(
+            function(res){
+              BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
+              BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+              deferred.resolve();
+            }, function(err){
+              deferred.reject(err);
+            }
+          )
+        }, function (err) {
+          if(err == "No support mail adress defined."){
+            BaasBox.save({"mailadress":mailadress}, "support").then(
+              function(contact){
+                BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
+                BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
+                deferred.resolve();
+              }, function(err){
+                deferred.reject(err);
+              }
+            );
+          } else {
+            deferred.reject(err);
+          }
+        }
+      )
+      return deferred.promise;
+    }
   /*
     Function for granting ALL_PERMISSION to all documents to a user / new organizer
     collection: events, agenda, organizer
