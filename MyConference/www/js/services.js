@@ -1024,7 +1024,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
               BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
               BaasBox.loadAllCollection("organizer").done(function (orgcol) {
                 for(i = 0; i < orgcol.length; i++){
-                  BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+                  BaasBox.grantUserAccessToObject("support", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
                 }
               })
               deferred.resolve();
@@ -1040,7 +1040,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
                 BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
                 BaasBox.loadAllCollection("organizer").done(function (orgcol) {
                   for(i = 0; i < orgcol.length; i++){
-                    BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+                    BaasBox.grantUserAccessToObject("support", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
                   }
                 })
                 deferred.resolve();
