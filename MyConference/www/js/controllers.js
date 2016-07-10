@@ -422,12 +422,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $cordovaFileOpener2, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
-    var defaultUsername = "default";
+    var  defaultUsername = "default";
     backendService.checkOrganizerWithParams().then(function (res) {
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
       console.log('isOrganizer',  $scope.isOrganizer);
     });
+    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername){
+      $scope.areCurrenUserAdmin = true;
+    } else {
+      $scope.areCurentUserAdmin = false;
+    }
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
