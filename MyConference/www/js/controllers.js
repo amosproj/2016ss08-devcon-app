@@ -1464,9 +1464,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    "default" user means "not registered" user
    */
   .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
-    if (typeof backendService.currentUser !== 'undefined' || backendService.currentUser != '') {
-      backendService.logout();
-    } else {
+    backendService.fetchCurrentUser().then(function (res) {
+      if (res['data']['user'].name == "default") {
+        backendService.logout();
+      } else {
       $translate('Error!').then(
         function (res2) {
           $ionicPopup.alert({
@@ -1477,7 +1478,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         }
       );
-    }
+    }})
     $scope.createAccount = function (user) {
       $ionicLoading.show({
         content: 'Loading',
