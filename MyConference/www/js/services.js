@@ -145,7 +145,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-    /* Function for changing the login status.
+     /*
+      Function for changing the login status.
       Triggers event for menu refresh.
      */
     backend.changeLoginStatus = function (newStatus) {
@@ -980,18 +981,28 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
 
   backend.isCurrentUserOrganizer = function(organizerListArray) {
     if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername){
-      $rootScope.$broadcast('user:organizerState', true);
+      backend.changeOrganizerStatus(true);
       return true;
     }
     if(organizerListArray > 0) {
-      $rootScope.$broadcast('user:organizerState', false);
+      backend.changeOrganizerStatus(true);
       return true;
     }
     if(organizerListArray == 0) {
-      $rootScope.$broadcast('user:organizerState', false);
+      backend.changeOrganizerStatus(false);
       return false;
     }
   }
+
+  /*
+   Function for changing the organizer status.
+   Triggers event for menu refresh.
+   */
+
+  backend.changeOrganizerStatus = function (newStatus) {
+    backend.organizerStatus = newStatus;
+    $rootScope.$broadcast('user:organizerState', backend.organizerStatus); //trigger menu refresh
+  };
 
     /*
       Function for getting the support contact.
