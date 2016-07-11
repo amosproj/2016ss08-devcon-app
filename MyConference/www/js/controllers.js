@@ -426,6 +426,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
+    $scope.isLoggedInUser = backendService.loginStatus;
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
@@ -1721,7 +1722,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               backendService.checkOrganizerExistence(susUser).then(function(resobj){
                 var organizerId = resobj[0].id;
                 backendService.deleteOrganizer(organizerId);
-              }) 
+              })
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   $ionicLoading.hide();
