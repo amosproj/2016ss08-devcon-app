@@ -1593,7 +1593,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                           } else {
                             x = false
                           }
-                          console.log(x);
                         }
                       }
                       $translate('Done!').then(
