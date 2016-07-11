@@ -24,7 +24,6 @@ describe('Edit Account: ', function () {
     alertDfd,
     fetchCurrentUserDfd,
     updateUserProfileDfd,
-    //visibleByRegisteredUsers,////
     translateDfd;
   beforeEach(module('starter'));
   beforeEach(module(function ($provide, $urlRouterProvider) {
