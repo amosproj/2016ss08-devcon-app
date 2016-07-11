@@ -427,14 +427,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
-    /*
-    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername ) {
-      $scope.areCurrenUserAdmin = true;
-
-    } else {
-      $scope.areCurentUserAdmin = false;
-    }
-*/
     $scope.areCurentUserAdmin = backendService.isCurrentUserAdmin();
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
