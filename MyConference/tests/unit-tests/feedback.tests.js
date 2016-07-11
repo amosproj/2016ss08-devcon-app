@@ -23,6 +23,7 @@ describe('Feedback', function () {
     resolveDeferred,
     eventDeferred,
     checkOrganizerWithParamsDeferred,
+    isCurrentUserAdminDeferred,
     alreadyFeedbackedDeferred;
 
   beforeEach(module('starter'));
@@ -39,7 +40,9 @@ describe('Feedback', function () {
     eventDeferred = $q.defer();
     resolveDeferred = $q.defer();
     resolveDeferred.resolve([]);
+    isCurrentUserAdminDeferred = $q.defer();
     backendServiceMock = {
+      isCurrentUserAdmin: jasmine.createSpy("isCurrentUserAdmin").and.returnValue(isCurrentUserAdminDeferred.promise),
       checkOrganizerWithParams: jasmine.createSpy("checkOrganizerWithParams").and.returnValue(checkOrganizerWithParamsDeferred.promise),
       isCurrentUserOrganizer: jasmine.createSpy("isCurrentUserOrganizer").and.returnValue(resolveDeferred.promise),
       getEventById: jasmine.createSpy("getEventById").and.returnValue(eventDeferred.promise),
