@@ -17,9 +17,9 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-nav-buttons side="right">
-    <a href="#/app/edit-event/{{event.id}}" ng-show="areOrganizerAllowedToEdit && !areCurrenUserAdmin && isOrganizer" class="button icon ion-edit"
+    <a href="#/app/edit-event/{{event.id}}" ng-show="areOrganizerAllowedToEdit && !areCurrentUserAdmin && isOrganizer" class="button icon ion-edit"
        menu-toggle="right"></a>
-    <a href="#/app/edit-event/{{event.id}}" ng-show="areCurentUserAdmin" class="button icon ion-edit"
+    <a href="#/app/edit-event/{{event.id}}" ng-show="areCurrentUserAdmin" class="button icon ion-edit"
        menu-toggle="right"></a>
     <a ng-click="deleteEvent()" ng-show="isOrganizer" class="button icon ion-trash-a" menu-toggle="right"></a>
   </ion-nav-buttons>
