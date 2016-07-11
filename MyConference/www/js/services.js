@@ -149,7 +149,12 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.loginStatus = newStatus;
       $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
     };
-    
+  /*
+   Function for assirung that a user is logged in to the backend, as before making requests it is necessary to be logged in
+   Checks if there is already a user logged in, if no then logs in as "default" user
+   "default" user is not registered user
+   returns promise
+   */
     backend.assureConnection = function () {
       var dfd = $q.defer()
       if (!backend.loginStatus) {
