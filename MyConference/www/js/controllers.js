@@ -58,7 +58,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     });
     $scope.isOrganizer = false;
     $scope.$on('user:organizerState', function (event, data) {
-        $scope.isOrganizer = backendService.organizerStatus;
+      $scope.isOrganizer = backendService.organizerStatus;
     })
   })
 
@@ -422,16 +422,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   .controller('EventCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $cordovaEmailComposer, $cordovaFile, $cordovaFileOpener2, $filter, $timeout) {
     $scope.agenda = (typeof $stateParams.agenda !== 'undefined' && $stateParams.agenda != "");
     $scope.upload = false;
+
     backendService.checkOrganizerWithParams().then(function (res) {
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
+    
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
     $scope.isGeoButtonVisible = false;
+    $scope.areOrganizerAllowedToEdit = false;
     $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
@@ -467,6 +470,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         isFeedbackAllowed();
         areFeedbackResultsVisible();
         isGeoButtonVisible();
+        areOrganizerAllowedToEdit();
         isReminderAllowed();
       }, function (error) {
         console.log("Error by retrieving the event", error)
@@ -900,6 +904,26 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.isGeoButtonVisible = false;
       }
     }
+    /*
+     Function that determines if now is before 48 hours after end of the event, organizer is allowed only today, (after 48 hours) and upcoming event to updating.
+     */
+    areOrganizerAllowedToEdit = function () {
+      borderTimes = getBorderTimesOfEvent();
+      firstBeginTime = borderTimes.firstBeginTime;
+      lastEndTime = borderTimes.lastEndTime;
+
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
+      now = new Date();
+      if (now <= endDate && $scope.isOrganizer == true) {
+
+        $scope.areOrganizerAllowedToEdit = true;
+      } else {
+        $scope.areOrganizerAllowedToEdit = false;
+      }
+
+    };
+
 
     /*
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
@@ -1465,17 +1489,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       if (res['data']['user'].name == "default") {
         backendService.logout();
       } else {
-      $translate('Error!').then(
-        function (res2) {
-          $ionicPopup.alert({
-            title: res2,
-            template: "{{'You are already logged in' | translate}}"
-          }).then(function (res) {
-            $state.go('app.main')
-          });
-        }
-      );
-    }})
+        $translate('Error!').then(
+          function (res2) {
+            $ionicPopup.alert({
+              title: res2,
+              template: "{{'You are already logged in' | translate}}"
+            }).then(function (res) {
+              $state.go('app.main')
+            });
+          }
+        );
+      }
+    })
     $scope.createAccount = function (user) {
       $ionicLoading.show({
         content: 'Loading',
@@ -1718,10 +1743,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 }
               }, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
-              backendService.checkOrganizerExistence(susUser).then(function(resobj){
+              backendService.checkOrganizerExistence(susUser).then(function (resobj) {
                 var organizerId = resobj[0].id;
                 backendService.deleteOrganizer(organizerId);
-              }) 
+              })
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   $ionicLoading.hide();
@@ -2162,7 +2187,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     );
 
-    $scope.openMailProgram = function(mailAdress) {
+    $scope.openMailProgram = function (mailAdress) {
       $cordovaEmailComposer.isAvailable().then(
         function (available) {
           var email = {
@@ -2200,7 +2225,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 title: de,
                 template: "{{'Support contact is updated' | translate}}"
               }).then(
-                function(res){
+                function (res) {
                   $state.go('app.contact')
                 }
               )
