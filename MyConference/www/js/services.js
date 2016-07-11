@@ -416,7 +416,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
             for(i = 0; i < orgcol.length; i++){
-              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+              BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
           backend.updateEvent(eventId, "fileId", res['data'].id)
@@ -443,7 +443,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
             for(i = 0; i < orgcol.length; i++){
-              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+              BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
           backend.updateAgenda(agendaId, "fileId", res['data'].id)
