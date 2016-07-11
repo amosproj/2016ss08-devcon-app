@@ -998,7 +998,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
   Function to check whether the current user is an admin
    */
   backend.isCurrentUserAdmin = function() {
-    if (backendService.currentUser.roles.indexOf('administrator') != -1 && backendService.currentUser.username != defaultUsername) {
+    if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername) {
       return true;
     } else {
       return false;
