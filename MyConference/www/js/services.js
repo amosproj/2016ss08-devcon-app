@@ -37,8 +37,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       var deferred = $q.defer()
       backend.currentUser = JSON.parse(window.localStorage.getItem(REMEMBER_LOGIN_KEY));
 
-      if (backend.currentUser){
-        if (backend.currentUser.username == defaultUsername){
+      if (backend.currentUser) {
+        if (backend.currentUser.username == defaultUsername) {
           backend.changeLoginStatus(false);
         } else {
           BaasBox.setCurrentUser(backend.currentUser);
@@ -90,8 +90,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         .done(function (res) {
           console.log("signup ", res);
           backend.login(user.email, user.pass).then(
-            function(res){
-              backend.updateUserProfile({"visibleByTheUser": {"email": user.email, "settings": {"pushNotification": "yes"}}});
+            function (res) {
+              backend.updateUserProfile({
+                "visibleByTheUser": {
+                  "email": user.email,
+                  "settings": {"pushNotification": "yes"}
+                }
+              });
               backend.updateUserProfile({"visibleByRegisteredUsers": {"name": user.name, "gName": user.gName}});
               backend.applySettingsForCurrentUser();
             }
@@ -126,7 +131,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     }
 
 
-
     /*
      Function for logout
      returns a promise
@@ -145,9 +149,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-     /*
-      Function for changing the login status.
-      Triggers event for menu refresh.
+    /*
+     Function for changing the login status.
+     Triggers event for menu refresh.
      */
     backend.changeLoginStatus = function (newStatus) {
       backend.loginStatus = newStatus;
@@ -211,7 +215,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
+            for (i = 0; i < orgcol.length; i++) {
               BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
@@ -233,7 +237,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantUserAccessToObject("organizer", res.id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToObject("organizer", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE)
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
+            for (i = 0; i < orgcol.length; i++) {
               BaasBox.grantUserAccessToObject("organizer", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
@@ -243,19 +247,19 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         })
     };
 
-  /*
-   Function for deleting an event
-   */
-  backend.deleteOrganizer = function (organizer) {
-    //return
-    BaasBox.deleteObject(organizer, "organizer")
-      .done(function (res) {
-        console.log(res);
-      })
-      .fail(function (err) {
-        console.log("Delete error ", err);
-      });
-  };
+    /*
+     Function for deleting an event
+     */
+    backend.deleteOrganizer = function (organizer) {
+      //return
+      BaasBox.deleteObject(organizer, "organizer")
+        .done(function (res) {
+          console.log(res);
+        })
+        .fail(function (err) {
+          console.log("Delete error ", err);
+        });
+    };
 
     /*
      Function for deleting an event
@@ -283,7 +287,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
+            for (i = 0; i < orgcol.length; i++) {
               BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
@@ -342,39 +346,39 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       })
     };
 
-  /*
-   Function for updating an event
-   Can get one or three arguments
-   If function is called only with one argument (event object) the whole event is updated
-   If there are 3 arguments only one defined field of the event is updated with the given value
-   Returns a promise.
-   */
-  backend.updateEvent = function (event, fieldToUpdate, value) {
-    if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
-      return BaasBox.save(event, "events")
-        .done(function (res) {
-          console.log("res ", res);
-          BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
-          BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
-          BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
-              BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
-            }
+    /*
+     Function for updating an event
+     Can get one or three arguments
+     If function is called only with one argument (event object) the whole event is updated
+     If there are 3 arguments only one defined field of the event is updated with the given value
+     Returns a promise.
+     */
+    backend.updateEvent = function (event, fieldToUpdate, value) {
+      if (typeof fieldToUpdate === "undefined" || typeof value === "undefined") {
+        return BaasBox.save(event, "events")
+          .done(function (res) {
+            console.log("res ", res);
+            BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
+            BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+            BaasBox.loadAllCollection("organizer").done(function (orgcol) {
+              for (i = 0; i < orgcol.length; i++) {
+                BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
+              }
+            })
           })
-        })
-        .fail(function (error) {
-          console.log("error ", error);
-        })
-    } else {
-      return BaasBox.updateField(event, "events", fieldToUpdate, value)
-        .done(function (res) {
-          console.log("Event updated ", res);
-        })
-        .fail(function (error) {
-          console.log("Event update error ", error);
-        })
-    }
-  };
+          .fail(function (error) {
+            console.log("error ", error);
+          })
+      } else {
+        return BaasBox.updateField(event, "events", fieldToUpdate, value)
+          .done(function (res) {
+            console.log("Event updated ", res);
+          })
+          .fail(function (error) {
+            console.log("Event update error ", error);
+          })
+      }
+    };
     /*
      Function for updating an agenda
      */
@@ -385,7 +389,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToObject("agenda", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
+            for (i = 0; i < orgcol.length; i++) {
               BaasBox.grantUserAccessToObject("agenda", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
@@ -614,17 +618,17 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-      Function for adding a user in the list of feedbackingUsers to avoid double feedback.
-      Expects to be called only when it's cleared that the user is not yet in the list.
-      Gets the id of the feedbacked event and the user object
-      Returns a promise.
+     Function for adding a user in the list of feedbackingUsers to avoid double feedback.
+     Expects to be called only when it's cleared that the user is not yet in the list.
+     Gets the id of the feedbacked event and the user object
+     Returns a promise.
      */
-    backend.addUserAsFeedbackerToEvent = function(eventId, user){
+    backend.addUserAsFeedbackerToEvent = function (eventId, user) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(
         function (res) {
           event = res.data;
-          if (event.hasOwnProperty("feedbackingUsers")){
+          if (event.hasOwnProperty("feedbackingUsers")) {
             event.feedbackingUsers.push(user.username);
           } else {
             event.feedbackingUsers = [user.username];
@@ -649,21 +653,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Gets the id of the feedbacked event and calls addUserAsFeedbackerToEvent
      Returns a promise.
      */
-    backend.addCurrentUserAsFeedbackerToEvent = function(eventId){
+    backend.addCurrentUserAsFeedbackerToEvent = function (eventId) {
       return backend.addUserAsFeedbackerToEvent(eventId, BaasBox.getCurrentUser());
     };
 
     /*
-      Function for checking if a user has already given feedback
-      Gets the id of the feedbacked event and the user object
-      Returns a promise resolving to the boolean value
+     Function for checking if a user has already given feedback
+     Gets the id of the feedbacked event and the user object
+     Returns a promise resolving to the boolean value
      */
-    backend.hasUserAlreadyGivenFeedback = function(eventId, user){
+    backend.hasUserAlreadyGivenFeedback = function (eventId, user) {
       var deferred = $q.defer();
       backend.getEventById(eventId).then(
         function (res) {
           event = res.data;
-          if (event.hasOwnProperty("feedbackingUsers")){
+          if (event.hasOwnProperty("feedbackingUsers")) {
             deferred.resolve(event.feedbackingUsers.indexOf(user.username) != -1);
           } else {
             deferred.resolve(false);
@@ -680,7 +684,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Gets the id of the feedbacked event the user object
      Returns a promise resolving to the boolean value
      */
-    backend.hasCurrentUserAlreadyGivenFeedback = function(eventId){
+    backend.hasCurrentUserAlreadyGivenFeedback = function (eventId) {
       return backend.hasUserAlreadyGivenFeedback(eventId, BaasBox.getCurrentUser());
     }
 
@@ -738,16 +742,16 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-      Function for checking if current user is stored as attended at the event.
-      Returns a promise
+     Function for checking if current user is stored as attended at the event.
+     Returns a promise
      */
     backend.isCurrentUserAttendedForEvent = function (eventId) {
       return backend.isUserAttendedForEvent(BaasBox.getCurrentUser(), eventId)
     };
 
     /*
-      Abstract function for checking if an user has a given status as participant of an event.
-      Returns a promise.
+     Abstract function for checking if an user has a given status as participant of an event.
+     Returns a promise.
      */
     hasUserRightStatusInEvent = function (user, eventId, expectedStatus) {
       var deferred = $q.defer();
@@ -769,17 +773,17 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     };
 
     /*
-    Funtion for getting list of all users
+     Funtion for getting list of all users
      */
-  backend.getUsers = function () {
-    return BaasBox.fetchUsers()
-      .done(function(res) {
-        console.log("res ", res['data']);
-      })
-      .fail(function(error) {
-        console.log("error ", error);
-      })
-  }
+    backend.getUsers = function () {
+      return BaasBox.fetchUsers()
+        .done(function (res) {
+          console.log("res ", res['data']);
+        })
+        .fail(function (error) {
+          console.log("error ", error);
+        })
+    }
 
     /*
      Function for getting a user by his username
@@ -813,15 +817,15 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for getting a list of organizers
      returns a promise
      */
-      backend.getOrganisers = function () {
+    backend.getOrganisers = function () {
       return BaasBox.loadCollection("organizer")
         .done(function (res) {
           console.log("res ", res);
         })
         .fail(function (error) {
           console.log("error ", error);
-          })
-      };
+        })
+    };
     /*
      Function for updating the participants who are joined the Event.
      updating the attribute "updated" = "false"
@@ -961,64 +965,65 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.applySettings(userInfo.settings);
     };
 
-  /*
-   Function for loading list of organizer with paramter, which is email / username of current user
-   */
-  backend.checkOrganizerExistence = function(userEmail) {
-    return BaasBox.checkOrganizerWithParams(userEmail, {where: "email=?"});
-  }
-
-  /*
-   Function for loading list of organizer with paramter, which is email / username of current user
-   */
-  backend.checkOrganizerWithParams = function() {
-    return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
-  }
-
-  /*
-   Function for checking whether the current user is an organizer
-   */
-
-  backend.isCurrentUserOrganizer = function(organizerListArray) {
-    if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername){
-      backend.changeOrganizerStatus(true);
-      return true;
+    /*
+     Function for loading list of organizer with paramter, which is email / username of current user
+     */
+    backend.checkOrganizerExistence = function (userEmail) {
+      return BaasBox.checkOrganizerWithParams(userEmail, {where: "email=?"});
     }
-    if(organizerListArray > 0) {
-      backend.changeOrganizerStatus(true);
-      return true;
-    }
-    if(organizerListArray == 0) {
-      backend.changeOrganizerStatus(false);
-      return false;
-    }
-  }
-
-  /*
-   Function for changing the organizer status.
-   Triggers event for menu refresh.
-   */
-
-  backend.changeOrganizerStatus = function (newStatus) {
-    backend.organizerStatus = newStatus;
-    $rootScope.$broadcast('user:organizerState', backend.organizerStatus); //trigger menu refresh
-  };
 
     /*
-      Function for getting the support contact.
-      Support contact is the first (and normally only) entry in he support collection.
-      Returns a promise.
+     Function for loading list of organizer with paramter, which is email / username of current user
+     */
+    backend.checkOrganizerWithParams = function () {
+      return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
+    }
+
+    /*
+     Function for checking whether the current user is an organizer
+     */
+
+    backend.isCurrentUserOrganizer = function (organizerListArray) {
+      if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername) {
+        backend.changeOrganizerStatus(true);
+        return true;
+      }
+      if (organizerListArray > 0) {
+        backend.changeOrganizerStatus(true);
+        return true;
+      }
+      if (organizerListArray == 0) {
+        backend.changeOrganizerStatus(false);
+        return false;
+      }
+    }
+
+
+    /*
+     Function for changing the organizer status.
+     Triggers event for menu refresh.
+     */
+
+    backend.changeOrganizerStatus = function (newStatus) {
+      backend.organizerStatus = newStatus;
+      $rootScope.$broadcast('user:organizerState', backend.organizerStatus); //trigger menu refresh
+    };
+
+    /*
+     Function for getting the support contact.
+     Support contact is the first (and normally only) entry in he support collection.
+     Returns a promise.
      */
     backend.getSupportContact = function () {
       var deferred = $q.defer();
       BaasBox.loadCollection("support").then(
-        function(res){
-          if(res.length > 0){
+        function (res) {
+          if (res.length > 0) {
             deferred.resolve(res[0]);
           } else {
             deferred.reject("No support mail adress defined.");
           }
-        }, function(err){
+        }, function (err) {
           deferred.reject(err);
         }
       );
@@ -1026,33 +1031,33 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     }
 
     /*
-      Set the support contact.
-      First gets the support contact, then updates the mail adress.
-      If no contact is defined, a new one is created.
-      Finally, it grants access rights for all registered users to it.
-      Returns a promise.
+     Set the support contact.
+     First gets the support contact, then updates the mail adress.
+     If no contact is defined, a new one is created.
+     Finally, it grants access rights for all registered users to it.
+     Returns a promise.
      */
     backend.setSupportContact = function (mailadress) {
       var deferred = $q.defer();
       backend.getSupportContact().then(
         function (contact) {
           BaasBox.updateField(contact.id, "support", "mailadress", mailadress).then(
-            function(res){
+            function (res) {
               BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
               BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
               deferred.resolve();
-            }, function(err){
+            }, function (err) {
               deferred.reject(err);
             }
           )
         }, function (err) {
-          if(err == "No support mail adress defined."){
-            BaasBox.save({"mailadress":mailadress}, "support").then(
-              function(contact){
+          if (err == "No support mail adress defined.") {
+            BaasBox.save({"mailadress": mailadress}, "support").then(
+              function (contact) {
                 BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, "default");
                 BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, BaasBox.REGISTERED_ROLE);
                 deferred.resolve();
-              }, function(err){
+              }, function (err) {
                 deferred.reject(err);
               }
             );
@@ -1063,28 +1068,28 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       )
       return deferred.promise;
     }
-  /*
-    Function for granting ALL_PERMISSION to all documents to a user / new organizer
-    collection: events, agenda, organizer
-   */
-  backend.grantAllPermission = function(username) {
-    BaasBox.loadAllCollection("events").done(function (resevent) {
-      for(i = 0; i < resevent.length; i++){
-        BaasBox.grantUserAccessToObject("events", resevent[i].id, BaasBox.ALL_PERMISSION, username);
-      }
-    })
-    BaasBox.loadAllCollection("agenda").done(function (resagenda) {
-      for(i = 0; i < resagenda.length; i++){
-        BaasBox.grantUserAccessToObject("agenda", resagenda[i].id, BaasBox.ALL_PERMISSION, username);
-      }
-    })
-    BaasBox.loadAllCollection("organizer").done(function (resorg) {
-      for(i = 0; i < resorg.length; i++){
-        BaasBox.grantUserAccessToObject("organizer", resorg[i].id, BaasBox.ALL_PERMISSION, username);
-      }
-    })
-  }
-
-     return backend;
+    /*
+     Function for granting ALL_PERMISSION to all documents to a user / new organizer
+     collection: events, agenda, organizer
+     */
+    backend.grantAllPermission = function (username) {
+      BaasBox.loadAllCollection("events").done(function (resevent) {
+        for (i = 0; i < resevent.length; i++) {
+          BaasBox.grantUserAccessToObject("events", resevent[i].id, BaasBox.ALL_PERMISSION, username);
+        }
+      })
+      BaasBox.loadAllCollection("agenda").done(function (resagenda) {
+        for (i = 0; i < resagenda.length; i++) {
+          BaasBox.grantUserAccessToObject("agenda", resagenda[i].id, BaasBox.ALL_PERMISSION, username);
+        }
+      })
+      BaasBox.loadAllCollection("organizer").done(function (resorg) {
+        for (i = 0; i < resorg.length; i++) {
+          BaasBox.grantUserAccessToObject("organizer", resorg[i].id, BaasBox.ALL_PERMISSION, username);
+        }
+      })
     }
+
+    return backend;
+  }
 );
