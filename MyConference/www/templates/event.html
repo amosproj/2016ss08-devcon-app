@@ -103,6 +103,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
         <i ng-class="{'icon ion-chevron-right': !showSpeakers, 'icon ion-chevron-up': showSpeakers}"></i>
       </p>
       <button ng-show="agenda" ng-click="download(downloadUrl)">{{filename}}</button>
+      <p ng-show="!agenda">{{"No file attached" | translate}}</p>
     </ion-list>
     <form ng-show="upload" id="uploadForm" method="post">
       <input type="file">
