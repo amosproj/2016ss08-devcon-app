@@ -427,7 +427,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
-    
+    $scope.areCurrentUserAdmin = backendService.isCurrentUserAdmin();
     $scope.showSpeakers = false;
     //Attribute for determing if feedback is allowed (which is the case while the event and 48h afterwards)
     // Is set later after loading the agenda
