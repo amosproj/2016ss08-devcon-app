@@ -1338,7 +1338,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   /*
    function for editting agenda page
    */
-  .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate) {
+  .controller('EditAgendaCtrl', function ($scope, $state, $stateParams, backendService, $ionicPlatform, $ionicLoading, $ionicPopup, $cordovaInAppBrowser, $translate, $timeout) {
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
     })
