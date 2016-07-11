@@ -9,9 +9,16 @@
     </author>
   <content src="index.html"/>
   <access origin="http://maps.google.com"/>
+  <access origin="*.google.com" />
+  <access origin="*.gstatic.com" />
+  <access origin="*.googleapis.com" />
+  <allow-navigation href="http://*.google.com" />
+  <allow-navigation href="http://*.googleapis.com/*" />
+  <allow-navigation href="http://*.gstatic.com/*" />
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
+  <preference name="disallowOverscroll" value="true" />
   <preference name="android-minSdkVersion" value="16"/>
   <preference name="BackupWebStorage" value="none"/>
   <preference name="SplashScreen" value="screen"/>
