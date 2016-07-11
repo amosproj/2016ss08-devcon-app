@@ -23,6 +23,7 @@ describe('RegisterCtrl: ', function () {
     user,
     signupDfd,
     translateDfd,
+    fetchCurrentUserDfd,
     alertDfd,
     ctrl;
   beforeEach(module('starter'));
@@ -37,10 +38,11 @@ describe('RegisterCtrl: ', function () {
     scope = $rootScope.$new();
     signupDfd = $q.defer();
     translateDfd = $q.defer();
+    fetchCurrentUserDfd = $q.defer();
     alertDfd = $q.defer();
     backendServiceMock = {
       createAccount: jasmine.createSpy('createAccount spy').and.returnValue(signupDfd.promise),
-
+      fetchCurrentUser: jasmine.createSpy('fetchCurrentUser spy').and.returnValue(fetchCurrentUserDfd.promise),
       logout: function () {}
     }
     translateMock = jasmine.createSpy('$translate spy').and.returnValue(translateDfd.promise)

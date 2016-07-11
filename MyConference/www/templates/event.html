@@ -17,7 +17,8 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
 <ion-view>
   <ion-nav-title>{{event.title}}</ion-nav-title>
   <ion-nav-buttons side="right">
-    <a href="#/app/edit-event/{{event.id}}" ng-show="isOrganizer" class="button icon ion-edit" menu-toggle="right"></a>
+    <a href="#/app/edit-event/{{event.id}}" ng-show="areOrganizerAllowedToEdit" class="button icon ion-edit"
+       menu-toggle="right"></a>
     <a ng-click="deleteEvent()" ng-show="isOrganizer" class="button icon ion-trash-a" menu-toggle="right"></a>
   </ion-nav-buttons>
   <ion-content>
@@ -118,10 +119,12 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
             class="button button-block button-positive">
       {{"Change agenda" | translate}}
     </button>
-    <button ng-click="joinEvent()" ng-show="!isCurrentUserRegistered && !isOrganizer" class="button button-block button-balanced">
+    <button ng-click="joinEvent()" ng-show="!isCurrentUserRegistered && !isOrganizer"
+            class="button button-block button-balanced">
       {{"Join event" | translate}}
     </button>
-    <button ng-click="leaveEvent()" ng-show="isCurrentUserRegistered  && !isOrganizer" class="button button-block button-assertive">
+    <button ng-click="leaveEvent()" ng-show="isCurrentUserRegistered  && !isOrganizer"
+            class="button button-block button-assertive">
       {{"Leave event" | translate}}
     </button>
     <button ng-click="showAlert()" class="button button-block button-positive">
