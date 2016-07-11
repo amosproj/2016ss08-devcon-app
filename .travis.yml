@@ -33,9 +33,6 @@ before_install:
 - npm install karma-jasmine --save-dev
 - npm install jasmine-core --save-dev
 - npm install -g karma-cli
-- npm install -g phantomjs
-- npm install karma-phantomjs-launcher
-- npm install karma-firefox-launcher first
 - npm install karma-chrome-launcher
 # Set execution rights
 before_script:

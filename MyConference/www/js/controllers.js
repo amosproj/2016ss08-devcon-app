@@ -56,6 +56,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       $scope.isLoggedIn = backendService.loginStatus;
       console.log("Login event processed: " + backendService.loginStatus)
     });
+    $scope.isOrganizer = false;
+    $scope.$on('user:organizerState', function (event, data) {
+        $scope.isOrganizer = backendService.organizerStatus;
+    })
   })
 
   /*
@@ -109,7 +113,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
             title: res,
             template: "{{'An email has been sent to you with instructions on resetting your password.' | translate}}"
           }).then(function (res) {
-            $state.reload();
+            $state.go('app.login');
           });
         }
       );
@@ -117,37 +121,52 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
   })
 
   /*
-   Controller for adding an organizer to the System. check if the user is already regestred by calling getUsers().
+   Controller for adding an organizer to the System. check if the user is already regestred by calling getUserEmail().
    Calls createOrganizer service, shows a popup alert about successful addition of an organizer
    and redirects to main view
    */
   .controller('AddOrgCtrl', function ($scope, $state, $stateParams, backendService, $ionicPopup, $translate) {
     $scope.createOrganizer = function (user) {
-      var us = user;
-      backendService.getUsers(us).then(function (res) {
-        var user1 = res.data;
-        var gName = user1.visibleByRegisteredUsers.gName;
-        var name = user1.visibleByRegisteredUsers.name;
-        console.log(gName, ' ', name);
-        backendService.createOrganizer(user).then(function (res) {
-          $translate('Done!').then(
+      backendService.checkOrganizerExistence(user.email).then(function (resone) {
+        if (resone.length != 0) {
+          $translate('Error!').then(
             function (res) {
               $ionicPopup.alert({
                 title: res,
-                template: "{{'organizer is added' | translate}}"
+                template: "{{'This user has already added as an organizer' | translate}}" //translate
               });
-            });
-        })
-      }, function (err) {
-        $translate('Error!').then(
-          function (res) {
-            $ionicPopup.alert({
-              title: res,
-              template: "{{'this user is not registered.' | translate}}"
-            });
-          }
-        );
-      });
+            }
+          );
+        } else {
+          var us = user;
+          backendService.getUserEmail(us).then(function (res) {
+            var user1 = res.data;
+            var gName = user1.visibleByRegisteredUsers.gName;
+            var name = user1.visibleByRegisteredUsers.name;
+            console.log(gName, ' ', name);
+            backendService.createOrganizer(user).then(function (res) {
+              var organizerEmail = res.email;
+              backendService.grantAllPermission(organizerEmail);
+              $translate('Done!').then(
+                function (res) {
+                  $ionicPopup.alert({
+                    title: res,
+                    template: "{{'Organizer is added' | translate}}"
+                  });
+                });
+            })
+          }, function (err) {
+            $translate('Error!').then(
+              function (res) {
+                $ionicPopup.alert({
+                  title: res,
+                  template: "{{'There is no user with this username' | translate}}"
+                });
+              }
+            );
+          });
+        }
+      })
     }
   })
 
@@ -317,7 +336,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      This method is used for filter after prevoius events in the main view
      */
     $scope.previousEvents = function (item) {
-      if(item.date == undefined){
+      if (item.date == undefined) {
         return true;
       }
       var itemDate = new Date(item.date);
@@ -328,7 +347,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.todaysEvents = function (item) {
       var itemDate = new Date(item.date);
-      return itemDate.getDay() == today.getDay() &&
+      return itemDate.getDate() == today.getDate() &&
         itemDate.getMonth() == today.getMonth() &&
         itemDate.getFullYear() == today.getFullYear();
     };
@@ -412,6 +431,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     // Is set later after loading the agenda
     $scope.isFeedbackAllowed = false;
     $scope.areFeedbackResultsVisible = false;
+    $scope.isGeoButtonVisible = false;
     $scope.isReminderAllowed = false;
     backendService.getEventById($stateParams.eventId).then(function (res) {
       $scope.event = res['data'];
@@ -446,6 +466,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.agendaList = res;
         isFeedbackAllowed();
         areFeedbackResultsVisible();
+        isGeoButtonVisible();
         isReminderAllowed();
       }, function (error) {
         console.log("Error by retrieving the event", error)
@@ -555,8 +576,8 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               console.log("in deferred")
               var d = new $.Deferred();
               organiserNames = []
-              for (var i in org.data) {
-                organiserNames.push(org.data[i].user.name)
+              for (var i in org) {
+                organiserNames.push(org[i].email)
               }
               d.resolve(organiserNames)
               return d.promise();
@@ -669,7 +690,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           secondPromise.then(
             function (firstSentence) {
               if ($scope.event.date) {
-                dateFormatted = $filter('date')($scope.event.date, shortDate);
+                dateFormatted = $filter('date')($scope.event.date, "shortDate");
                 if ($scope.event.time) {
                   if ($scope.event.location) {
                     thirdPromise = $translate("See you on $date at $time, $location!", {
@@ -795,22 +816,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
 
     /*
      Function for splitting a date into its parts.
-     Gets a datestring like the ones stored in the backend.
+     Gets a datestring like the ones stored in the backend (in UTC).
      Is used for getting right date with corrected timezone.
      Returns [day, month, year].
      */
-    splitDateIntoParts = function(dateString) {
-      dateObj = new Date(dateString).toLocaleString();
-
-      if(dateObj.indexOf(".") == -1){
-        dateSplitted = dateObj.split("/");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[0],dateSplitted[1]];
-      } else {
-        dateSplitted = dateObj.split(".");
-        dateSplitted[2] = dateSplitted[2].split(",")[0];
-        return [dateSplitted[2],dateSplitted[1],dateSplitted[0]];
-      }
+    splitEventDateIntoPartsWithCorrectingTimezone = function (dateString) {
+      dateObj = new Date(dateString);
+      dateSplitted = [dateObj.getDate(), dateObj.getMonth() + 1, dateObj.getFullYear()]
+      return dateSplitted;
     }
 
     /*
@@ -821,14 +834,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       firstBeginTime = borderTimes.firstBeginTime;
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      beginDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
-      endDatePlus48h = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      beginDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDatePlus48h = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= beginDate && now <= endDatePlus48h) {
         backendService.isCurrentUserAttendedForEvent($scope.event.id).then(
           function (res) {
-            if(res == true){
+            if (res == true) {
               backendService.hasCurrentUserAlreadyGivenFeedback($scope.event.id).then(
                 function (resAlreadyGiven) {
                   $scope.isFeedbackAllowed = !resAlreadyGiven;
@@ -848,14 +861,55 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       }
     }
     /*
+     Function that determines if now is between the event Begin and event End time.
+     .
+     */
+
+    isGeoButtonVisible = function () {
+      borderTimes = getBorderTimesOfEvent();
+      firstBeginTime = borderTimes.firstBeginTime;
+      lastEndTime = borderTimes.lastEndTime;
+
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      beginDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], firstBeginTime.getHours(), firstBeginTime.getMinutes(), 0, 0);
+      endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+      now = new Date();
+
+      if (now >= beginDate && now <= endDate) {
+        backendService.getEventById($stateParams.eventId).then(function (res) {
+            $scope.event = res['data'];
+            var event = $scope.event;
+            var cord = event.coordinates;
+            console.log(cord);
+            if (cord !== undefined) {
+              backendService.isCurrentUserRegisteredForEvent($scope.event.id).then(
+                function (res1) {
+                  if (res1 == true) {
+                    $scope.isGeoButtonVisible = true;
+                  } else {
+                    $scope.isGeoButtonVisible = false;
+
+                  }
+                }
+              )
+            }
+          }
+        );
+
+      } else {
+        $scope.isGeoButtonVisible = false;
+      }
+    }
+
+    /*
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
      */
     areFeedbackResultsVisible = function () {
       borderTimes = getBorderTimesOfEvent();
       lastEndTime = borderTimes.lastEndTime;
 
-      eventDateSplitted = splitDateIntoParts($scope.event.date);
-      endDate = new Date(eventDateSplitted[0], eventDateSplitted[1] - 1, eventDateSplitted[2], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
+      eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
+      endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours(), lastEndTime.getMinutes(), 0, 0);
       now = new Date();
       if (now >= endDate) {
         $scope.areFeedbackResultsVisible = true;
@@ -876,7 +930,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         $scope.isReminderAllowed = false;
       }
     };
-    // function to get an alert with 3 possible actions to choose
+// function to get an alert with 3 possible actions to choose
     $scope.showAlert = function () {
       $translate('Send Email').then(function (send) {
         $translate('Download').then(function (down) {
@@ -960,15 +1014,15 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     function createCSV(action) {
       arr = [];
-        backendService.getUsers().then(function (res) {
-          users = $scope.event.participants;
-          for(var i in users) {
-            userr = $filter('filter')(res['data'], {user: {name: users[i].name}})
-            var obj = userr[0].visibleByRegisteredUsers;
-            obj.email = userr[0].user.name;
-            obj.status = users[i].status;
-            arr.push(obj);
-          }
+      backendService.getUsers().then(function (res) {
+        users = $scope.event.participants;
+        for (var i in users) {
+          userr = $filter('filter')(res['data'], {user: {name: users[i].name}})
+          var obj = userr[0].visibleByRegisteredUsers;
+          obj.email = userr[0].user.name;
+          obj.status = users[i].status;
+          arr.push(obj);
+        }
 
         arr = $filter('orderBy')(arr, 'name');
         $translate('Name').then(function (name) {
@@ -993,17 +1047,17 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 console.log("Error by writing a file", error);
               });
             if (action === 'download') {
-                openFile(storage + csvFileName, 'text/csv')
+              openFile(storage + csvFileName, 'text/csv')
             } else {
-                sendEmail(storage + csvFileName)
+              sendEmail(storage + csvFileName)
             }
           })
         })
       })
     }
 
-    //Function to open a file
-    function openFile (file, type) {
+//Function to open a file
+    function openFile(file, type) {
       $ionicPlatform.ready(function () {
         $cordovaFileOpener2.open(
           file,
@@ -1020,7 +1074,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       });
     }
 
-    //Function for sending file to the users email address
+//Function for sending file to the users email address
     function sendEmail(file) {
       $ionicPlatform.ready(function () {
         backendService.fetchCurrentUser().then(function (res) {
@@ -1175,17 +1229,18 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
     $scope.showDate = true;
     $scope.showBegin = true;
     $scope.showEnd = true;
-    $scope.showTypeDate = function(){
+    $scope.showTypeDate = function () {
       $scope.showDate = false;
     }
-    $scope.showTypeBegin = function(){
+    $scope.showTypeBegin = function () {
       $scope.showBegin = false;
     }
-    $scope.showTypeEnd = function(){
+    $scope.showTypeEnd = function () {
       $scope.showEnd = false;
     }
     backendService.getEventById($stateParams.eventId).then(function (res) {
-      $scope.event = res['data']
+      $scope.event = res['data'];
+      $scope.eventTitle = res['data'].title;
       var usedDate = $scope.event.date;
       var usedBegin = $scope.event.begin;
       var usedEnd = $scope.event.end;
@@ -1213,19 +1268,19 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           }
         }, 7000);
         backendService.updateEvent(ev).then(function (re) {
-          if(ev.begin != null){
+          if (ev.begin != null) {
             usedBegin = ev.begin;
           }
-          if(ev.end != null){
+          if (ev.end != null) {
             usedEnd = ev.end;
           }
-          if(ev.date != null){
+          if (ev.date != null) {
             usedDate = ev.date;
           }
           backendService.updateEvent($stateParams.eventId, "date", usedDate);
           backendService.updateEvent($stateParams.eventId, "begin", usedBegin);
           backendService.updateEvent($stateParams.eventId, "end", usedEnd);
-            $ionicLoading.hide();
+          $ionicLoading.hide();
           $scope.hidden = true;
           backendService.SetStatusTrue(id);
           console.log('user status {updated : true}');
@@ -1268,10 +1323,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
      */
     $scope.showBegin = true;
     $scope.showEnd = true;
-    $scope.showTypeBegin = function(){
+    $scope.showTypeBegin = function () {
       $scope.showBegin = false;
     }
-    $scope.showTypeEnd = function(){
+    $scope.showTypeEnd = function () {
       $scope.showEnd = false;
     }
     $scope.updateAgenda = function (ag) {
@@ -1406,9 +1461,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    "default" user means "not registered" user
    */
   .controller('RegisterCtrl', function ($scope, $state, $ionicPopup, backendService, $translate, $ionicLoading, $timeout) {
-    if (typeof backendService.currentUser === 'undefined' || backendService.currentUser == '') {
-      backendService.logout();
-    } else {
+    backendService.fetchCurrentUser().then(function (res) {
+      if (res['data']['user'].name == "default") {
+        backendService.logout();
+      } else {
       $translate('Error!').then(
         function (res2) {
           $ionicPopup.alert({
@@ -1419,7 +1475,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           });
         }
       );
-    }
+    }})
     $scope.createAccount = function (user) {
       $ionicLoading.show({
         content: 'Loading',
@@ -1477,7 +1533,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
    Goes to Main Page if success, stays on login form but deletes password if error. 
    */
   .controller('LoginCtrl', function ($scope, $state, backendService, $ionicPopup, $translate, $ionicLoading, $timeout) {
-    backendService.logout();
     $scope.login = function (credentials, rememberLoginEnabled) {
       $ionicLoading.show({
         content: 'Loading',
@@ -1486,76 +1541,106 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
         maxWidth: 200,
         showDelay: 0
       });
-      backendService.login(credentials.username, credentials.password).then(
-        function (res) {
-          if (rememberLoginEnabled) {
-            backendService.rememberLogin();
-          }
-          backendService.applySettingsForCurrentUser();
-          backendService.getEvents().then(function (res) {
-              $ionicLoading.hide();
-              $scope.event = res['data'];
-              var me = credentials.username;
-              var length = res.length;
-              var x = false;
-              for (var i = 0; i < length; i++) {
-                var participants = res[i].participants;
-                const title = res[i].title;
-                const id = res[i].id;
-                var l = participants.length;
-                for (var j = 0; j < l; j++) {
-                  var name = participants[j].name;
-                  var status = participants[j].status;
-                  var updated = participants[j].updated;
-                  var sta = "joined";
-                  var upd = "true";
-                  if (updated == upd && name == me && status == sta) {
-                    x = true;
-                    /* updated the Current user in the Participant list of the Events set {updated = false} */
-                    backendService.SetStatusFalse(id);
-                    console.log('user status {updated : false}');
+      backendService.getUser(credentials.username).then(function (r) {
+        userr = r.data.user;
+        if (userr.status != "SUSPENDED") {
+          backendService.logout().then(function (lg) {
+            backendService.login(credentials.username, credentials.password).then(
+              function (res) {
+                if (rememberLoginEnabled) {
+                  backendService.rememberLogin();
+                }
+                backendService.applySettingsForCurrentUser();
+                backendService.getEvents().then(function (res) {
+                    $ionicLoading.hide();
+                    $scope.event = res['data'];
+                    var me = credentials.username;
+                    var length = res.length;
+                    var x = false;
+                    for (var i = 0; i < length; i++) {
+                      var participants = res[i].participants;
+                      const title = res[i].title;
+                      const id = res[i].id;
+                      var l = participants.length;
+                      for (var j = 0; j < l; j++) {
+                        var name = participants[j].name;
+                        var status = participants[j].status;
+                        var updated = participants[j].updated;
+                        var sta = "joined";
+                        var upd = "true";
+                        if (updated == upd && name == me && status == sta) {
+                          x = true;
+                          /* updated the Current user in the Participant list of the Events set {updated = false} */
+                          backendService.SetStatusFalse(id);
+                          console.log('user status {updated : false}');
+                          $translate('Done!').then(
+                            function (result) {
+                              $ionicPopup.alert({
+                                title: result,
+                                template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'updated' | translate}}" + "."
+                              })
+                            }
+                          )
+                        } else {
+                          x = false
+                        }
+                        console.log(x);
+                      }
+                    }
                     $translate('Done!').then(
                       function (result) {
                         $ionicPopup.alert({
                           title: result,
-                          template: "{{'Event ' | translate}}" + ' "' + title + '" ' + "{{'updated' | translate}}" + "."
-                        })
+                          template: "{{'Login successful.' | translate}}"
+                        }).then(function (re) {
+                          $state.go('app.main');
+                        });
+                        credentials.password = "";
+                        credentials.username = "";
                       }
                     )
-                  } else {
-                    x = false
                   }
-                  console.log(x);
-                }
+                )
+              },
+              function (err) {
+                $ionicLoading.hide();
+                $translate('Error!').then(
+                  function (res) {
+                    $ionicPopup.alert({
+                      title: res,
+                      template: "{{'Username and password did not match.' | translate}}"
+                    });
+                    credentials.password = "";
+                  }
+                );
               }
-              $translate('Done!').then(
-                function (result) {
-                  $ionicPopup.alert({
-                    title: result,
-                    template: "{{'Login successful.' | translate}}"
-                  }).then(function (re) {
-                    $state.go('app.main');
-                  });
-                  credentials.password = "";
-                  credentials.username = "";
-                }
-              )
-            }
-          )
-        },
-        function (err) {
+            )
+          })
+        } else {
           $ionicLoading.hide();
           $translate('Error!').then(
             function (res) {
               $ionicPopup.alert({
                 title: res,
-                template: "{{'Username and password did not match.' | translate}}"
+                template: "{{'You are not registered.' | translate}}"
               });
               credentials.password = "";
             }
           );
         }
-      )
+      }, function (er) {
+        $ionicLoading.hide();
+        $translate('Error!').then(
+          function (res) {
+            $ionicPopup.alert({
+              title: res,
+              template: "{{'You are not registered.' | translate}}"
+            });
+            credentials.password = "";
+          }
+        );
+      })
+
     };
   })
   /* 
@@ -1633,6 +1718,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
                 }
               }, 7000);
               backendService.updateUserProfile({"visibleByRegisteredUsers": {"name": '', "gName": ''}});
+              backendService.checkOrganizerExistence(susUser).then(function(resobj){
+                var organizerId = resobj[0].id;
+                backendService.deleteOrganizer(organizerId);
+              }) 
               backendService.connect().then(function () {
                 backendService.deleteAccount(susUser).then(function () {
                   $ionicLoading.hide();
@@ -2061,5 +2150,63 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           }
         );
       })
+    }
+  })
+  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, backendService) {
+    $scope.mailAdressAvailable = false;
+    $scope.isOrganizer = backendService.isCurrentUserOrganizer();
+    backendService.getSupportContact().then(
+      function (res) {
+        $scope.contact = res;
+        $scope.mailAdressAvailable = true;
+      }
+    );
+
+    $scope.openMailProgram = function(mailAdress) {
+      $cordovaEmailComposer.isAvailable().then(
+        function (available) {
+          var email = {
+            to: $scope.contact.mailadress
+          };
+          $cordovaEmailComposer.open(email);
+        }, function (notAvailable) {
+          $translate('Error!').then(
+            function (res2) {
+              $ionicPopup.alert({
+                title: res2,
+                template: "{{'You dont have an installed mail app on your device' | translate}}"
+              });
+            }
+          );
+        }
+      );
+      console.log("#7")
+    }
+  })
+  .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
+    backendService.getSupportContact().then(
+      function (res) {
+        $scope.contact = res;
+      }
+    );
+
+    // Function that is called by submitting the edit-contact-form
+    $scope.updateContact = function (newContact) {
+      backendService.setSupportContact(newContact.mailadress).then(
+        function (res) {
+          $translate("Done!").then(
+            function (de) {
+              $ionicPopup.alert({
+                title: de,
+                template: "{{'Support contact is updated' | translate}}"
+              }).then(
+                function(res){
+                  $state.go('app.contact')
+                }
+              )
+            }
+          );
+        }
+      )
     }
   });
