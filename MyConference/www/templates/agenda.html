@@ -27,8 +27,8 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       <ion-item class="item item-icon-left"> <i class="icon ion-android-textsms"></i>: {{agenda.talkSummary || "n/a"}}</ion-item>
     <ion-item class="item item-icon-left"><i class="icon ion-ios-list-outline"></i> Talk File: ({{"click to download" | translate}})
     </ion-item>
-    <button ng-show="agenda && loaded" ng-click="download(downloadUrl)">{{filename}}</button>
-      <p ng-show="!agenda && loaded">{{"No file attached" | translate}}</p>
+    <button ng-show="agendaAvailable && loaded" ng-click="download(downloadUrl)">{{filename}}</button>
+      <p ng-show="!agendaAvailable && loaded">{{"No file attached" | translate}}</p>
     </ion-list>
   </ion-content>
 </ion-view>
