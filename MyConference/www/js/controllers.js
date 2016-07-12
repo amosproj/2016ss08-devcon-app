@@ -2160,7 +2160,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     }
   })
-  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, backendService) {
+  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, $translate, backendService) {
     $scope.mailAdressAvailable = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     backendService.getSupportContact().then(
