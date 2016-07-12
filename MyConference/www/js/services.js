@@ -208,13 +208,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.createEvent = function (ev) {
       ev.participants = [];
       ev.questions = [];
-      creator = {};
-      creator.name = BaasBox.getCurrentUser().username;
-      creator.status = "joined";
-      creator.updated = "false";
-      ev.participants.push(creator);
-      console.log(creator);
-      console.log(ev.participants);
       return BaasBox.save(ev, "events")
         .done(function (res) {
           console.log("res ", res);
