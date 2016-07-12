@@ -1199,14 +1199,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
+    $scope.agendaAvailable = false;
     $scope.upload = false;
+    $scope.loaded = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
       backendService.getFileDetails(res['data'].fileId).then(function (file) {
         $scope.filename = file['data'].fileName;
         $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+        $scope.agendaAvailable = true;
+        $scope.loaded = true;
       }, function (fileError) {
         console.log("Error by getting file details")
+        $scope.agendaAvailable = false;
+        $scope.loaded = true;
       })
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
