@@ -904,11 +904,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
       endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      if (now <= endDate && $scope.isOrganizer == true) {
-        $scope.areOrganizerAllowedToEdit = true;
-      } else {
-        $scope.areOrganizerAllowedToEdit = false;
-      }
+        if($scope.event.date == undefined){
+         return $scope.areOrganizerAllowedToEdit = true;
+        }
+        else if (now <= endDate && $scope.isOrganizer == true) {
+        return  $scope.areOrganizerAllowedToEdit = true;
+        } else {
+        return  $scope.areOrganizerAllowedToEdit = false;
+        }
     };
     /*
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
@@ -1196,14 +1199,20 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
+    $scope.agendaAvailable = false;
     $scope.upload = false;
+    $scope.loaded = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
       $scope.agenda = res['data'];
       backendService.getFileDetails(res['data'].fileId).then(function (file) {
         $scope.filename = file['data'].fileName;
         $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
+        $scope.agendaAvailable = true;
+        $scope.loaded = true;
       }, function (fileError) {
         console.log("Error by getting file details")
+        $scope.agendaAvailable = false;
+        $scope.loaded = true;
       })
     }, function (error) {
       console.log("Error by retrieving the agenda", error)
@@ -2068,6 +2077,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               title: res2,
               template: "{{'New Question is added' | translate}}"
             });
+            $state.go('app.transition', {
+              to: 'app.choose-question',
+              data: {eventId: $stateParams.eventId}
+            })
           }
         );
       })
@@ -2160,7 +2173,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     }
   })
-  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, $translate, backendService) {
+  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, $translate, $ionicPopup, backendService) {
     $scope.mailAdressAvailable = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     backendService.getSupportContact().then(
@@ -2187,7 +2200,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         }
       );
-      console.log("#7")
     }
   })
   .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
