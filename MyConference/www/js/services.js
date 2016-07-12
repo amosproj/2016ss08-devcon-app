@@ -356,6 +356,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
             console.log("res ", res);
             BaasBox.grantUserAccessToObject("events", res.id, BaasBox.READ_PERMISSION, "default");
             BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
+            BaasBox.grantRoleAccessToObject("events", res.id, BaasBox.UPDATE_PERMISSION, BaasBox.REGISTERED_ROLE);
             BaasBox.loadAllCollection("organizer").done(function (orgcol) {
               for (i = 0; i < orgcol.length; i++) {
                 BaasBox.grantUserAccessToObject("events", res.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
