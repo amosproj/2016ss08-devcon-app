@@ -2068,6 +2068,10 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
               title: res2,
               template: "{{'New Question is added' | translate}}"
             });
+            $state.go('app.transition', {
+              to: 'app.choose-question',
+              data: {eventId: $stateParams.eventId}
+            })
           }
         );
       })
