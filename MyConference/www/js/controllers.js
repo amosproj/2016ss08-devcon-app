@@ -2173,7 +2173,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       })
     }
   })
-  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, $translate, backendService) {
+  .controller('ContactCtrl', function ($scope, $cordovaEmailComposer, $translate, $ionicPopup, backendService) {
     $scope.mailAdressAvailable = false;
     $scope.isOrganizer = backendService.isCurrentUserOrganizer();
     backendService.getSupportContact().then(
@@ -2200,7 +2200,6 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           );
         }
       );
-      console.log("#7")
     }
   })
   .controller('EditContactCtrl', function ($scope, $state, $stateParams, $translate, $ionicPopup, backendService) {
