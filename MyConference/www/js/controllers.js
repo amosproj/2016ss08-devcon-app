@@ -187,7 +187,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
           var posOptions = {
             enableHighAccuracy: true,
             timeout: 5000,
-            maximumAge: 0
+            maximumAge: 3000
           };
           $translate('Permission to use GPS').then(
             function (res) {
