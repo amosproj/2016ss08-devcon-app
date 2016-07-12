@@ -134,7 +134,7 @@ If not, see http://www.gnu.org/licenses/agpl-3.0.html.
       {{"Feedback" | translate}}
     </button>
     <button ui-sref="app.live-voting({eventId: event.id})" class="button button-block button-positive"
-            ng-show="event.questions.length>0">
+            ng-show="event.questions.length>0 && isLoggedInUser">
       {{"Live Voting" | translate}}
     </button>
     <button ui-sref="app.feedback-results({eventId: event.id})" class="button button-block button-balanced"
