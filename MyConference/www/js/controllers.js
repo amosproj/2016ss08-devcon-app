@@ -904,11 +904,14 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       eventDateSplitted = splitEventDateIntoPartsWithCorrectingTimezone($scope.event.date);
       endDate = new Date(eventDateSplitted[2], eventDateSplitted[1] - 1, eventDateSplitted[0], lastEndTime.getHours() + 48, lastEndTime.getMinutes(), 0, 0);
       now = new Date();
-      if (now <= endDate && $scope.isOrganizer == true) {
-        $scope.areOrganizerAllowedToEdit = true;
-      } else {
-        $scope.areOrganizerAllowedToEdit = false;
-      }
+        if($scope.event.date == undefined){
+         return $scope.areOrganizerAllowedToEdit = true;
+        }
+        else if (now <= endDate && $scope.isOrganizer == true) {
+        return  $scope.areOrganizerAllowedToEdit = true;
+        } else {
+        return  $scope.areOrganizerAllowedToEdit = false;
+        }
     };
     /*
      Function that determines if now is after the last talk (what means the results of the feedback can be seen).
