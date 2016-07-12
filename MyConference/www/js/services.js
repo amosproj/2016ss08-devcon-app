@@ -20,7 +20,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     var defaultUsername = "default";
     var defaultPassword = "123456";
     var REMEMBER_LOGIN_KEY = "baasbox-remember-login";
-
     var backend = {};
     backend.currentUser = '';
     backend.loginStatus = false;
@@ -33,10 +32,8 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.connect = function () {
       BaasBox.setEndPoint("http://faui2o2a.cs.fau.de:30485");
       BaasBox.appcode = "1234567890";
-
       var deferred = $q.defer()
       backend.currentUser = JSON.parse(window.localStorage.getItem(REMEMBER_LOGIN_KEY));
-
       if (backend.currentUser) {
         if (backend.currentUser.username == defaultUsername) {
           backend.changeLoginStatus(false);
@@ -123,14 +120,10 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log(" Login error ", err);
         });
     };
-
-
     backend.rememberLogin = function () {
       window.localStorage.setItem(REMEMBER_LOGIN_KEY, JSON.stringify(BaasBox.getCurrentUser()));
       console.log(window.localStorage.getItem(REMEMBER_LOGIN_KEY))
     }
-
-
     /*
      Function for logout
      returns a promise
@@ -148,7 +141,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
-
     /*
      Function for changing the login status.
      Triggers event for menu refresh.
@@ -157,7 +149,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.loginStatus = newStatus;
       $rootScope.$broadcast('user:loginState', backend.loginStatus); //trigger menu refresh
     };
-
+  /*
+   Function for assirung that a user is logged in to the backend, as before making requests it is necessary to be logged in
+   Checks if there is already a user logged in, if no then logs in as "default" user
+   "default" user is not registered user
+   returns promise
+   */
+    backend.assureConnection = function () {
+      var dfd = $q.defer()
+      if (!backend.loginStatus) {
+        return backend.login(defaultUsername, defaultPassword)
+      } else {
+        dfd.resolve();
+        return dfd.promise;
+      }
+    }
     /*
      Function for Reset
      returns a promise
@@ -224,7 +230,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
-
     /*
      Function for creating a new organizer
      First saves a new document in "organizer" collection
@@ -246,7 +251,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
-
     /*
      Function for deleting an event
      */
@@ -260,7 +264,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("Delete error ", err);
         });
     };
-
     /*
      Function for deleting an event
      */
@@ -274,11 +277,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("Delete error ", err);
         });
     };
-
     /*
      Function for adding an agenda talk to an event
      */
-
     backend.addingAgenda = function (ag, evId) {
       return BaasBox.save(ag, "agenda")
         .done(function (res) {
@@ -296,7 +297,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     };
-
     /*
      Function for deleting a talk / agenda
      */
@@ -310,8 +310,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("Delete error ", err);
         });
     };
-
-
     /*
      Function for getting an event by id
      returns a promise
@@ -319,11 +317,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.getEventById = function (id) {
       return BaasBox.loadObject("events", id)
     };
-
     /*
      Function for adding a question to an event
      */
-
     backend.addingQuestion = function (que, eventId) {
       return backend.getEventById(eventId).then(function (res) {
         event = res['data'];
@@ -345,7 +341,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         return BaasBox.updateField(eventId, "events", "questions", event.questions);
       })
     };
-
     /*
      Function for updating an event
      Can get one or three arguments
@@ -398,8 +393,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("Agenda update error ", error);
         })
     };
-
-
     /*
      Function for uploading a file to the backend
      Gets a form with input file and ID of the event that it belongs to
@@ -415,7 +408,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
+            for (i = 0; i < orgcol.length; i++) {
               BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
@@ -425,7 +418,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("UPLOAD error ", error);
         })
     };
-
     /*
      Function for uploading a file to the backend
      Gets a form with input file and ID of the agenda that it belongs to
@@ -433,7 +425,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      after adds id of new uploaded file to the agenda that it belongs to
      Returns a promise
      */
-
     backend.uploadFileAgenda = function (uploadForm, agendaId) {
       return BaasBox.uploadFile(uploadForm)
         .done(function (res) {
@@ -442,7 +433,7 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, "default");
           BaasBox.grantRoleAccessToFile(res['data'].id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
           BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-            for(i = 0; i < orgcol.length; i++){
+            for (i = 0; i < orgcol.length; i++) {
               BaasBox.grantUserAccessToFile(res['data'].id, BaasBox.ALL_PERMISSION, orgcol[i].email);
             }
           })
@@ -452,7 +443,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("UPLOAD error ", error);
         })
     };
-
     /*
      Function for getting a download url for the file
      returns a string with url
@@ -501,7 +491,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           searchResult[0].status = "joined";
           searchResult[0].updated = "false";
         }
-
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -522,7 +511,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.addCurrentUserToEvent = function (eventId) {
       return backend.addUserToEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
      Function for getting an agenda by eventID
      returns a collection
@@ -530,7 +518,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.loadAgendaWithParams = function (evId) {
       return BaasBox.loadAgendaWithParams("agenda", evId, {where: "eventID=?"});
     };
-
     /*
      Function for adding rating to an talk.
      Calls the abstract function addFeedbackToItem.
@@ -540,8 +527,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       feedbackEntry = {rating: rating, comment: comment};
       return addFeedbackToItem(talkId, "agenda", feedbackEntry);
     };
-
-
     /*
      Function for changing the status of the user in the participant list of the event set (status = attended).
      Checks if user is already participant for avoiding double entries.
@@ -562,7 +547,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           //user already in participants list, so just change status
           searchResult[0].status = "attended";
         }
-
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -583,8 +567,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.changeUserStatus = function (eventId) {
       return backend.userStatusAttend(BaasBox.getCurrentUser(), eventId)
     };
-
-
     /*
      Function for adding rating to an event.
      Excepts rating array of arbitrary length of the form:
@@ -599,7 +581,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.addFeedbackToEvent = function (eventId, ratingArray) {
       return addFeedbackToItem(eventId, "events", ratingArray);
     };
-
     /*
      Abstract function for adding feedback to an item.
      Returns a promise.
@@ -626,7 +607,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         });
       return deferred.promise;
     };
-
     /*
      Function for adding a user in the list of feedbackingUsers to avoid double feedback.
      Expects to be called only when it's cleared that the user is not yet in the list.
@@ -656,7 +636,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       )
       return deferred.promise;
     };
-
     /*
      Function for adding the current user in the list of feedbackingUsers to avoid double feedback.
      Expects to be called only when it's cleared that the user is not yet in the list.
@@ -666,7 +645,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.addCurrentUserAsFeedbackerToEvent = function (eventId) {
       return backend.addUserAsFeedbackerToEvent(eventId, BaasBox.getCurrentUser());
     };
-
     /*
      Function for checking if a user has already given feedback
      Gets the id of the feedbacked event and the user object
@@ -688,7 +666,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       )
       return deferred.promise;
     };
-
     /*
      Function for checking if the current user has already given feedback
      Gets the id of the feedbacked event the user object
@@ -697,7 +674,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.hasCurrentUserAlreadyGivenFeedback = function (eventId) {
       return backend.hasUserAlreadyGivenFeedback(eventId, BaasBox.getCurrentUser());
     }
-
     /*
      Fucntion for removing a user from an event.
      Returns a promise.
@@ -734,7 +710,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.isUserRegisteredForEvent = function (user, eventId) {
       return hasUserRightStatusInEvent(user, eventId, "joined");
     };
-
     /*
      Function for checking if the current user is user is participant of an event.
      Returns a promise.
@@ -742,7 +717,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.isCurrentUserRegisteredForEvent = function (eventId) {
       return backend.isUserRegisteredForEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
      Function for checking if a user is stored as attended at the event.
      Returns a promise.
@@ -750,7 +724,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.isUserAttendedForEvent = function (user, eventId) {
       return hasUserRightStatusInEvent(user, eventId, "attended");
     };
-
     /*
      Function for checking if current user is stored as attended at the event.
      Returns a promise
@@ -758,7 +731,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.isCurrentUserAttendedForEvent = function (eventId) {
       return backend.isUserAttendedForEvent(BaasBox.getCurrentUser(), eventId)
     };
-
     /*
      Abstract function for checking if an user has a given status as participant of an event.
      Returns a promise.
@@ -781,7 +753,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       };
       return deferred.promise
     };
-
     /*
      Funtion for getting list of all users
      */
@@ -794,7 +765,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
           console.log("error ", error);
         })
     }
-
     /*
      Function for getting a user by his username
      returns a promise
@@ -812,11 +782,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Function for getting a user by his email
      returns a promise
      */
-
     backend.getUserEmail = function (user) {
       return BaasBox.getUsers(user)
         .done(function (res) {
-
           console.log(res);
         })
         .fail(function (err) {
@@ -865,13 +833,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       });
       return deferred.promise;
     };
-
     /*
      Function for updating  the current user attribute "updated".
      Calls updatedIsFalse().
      Returns a promise.
      */
-
     backend.SetStatusFalse = function (eventId) {
       return backend.updatedIsFalse(BaasBox.getCurrentUser(), eventId)
     };
@@ -890,7 +856,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
             searchResult[i].updated = "true";
           }
         }
-
         BaasBox.updateField(eventId, "events", "participants", event.participants).then(
           function (res) {
             deferred.resolve(res);
@@ -908,12 +873,9 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
      Calls updatedIsTrue().
      Returns a promise.
      */
-
     backend.SetStatusTrue = function (eventId) {
       return backend.updatedIsTrue(BaasBox.getCurrentUser(), eventId)
     };
-
-
     /*
      Function for getting a speaker talk by agendId
      returns a promise
@@ -921,7 +883,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.getAgendaById = function (id) {
       return BaasBox.loadObject("agenda", id)
     };
-
     /*
      Function for sending a push notification with a text to a list of users.
      "users" has to be an array of usernames.
@@ -935,7 +896,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       console.log(users, message)
       return BaasBox.sendPushNotification(params);
     }
-
     /*
      Function for enabling push notifications for the current user.
      Returns a promise.
@@ -944,7 +904,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       operatingSystem = "android";
       return BaasBox.enableNotifications(operatingSystem, localStorage.getItem('registrationId'));
     };
-
     /*
      Function for disabling push notifications for the current user.
      Returns a promise.
@@ -952,7 +911,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
     backend.disablePushNotificationsForCurrentUser = function () {
       return BaasBox.disableNotifications(localStorage.getItem('registrationId'));
     };
-
     /*
      Function for applying the given settings to the user
      */
@@ -966,7 +924,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         }
       }
     }
-
     /*
      Function for applying the settings for the current user
      */
@@ -974,25 +931,21 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       userInfo = backend.currentUser.visibleByTheUser;
       backend.applySettings(userInfo.settings);
     };
-
     /*
      Function for loading list of organizer with paramter, which is email / username of current user
      */
     backend.checkOrganizerExistence = function (userEmail) {
       return BaasBox.checkOrganizerWithParams(userEmail, {where: "email=?"});
     }
-
     /*
      Function for loading list of organizer with paramter, which is email / username of current user
      */
     backend.checkOrganizerWithParams = function () {
       return BaasBox.checkOrganizerWithParams(backend.currentUser.username, {where: "email=?"});
     }
-
     /*
      Function for checking whether the current user is an organizer
      */
-
     backend.isCurrentUserOrganizer = function (organizerListArray) {
       if (backend.currentUser.roles.indexOf('administrator') != -1 && backend.currentUser.username != defaultUsername) {
         backend.changeOrganizerStatus(true);
@@ -1007,18 +960,14 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         return false;
       }
     }
-
-
     /*
      Function for changing the organizer status.
      Triggers event for menu refresh.
      */
-
     backend.changeOrganizerStatus = function (newStatus) {
       backend.organizerStatus = newStatus;
       $rootScope.$broadcast('user:organizerState', backend.organizerStatus); //trigger menu refresh
     };
-
     /*
      Function for getting the support contact.
      Support contact is the first (and normally only) entry in he support collection.
@@ -1039,7 +988,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       );
       return deferred.promise;
     }
-
     /*
      Set the support contact.
      First gets the support contact, then updates the mail adress.
@@ -1052,11 +1000,11 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
       backend.getSupportContact().then(
         function (contact) {
           BaasBox.updateField(contact.id, "support", "mailadress", mailadress).then(
-            function(res){
+            function (res) {
               BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, "default");
               BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
               BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-                for(i = 0; i < orgcol.length; i++){
+                for (i = 0; i < orgcol.length; i++) {
                   BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
                 }
               })
@@ -1066,13 +1014,13 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
             }
           )
         }, function (err) {
-          if(err == "No support mail address defined."){
-            BaasBox.save({"mailadress":mailadress}, "support").then(
-              function(contact){
+          if (err == "No support mail address defined.") {
+            BaasBox.save({"mailadress": mailadress}, "support").then(
+              function (contact) {
                 BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, "default");
                 BaasBox.grantRoleAccessToObject("support", contact.id, BaasBox.READ_PERMISSION, BaasBox.REGISTERED_ROLE);
                 BaasBox.loadAllCollection("organizer").done(function (orgcol) {
-                  for(i = 0; i < orgcol.length; i++){
+                  for (i = 0; i < orgcol.length; i++) {
                     BaasBox.grantUserAccessToObject("support", contact.id, BaasBox.ALL_PERMISSION, orgcol[i].email);
                   }
                 })
@@ -1109,7 +1057,6 @@ services.factory('backendService', function ($rootScope, $q, $filter) {
         }
       })
     }
-
     return backend;
   }
 );

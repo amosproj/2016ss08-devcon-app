@@ -25,6 +25,7 @@ describe('LoginCtrl: ', function () {
     logoutDfd,
     userDfd,
     eventDfd,
+    assureDfd,
     translateDfd,
     alertDfd;
   beforeEach(module('starter'));
@@ -43,6 +44,7 @@ describe('LoginCtrl: ', function () {
     logoutDfd = $q.defer();
     userDfd = $q.defer();
     eventDfd = $q.defer();
+    assureDfd = $q.defer();
     translateDfd = $q.defer();
     alertDfd = $q.defer();
     backendServiceMock = {
@@ -50,6 +52,7 @@ describe('LoginCtrl: ', function () {
       logout: jasmine.createSpy('logout spy').and.returnValue(logoutDfd.promise),
       applySettingsForCurrentUser: function () {},
       getUser: jasmine.createSpy('getUser spy').and.returnValue(userDfd.promise),
+      assureConnection: jasmine.createSpy('assureConnection spy').and.returnValue(assureDfd.promise),
       getEvents: jasmine.createSpy('getEvents spy').and.returnValue(eventDfd.promise)
     }
     ionicPopupMock = jasmine.createSpyObj('$ionicPopup spy', ['alert'])
@@ -67,6 +70,8 @@ describe('LoginCtrl: ', function () {
   describe('login function ', function () {
     beforeEach(function () {
       //simulate successful login
+      assureDfd.resolve();
+      scope.$digest();
       userDfd.resolve({
         data: {
           user: {
