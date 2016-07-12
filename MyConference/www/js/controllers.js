@@ -1213,7 +1213,7 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       var organizerListArray = res.length;
       $scope.isOrganizer = backendService.isCurrentUserOrganizer(organizerListArray);
     });
-    $scope.agenda = false;
+    $scope.agendaAvailable = false;
     $scope.upload = false;
     $scope.loaded = false;
     backendService.getAgendaById($stateParams.agendaId).then(function (res) {
@@ -1221,11 +1221,11 @@ angular.module('starter.controllers', ['services', 'ngCordova'])
       backendService.getFileDetails(res['data'].fileId).then(function (file) {
         $scope.filename = file['data'].fileName;
         $scope.downloadUrl = backendService.getFileUrl(res['data'].fileId)
-        $scope.agenda = true;
+        $scope.agendaAvailable = true;
         $scope.loaded = true;
       }, function (fileError) {
         console.log("Error by getting file details")
-        $scope.agenda = false;
+        $scope.agendaAvailable = false;
         $scope.loaded = true;
       })
     }, function (error) {
